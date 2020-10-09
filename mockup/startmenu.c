@@ -1,11 +1,19 @@
-#include "menus.h"
+#include "userfunc.h"
 
-void startMenu()
+static int con_flag = 1;
+
+int startMenu()
 {
+	con_flag = 1;
+	int selection;
+REPRINT:
 	system("cls");
 	PRINTCEN("loginMenu");
 	DRAWLINE('-');
-	PRINTLEFT("1) login 2) register 3) terminate");
+	PRINTLEFT("1) login	2) register	3) terminate");
+INVALIDINPUT:
+	PRINTLEFT("Please select menu by give number");
+	printf("> ");
 	if (fgets(buffer, BUFF_SIZE, stdin) == NULL)
 	{
 		perror("fgets() failed");
@@ -13,9 +21,31 @@ void startMenu()
 		system("pause");
 		exit(1);
 	}
-
-
-	system("pause");
+	selection = atoi(buffer);
+	switch (selection)
+	{
+	case 1:
+		loginMenu();
+		break;
+	case 2:
+		registerMenu();
+		goto REPRINT;
+	case 3:
+		con_flag = 0;
+		break;
+	default:
+		goto INVALIDINPUT;
+	}
+	if (con_flag == 0)
+	{
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
+	
+	
 
 }
 void registerMenu()
@@ -31,7 +61,14 @@ void registerMenu()
 		system("pause");
 		exit(1);
 	}
-	PRINTLEFT("Enter Passward... (combination of numbers, alphabet and special characters(!@#$%^&*()_+)) (abort to \":q\")");
+	if (*buffer == ':')
+	{
+		if (*(buffer + 1) == 'q')
+		{
+			return;
+		}
+	}
+	PRINTLEFT("Enter Passward... (combination of numbers, alphabet and special characters[ !@#$%^&*() ]...  ) (abort to \":q\")");
 	if (fgets(buffer, BUFF_SIZE, stdin) == NULL)
 	{
 		perror("fgets() failed");
@@ -39,7 +76,14 @@ void registerMenu()
 		system("pause");
 		exit(1);
 	}
-	PRINTLEFT("Enter Passward again... (combination of numbers, alphabet and special characters(!@#$%^&*()_+)) (abort to \":q\")");
+	if (*buffer == ':')
+	{
+		if (*(buffer + 1) == 'q')
+		{
+			return;
+		}
+	}
+	PRINTLEFT("Enter Passward again... (combination of numbers, alphabet and special characters[ !@#$%^&*() ]...  ) (abort to \":q\")");
 	if (fgets(buffer, BUFF_SIZE, stdin) == NULL)
 	{
 		perror("fgets() failed");
@@ -47,7 +91,14 @@ void registerMenu()
 		system("pause");
 		exit(1);
 	}
-
+	if (*buffer == ':')
+	{
+		if (*(buffer + 1) == 'q')
+		{
+			return;
+		}
+	}
+	printf("no :q");
 	system("pause");
 }
 void loginMenu()
@@ -63,6 +114,13 @@ void loginMenu()
 		system("pause");
 		exit(1);
 	}
+	if (*buffer == ':')
+	{
+		if (*(buffer + 1) == 'q')
+		{
+			return;
+		}
+	}
 	PRINTLEFT("Enter Password...(abort to \":q\")");
 	if (fgets(buffer, BUFF_SIZE, stdin) == NULL)
 	{
@@ -71,21 +129,13 @@ void loginMenu()
 		system("pause");
 		exit(1);
 	}
-
-
-	system("pause");
-}
-void mainMenu()
-{
-	system("cls");
-	PRINTCEN("startMenu");
-	DRAWLINE('-');
-	if (fgets(buffer, BUFF_SIZE, stdin) == NULL)
+	if (*buffer == ':')
 	{
-		perror("fgets() failed");
-		fprintf(stderr, "error on %s,line %d", __FILE__, __LINE__);
-		system("pause");
-		exit(1);
+		if (*(buffer + 1) == 'q')
+		{
+			return;
+		}
 	}
+	printf("no :q");
 	system("pause");
 }

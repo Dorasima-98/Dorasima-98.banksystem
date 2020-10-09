@@ -15,18 +15,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="menus.c">
+    <ClCompile Include="servicemenu.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="mockup.c">
+    <ClCompile Include="main.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="startmenu.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="menus.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="condition.h">
+    <ClInclude Include="userfunc.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
   </ItemGroup>

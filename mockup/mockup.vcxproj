@@ -139,12 +139,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="menus.c" />
-    <ClCompile Include="mockup.c" />
+    <ClCompile Include="servicemenu.c" />
+    <ClCompile Include="startmenu.c" />
+    <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="condition.h" />
-    <ClInclude Include="menus.h" />
+    <ClInclude Include="userfunc.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
