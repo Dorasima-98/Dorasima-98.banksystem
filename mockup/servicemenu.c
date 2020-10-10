@@ -17,13 +17,7 @@ INVALIDINPUT:
 	PRINTLEFT("Please select menu by given numbers ");
 	printf("> ");
 
-	if (fgets(buffer, BUFF_SIZE, stdin) == NULL)
-	{
-		perror("fgets() failed");
-		fprintf(stderr, "error on %s,line %d", __FILE__, __LINE__);
-		system("pause");
-		exit(1);
-	}
+	GET_G_INPUT;
 	menuSelection = atoi(buffer);
 
 	switch (menuSelection)
@@ -65,21 +59,10 @@ void makeAccountMenu()
 	system("cls");
 	PRINTCEN("Make account menu");
 	DRAWLINE('-');
-	if (fgets(buffer, BUFF_SIZE, stdin) == NULL)
-	{
-		perror("fgets() failed");
-		fprintf(stderr, "error on %s,line %d", __FILE__, __LINE__);
-		system("pause");
-		exit(1);
-	}
-	if (*buffer == ':')
-	{
-		if (*(buffer + 1) == 'q')
-		{
-			printf("back by :q\n"); system("pause");
-			return;
-		}
-	}
+
+	GET_G_INPUT;
+	Q_CHECK;
+
 	printf("no :q\n");
 	system("pause");
 }
@@ -95,21 +78,9 @@ INVALIDINPUT:
 	PRINTLEFT("Please select menu by given numbers");
 	printf("> ");
 
-	if (fgets(buffer, BUFF_SIZE, stdin) == NULL)
-	{
-		perror("fgets() failed");
-		fprintf(stderr, "error on %s,line %d", __FILE__, __LINE__);
-		system("pause");
-		exit(1);
-	}
-	if (*buffer == ':')
-	{
-		if (*(buffer + 1) == 'q')
-		{
-			printf("back by :q\n"); system("pause");
-			return;
-		}
-	}
+	GET_G_INPUT;
+	Q_CHECK;
+
 	selection = atoi(buffer);
 
 	switch (selection)
@@ -159,21 +130,9 @@ void fixedDeposit()
 	system("cls");
 	PRINTCEN("-- Fixed deposit -- ");
 	DRAWLINE('-');
-	if (fgets(buffer, BUFF_SIZE, stdin) == NULL)
-	{
-		perror("fgets() failed");
-		fprintf(stderr, "error on %s,line %d", __FILE__, __LINE__);
-		system("pause");
-		exit(1);
-	}
-	if (*buffer == ':')
-	{
-		if (*(buffer + 1) == 'q')
-		{
-			printf("back by :q\n"); system("pause");
-			return;
-		}
-	}
+	GET_G_INPUT;
+	Q_CHECK;
+
 	printf("no :q\n");
 	system("pause");
 }
@@ -182,21 +141,9 @@ void Savings()
 	system("cls");
 	PRINTCEN(" -- Installment savings --");
 	DRAWLINE('-');
-	if (fgets(buffer, BUFF_SIZE, stdin) == NULL)
-	{
-		perror("fgets() failed");
-		fprintf(stderr, "error on %s,line %d", __FILE__, __LINE__);
-		system("pause");
-		exit(1);
-	}
-	if (*buffer == ':')
-	{
-		if (*(buffer + 1) == 'q')
-		{
-			printf("back by :q\n"); system("pause");
-			return;
-		}
-	}
+	GET_G_INPUT;
+	Q_CHECK;
+
 	printf("no :q\n");
 	system("pause");
 }
@@ -205,21 +152,10 @@ void transferMenu()
 	system("cls");
 	PRINTCEN("Transfer menu");
 	DRAWLINE('-');
-	if (fgets(buffer, BUFF_SIZE, stdin) == NULL)
-	{
-		perror("fgets() failed");
-		fprintf(stderr, "error on %s,line %d", __FILE__, __LINE__);
-		system("pause");
-		exit(1);
-	}
-	if (*buffer == ':')
-	{
-		if (*(buffer + 1) == 'q')
-		{
-			printf("back by :q\n"); system("pause");
-			return;
-		}
-	}
+
+	GET_G_INPUT;
+	Q_CHECK;
+
 	printf("no :q\n");
 	system("pause");
 }
@@ -228,21 +164,10 @@ void inquiryAndCancel()
 	system("cls");
 	PRINTCEN("Inquiry and Cancel menu");
 	DRAWLINE('-');
-	if (fgets(buffer, BUFF_SIZE, stdin) == NULL)
-	{
-		perror("fgets() failed");
-		fprintf(stderr, "error on %s,line %d", __FILE__, __LINE__);
-		system("pause");
-		exit(1);
-	}
-	if (*buffer == ':')
-	{
-		if (*(buffer + 1) == 'q')
-		{
-			printf("back by :q\n"); system("pause");
-			return;
-		}
-	}
+
+	GET_G_INPUT;
+	Q_CHECK;
+
 	printf("no :q\n");
 	system("pause");
 }
@@ -251,21 +176,10 @@ void atmMenu()
 	system("cls");
 	PRINTCEN("atm menu");
 	DRAWLINE('-');
-	if (fgets(buffer, BUFF_SIZE, stdin) == NULL)
-	{
-		perror("fgets() failed");
-		fprintf(stderr, "error on %s,line %d", __FILE__, __LINE__);
-		system("pause");
-		exit(1);
-	}
-	if (*buffer == ':')
-	{
-		if (*(buffer + 1) == 'q')
-		{
-			printf("back by :q\n"); system("pause");
-			return;
-		}
-	}
+
+	GET_G_INPUT;
+	Q_CHECK;
+
 	printf("no :q\n");
 	system("pause");
 }
@@ -274,21 +188,10 @@ void historyInquiry()
 	system("cls");
 	PRINTCEN("History menu");
 	DRAWLINE('-');
-	if (fgets(buffer, BUFF_SIZE, stdin) == NULL)
-	{
-		perror("fgets() failed");
-		fprintf(stderr, "error on %s,line %d", __FILE__, __LINE__);
-		system("pause");
-		exit(1);
-	}
-	if (*buffer == ':')
-	{
-		if (*(buffer + 1) == 'q')
-		{
-			printf("back by :q\n"); system("pause");
-			return;
-		}
-	}
+
+	GET_G_INPUT;
+	Q_CHECK;
+
 	printf("no :q \n");
 	system("pause");
 }
