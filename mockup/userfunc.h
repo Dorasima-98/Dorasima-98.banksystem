@@ -12,9 +12,26 @@
 #define PRINTLEFT(str) printf("%-s\n",str)
 #define DRAWLINE(ch) for(int i=0;i<100;i++)printf("%c",ch); printf("\n")
 
+#define GET_G_INPUT if (fgets(buffer, BUFF_SIZE, stdin) == NULL) \
+	{ \
+	perror("fgets() failed"); \
+	fprintf(stderr, "error on %s,line %d", __FILE__, __LINE__); \
+	system("pause"); \
+	exit(1); \
+	} \
+
+#define Q_CHECK if (*buffer == ':') \
+	{\
+	if (*(buffer + 1) == 'q')\
+	{\
+		printf("back by :q\n"); system("pause");\
+		return;\
+	}\
+	}\
+
 int startMenu();
 void registerMenu();
-void loginMenu();
+int loginMenu();
 
 int serviceMenu();
 void makeAccountMenu();
