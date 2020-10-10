@@ -76,10 +76,11 @@ void makeAccountMenu()
 	{
 		if (*(buffer + 1) == 'q')
 		{
+			printf("back by :q\n"); system("pause");
 			return;
 		}
 	}
-	printf("no :q");
+	printf("no :q\n");
 	system("pause");
 }
 void fixedDepositAndSavingsMenu()
@@ -105,6 +106,7 @@ INVALIDINPUT:
 	{
 		if (*(buffer + 1) == 'q')
 		{
+			printf("back by :q\n"); system("pause");
 			return;
 		}
 	}
@@ -128,6 +130,7 @@ INVALIDINPUT:
 			{
 				if (*(buffer + 1) == 'q')
 				{
+					printf("back by :q\n"); system("pause");
 					goto ESCAPE;
 				}
 			}
@@ -167,10 +170,11 @@ void fixedDeposit()
 	{
 		if (*(buffer + 1) == 'q')
 		{
+			printf("back by :q\n"); system("pause");
 			return;
 		}
 	}
-	printf("no :q");
+	printf("no :q\n");
 	system("pause");
 }
 void Savings()
@@ -189,10 +193,11 @@ void Savings()
 	{
 		if (*(buffer + 1) == 'q')
 		{
+			printf("back by :q\n"); system("pause");
 			return;
 		}
 	}
-	printf("no :q");
+	printf("no :q\n");
 	system("pause");
 }
 void transferMenu()
@@ -211,10 +216,11 @@ void transferMenu()
 	{
 		if (*(buffer + 1) == 'q')
 		{
+			printf("back by :q\n"); system("pause");
 			return;
 		}
 	}
-	printf("no :q");
+	printf("no :q\n");
 	system("pause");
 }
 void inquiryAndCancel()
@@ -233,10 +239,11 @@ void inquiryAndCancel()
 	{
 		if (*(buffer + 1) == 'q')
 		{
+			printf("back by :q\n"); system("pause");
 			return;
 		}
 	}
-	printf("no :q");
+	printf("no :q\n");
 	system("pause");
 }
 void atmMenu()
@@ -255,10 +262,11 @@ void atmMenu()
 	{
 		if (*(buffer + 1) == 'q')
 		{
+			printf("back by :q\n"); system("pause");
 			return;
 		}
 	}
-	printf("no :q");
+	printf("no :q\n");
 	system("pause");
 }
 void historyInquiry()
@@ -277,9 +285,10 @@ void historyInquiry()
 	{
 		if (*(buffer + 1) == 'q')
 		{
+			printf("back by :q\n"); system("pause");
 			return;
 		}
 	}
-	printf("no :q");
+	printf("no :q \n");
 	system("pause");
 }

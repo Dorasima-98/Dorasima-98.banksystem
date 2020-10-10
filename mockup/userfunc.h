@@ -14,7 +14,7 @@
 
 int startMenu();
 void registerMenu();
-void loginMenu();
+int loginMenu();
 
 int serviceMenu();
 void makeAccountMenu();

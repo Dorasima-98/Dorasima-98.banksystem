@@ -25,8 +25,14 @@ INVALIDINPUT:
 	switch (selection)
 	{
 	case 1:
-		loginMenu();
-		break;
+		if (loginMenu())
+		{
+			break;
+		}
+		else
+		{
+			goto REPRINT;
+		}
 	case 2:
 		registerMenu();
 		goto REPRINT;
@@ -65,6 +71,7 @@ void registerMenu()
 	{
 		if (*(buffer + 1) == 'q')
 		{
+			printf("back by :q\n"); system("pause");
 			return;
 		}
 	}
@@ -80,6 +87,7 @@ void registerMenu()
 	{
 		if (*(buffer + 1) == 'q')
 		{
+			printf("back by :q\n"); system("pause");
 			return;
 		}
 	}
@@ -95,13 +103,14 @@ void registerMenu()
 	{
 		if (*(buffer + 1) == 'q')
 		{
+			printf("back by :q\n"); system("pause");
 			return;
 		}
 	}
-	printf("no :q");
+	printf("no :q\n");
 	system("pause");
 }
-void loginMenu()
+int loginMenu()
 {
 	system("cls");
 	PRINTCEN("mainMenu");
@@ -118,7 +127,8 @@ void loginMenu()
 	{
 		if (*(buffer + 1) == 'q')
 		{
-			return;
+			printf("back by :q\n"); system("pause");
+			return 0;
 		}
 	}
 	PRINTLEFT("Enter Password...(abort to \":q\")");
@@ -133,9 +143,11 @@ void loginMenu()
 	{
 		if (*(buffer + 1) == 'q')
 		{
-			return;
+			printf("back by :q\n"); system("pause");
+			return 0;
 		}
 	}
-	printf("no :q");
+	printf("no :q\n");
 	system("pause");
+	return 1;
 }
