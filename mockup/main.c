@@ -12,7 +12,7 @@ int main(void)
 	{
 		while (serviceMenu());
 	}
-	fprintf(stdout, "terminate this program... bye!\n");
+	fwprintf(stdout, L"프로그램 종료합니다. 프바\n");
 	system("pause");
 	return 0;
 }
@@ -20,5 +20,7 @@ int main(void)
 void setting()
 {
 	system("mode con: cols=100 lines=20");
+	setlocale(LC_ALL, "korean");
+	_wsetlocale(LC_ALL, L"korean");
 }
 

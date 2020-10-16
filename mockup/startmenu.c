@@ -8,20 +8,14 @@ int startMenu()
 	int selection;
 REPRINT:
 	system("cls");
-	PRINTCEN("loginMenu");
+	PRINTCEN(L"로그인 메뉴");
 	DRAWLINE('-');
-	PRINTLEFT("1) login	2) register	3) terminate");
+	PRINTLEFT(L"1) 로그인	2) 계정생성	3) 프로그램 종료");
 INVALIDINPUT:
-	PRINTLEFT("Please select menu by give number");
-	printf("> ");
-	if (fgets(buffer, BUFF_SIZE, stdin) == NULL)
-	{
-		perror("fgets() failed");
-		fprintf(stderr, "error on %s,lines %d", __FILE__, __LINE__);
-		system("pause");
-		exit(1);
-	}
-	selection = atoi(buffer);
+	PRINTLEFT(L"주어진 메뉴의 번호를 선택해주세요.");
+	GET_G_INPUT;
+
+	selection = atoi(g_buffer);
 	switch (selection)
 	{
 	case 1:
@@ -57,39 +51,39 @@ INVALIDINPUT:
 void registerMenu()
 {
 	system("cls");
-	PRINTCEN("registerMenu");
+	PRINTCEN(L"계정생성 메뉴");
 	DRAWLINE('-');
 
-	PRINTLEFT("Enter ID... (Only Alphabet and Numbers (abort to \":q\")");
+	PRINTLEFT(L"아이디를 입력하세요... (알파벳과 숫자의 조합으로 입력하세요. 8 ~ 16자리) (뒤로가기 \":q\")");
 	GET_G_INPUT;
-	Q_CHECK;
+	Q_CHECK();
 
-	PRINTLEFT("Enter Passward... (combination of numbers, alphabet and special characters[ !@#$%^&*() ]...  ) (abort to \":q\")");
+	PRINTLEFT(L"비밀번호를 입력하세요... (알파벳과 숫자 그리고 숫자키 특수문자의 조합으로 입력하세요[ !@#$%^&*() ]...  ) (뒤로가기 \":q\")");
 	GET_G_INPUT;
-	Q_CHECK;
+	Q_CHECK();
 
-	PRINTLEFT("Enter Passward again... (combination of numbers, alphabet and special characters[ !@#$%^&*() ]...  ) (abort to \":q\")");
+	PRINTLEFT(L"다시한번 비밀번호를 입력하세요... ) (뒤로가기 \":q\")");
 	GET_G_INPUT;
-	Q_CHECK;
+	Q_CHECK();
 
-	printf("no :q\n");
+	wprintf(L"뒤로가기 커맨드 입력 안함.\n");
 	system("pause");
 }
 int loginMenu()
 {
 	system("cls");
-	PRINTCEN("mainMenu");
+	PRINTCEN(L"로그인 메뉴");
 	DRAWLINE('-');
 
-	PRINTLEFT("Enter ID...(abort to \":q\")");
+	PRINTLEFT(L"아이디를 입력하세요...(뒤로가기 \":q\")");
 	GET_G_INPUT;
-	Q_CHECK;
+	Q_CHECK(0);
 
-	PRINTLEFT("Enter Password...(abort to \":q\")");
+	PRINTLEFT(L"비밀번호를 입력하세요...(뒤로가기 \":q\")");
 	GET_G_INPUT;
-	Q_CHECK;
+	Q_CHECK(0);
 
-	printf("no :q\n");
+	wprintf(L"뒤로가기 커맨드 입력 안함.\n");
 	system("pause");
 	return 1;
 }
