@@ -1,6 +1,9 @@
+//아직 한참 덜 함ㅜㅜ
+
 #include "userfunc.h"
 
 static int con_flag = 1;
+
 
 int serviceMenu()
 {
@@ -73,7 +76,7 @@ void fixedDepositAndSavingsMenu()
 	system("cls");
 	PRINTCEN(L"예금과 적금 메뉴");
 	DRAWLINE('-');
-	PRINTLEFT(L"1) 예적금 상품 신청  2) 예적금 상품 해지");
+	PRINTLEFT(L"1) 예적금 상품 신청  2) 예적금 상품 이자조회 및 해지");
 INVALIDINPUT:
 	PRINTLEFT(L"주어진 메뉴의 번호를 입력하세요.");
 	wprintf(L"> ");
@@ -124,34 +127,108 @@ void fixedDeposit()
 	system("cls");
 	PRINTCEN(L"예금 신청");
 	DRAWLINE('-');
-	GET_G_INPUT;
-	Q_CHECK();
-
-	wprintf(L"뒤로가기 커맨드 입력 안함.\n");
-	system("pause");
 }
 void Savings()
 {
 	system("cls");
 	PRINTCEN(L" 적금 신청");
 	DRAWLINE('-');
-	GET_G_INPUT;
-	Q_CHECK();
-
-	wprintf(L"뒤로가기 커맨드 입력 안함.\n");
-	system("pause");
 }
 void inquiryAndCancel()
-{
+{	
+	FILE* inputFile = NULL;
+	char accountName[6];
+
+	char account[7];
+	char finalDate[8];
+	int money = 0; //여기에 금액을 받아오고 싶은데 어떻게 할지 모르겠당,,
+
 	system("cls");
 	PRINTCEN(L"내역 확인 및 해지");
 	DRAWLINE('-');
+	PRINTLEFT(L"예금 또는 적금 계좌번호 7자리와 해지예상일자 8자리(yyyymmdd)를 공백없이 입력해주세요");
+	wprintf(L"> ");
+	//7자리는 계좌번호, 그 다음 8자리는 해지예상일자
 
 	GET_G_INPUT;
-	Q_CHECK();
+	if (*g_buffer == ':')
+	{
+		if (*(g_buffer + 1) == 'q')
+		{
+			wprintf(L"뒤로가기 입력함 :q\n"); system("pause");
+			goto ESCAPE;
+		}
+	}
 
-	wprintf(L"뒤로가기 커맨드 입력 안함.\n");
+	for (int i=0; i<8; i++) {
+		account[i] = *(g_buffer + i);
+		printf("%c", account[i]);
+	}
+	printf("\n");
+	for (int j = 0; j < 9; j++) {
+		finalDate[j] = *(g_buffer + (j + 8));
+		printf("%c", finalDate[j]);
+	}
+	system("pause"); //입력받은거 잘 저장됐나 확인하려고 pause해둠. printf함수들 나중에 다 지워야 함.
+
+	//예금 또는 적금계좌 파일에서 string 받아오기(|로 항목 구분)
+	inputFile = fopen("fixed.txt", "r"); //일단 테스트용 파일로 해보기
+	if (inputFile != NULL) {
+		char buffer[256]; //나중에 수정해야함
+		while (!feof(inputFile)) {
+			fgets(buffer, sizeof(buffer), inputFile);
+			char* ptr = strtok(buffer, "|");
+			while (ptr != NULL) {
+				printf("%s\n", ptr); //잘 들어가나 확인용(나중에 지워야 함)
+				ptr = strtok(NULL, "|");
+			}
+			if (ptr == account) {
+				//계좌번호가 같으면, 다음 ptr 받아서 저장하고 loop 탈출 
+				//예금의 경우 해당하는 계좌에 대한 만기해지시 금액을 받아옴
+				//적금의 경우 해당하는 계좌에 대한 입금액을 받아옴 
+				money = 1;
+				printf("%d\n", money);
+			}
+		}
+	}
+	fclose(inputFile);
+	printf("%d\n", money); //지워야 함. 테스트한다고 적은 것
 	system("pause");
+
+	system("cls");
+	PRINTCEN(L"예적금 이자조회");
+	DRAWLINE('-');
+	//입력받은 해지예상일자(8~15자리) 비교
+	wprintf(L"신청한 날짜/경과된 기간/해지이자/최종수령금액"); //이것도 실제 값으로 출력돼야함. 나중에 바꾸기
+	printf("\n");
+	system("pause");
+	
+	system("cls");
+	PRINTCEN(L"예적금 해지");
+	DRAWLINE('-');
+	PRINTLEFT(L"예적금을 해지하시겠습니까?(y/n)");
+	wprintf(L"> ");
+	GET_G_INPUT;
+
+	if (*g_buffer == 'y' || *g_buffer == 'Y')
+	{
+		wprintf(L"해당 예적금 계좌를 해지했습니다. ");
+		system("pause");
+		//계좌정보 삭제 함수 필요, 지정된 입출금계좌에 돈 입금도 해야함
+	}
+	else if (*g_buffer == 'n' || *g_buffer == 'N') {
+		wprintf(L"해당 예적금 계좌를 해지하지 않았습니다. ");
+		system("pause");
+	}
+	else {
+		goto INVALIDINPUT;
+	}
+
+	INVALIDINPUT:
+		return; //해야함
+	ESCAPE:
+		return; //해야함
+
 }
 
 void atmMenu()
@@ -159,34 +236,16 @@ void atmMenu()
 	system("cls");
 	PRINTCEN(L"입출금 메뉴");
 	DRAWLINE('-');
-
-	GET_G_INPUT;
-	Q_CHECK();
-
-	wprintf(L"뒤로가기 커맨드 입력 안함.\n");
-	system("pause");
 }
 void transferMenu()
 {
 	system("cls");
 	PRINTCEN(L"계좌 이체 메뉴");
 	DRAWLINE('-');
-
-	GET_G_INPUT;
-	Q_CHECK();
-
-	wprintf(L"뒤로가기 커맨드 입력 안함.\n");
-	system("pause");
 }
 void historyInquiry()
 {
 	system("cls");
 	PRINTCEN(L"내역 확인 메뉴");
 	DRAWLINE('-');
-
-	GET_G_INPUT;
-	Q_CHECK();
-
-	wprintf(L"뒤로가기 커맨드 입력 안함. \n");
-	system("pause");
 }
