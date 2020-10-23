@@ -1,5 +1,8 @@
 #pragma once
 #pragma warning(disable:4996)
+#pragma warning(disable:6328)
+#pragma warning(disable:4477)
+// warning 많으면 나중에 큰일날 수도 있으니까 있어도 상관없는 warning 꺼놨습니다.
 
 #include <stdio.h>
 #include <stdlib.h>
