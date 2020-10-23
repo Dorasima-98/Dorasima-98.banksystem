@@ -370,7 +370,7 @@ void historyInquiry()
 	PRINTCEN(L"내역 확인 메뉴");
 	DRAWLINE('-');
 
-#if TEST_OFF
+#if TEST_ON
 	PRINTRIGHT(L"조회하고자 하는 계좌번호를 입력해주세요");
 	printf("> ");
 INVALIDINPUT:
