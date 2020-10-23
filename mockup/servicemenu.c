@@ -124,16 +124,119 @@ INVALIDINPUT:
 }
 void fixedDeposit()
 {
+	FILE* inputFile = NULL;
+	int lineCount = 1;
+	float rate = 0.0; //이자율 저장
+	int fixedDepositMoney = 0;
+	char accountName[10];
+
+	inputFile = fopen("ioaccount.txt", "r"); //일단 테스트용 파일로 해보기
+
 	system("cls");
-	PRINTCEN(L"예금 신청");
+	PRINTCEN(L"출금할 계좌 선택");
 	DRAWLINE('-');
+
+	if (inputFile != NULL) {
+		char buffer[256]; //나중에 수정해야함
+		while (!feof(inputFile)) {
+			fgets(buffer, sizeof(buffer), inputFile);
+			printf("%d)", lineCount++);
+			char* ptr = strtok(buffer, "\n");
+			while (ptr != NULL) {
+				printf("%s\n", ptr); //잘 들어가나 확인용(나중에 지워야 함)
+				ptr = strtok(NULL, "\n");
+			}
+		}
+	}
+	GET_G_INPUT;
+	fclose(inputFile);
+
+	/*g_buffer에 해당하는 숫자 라인의 계좌에서 출금 후 예금계좌 생성해야하는데
+	파일 정리가 안돼서 printf로 대체함*/
+	if (atoi(g_buffer) == 1) {
+		printf("1번선택함~~\n");
+	}
+	else {
+		printf("다른거 선택함~~\n");
+	}
+
+	PRINTCEN(L"계좌명 입력");
+	DRAWLINE('-');
+	printf("예금 계좌명을 입력해주세요.");
+	scanf("%s", accountName);
+
+	system("cls");
+	PRINTCEN(L"만기일 선택");
+	DRAWLINE('-');
+	PRINTCEN(L"===선택한 서비스의 만기일을 선택해주세요===");
+	PRINTLEFT(L"만기일  1) 6개월(1.0%)   2) 1년(1.5%)   3) 2년(2.0%)");
+	wprintf(L"> ");
+	GET_G_INPUT;
+
+	//printf는 그냥 확인용이라 다 빼야함. rate는 나중에 예금파일 첫 줄에 적어야 함
+	//나중에 이자율로 만기일 유추하는게 나을 것 같음
+	switch (atoi(g_buffer)) {
+	case 1:
+		rate = 1.0;
+		printf("6개월[1.0%] 선택완료");
+		break;
+
+	case 2:
+		rate = 1.5;
+		printf("1년[1.5%] 선택완료");
+		break;
+
+	case 3:
+		rate = 2.0;
+		printf("2년[2.0%] 선택완료");
+		break;
+	default:
+		printf("1, 2, 3 중 선택해주세요");
+	}
+	system("pause");
+	system("cls");
+	PRINTCEN(L"만기일 선택");
+	DRAWLINE('-');
+	PRINTCEN(L"===선택한 서비스의 납입액(예치금)을 입력해주세요===");
+	PRINTLEFT(L"**확인사항**");
+	PRINTLEFT(L"적금 : 월 납입액 한도의 경우 50만원으로 제한이 됩니다.");
+	PRINTLEFT(L"예금 : 예치금 한도의 경우 선택 입출금계좌 잔액입니다.");
+	PRINTLEFT(L"(단위 : 1만원)");
+	wprintf(L"> ");
+	GET_G_INPUT;
+
+	//원래 여기 아까 선택한 계좌 잔액보다 적은지 많은지, 1원 이상인지 if문 있어야 함!!
+	if (atoi(g_buffer) < 1 || atoi(g_buffer) > 1000) {
+		printf("납입액(한도액)을 넘겼습니다. 처음부터 다시 하세요~~"); 
+		//이것도 다시 입력받는걸로 바꾸기
+	}
+	else {
+		fixedDepositMoney = atoi(g_buffer);
+		printf("%d 만원이 예금계좌에 예치되었습니다^v^");
+	}
+	system("pause");
+	//그리고 예금파일에 계좌정보 및 첫 줄 정보 입력해야함!!!!
+
+	//Q_CHECK();
+	//wprintf(L"뒤로가기 커맨드 입력 안함.\n");
+	//system("pause");
 }
+
 void Savings()
 {
+	FILE* inputFile = NULL;
+
 	system("cls");
 	PRINTCEN(L" 적금 신청");
 	DRAWLINE('-');
+
+	GET_G_INPUT;
+	Q_CHECK();
+
+	wprintf(L"뒤로가기 커맨드 입력 안함.\n");
+	system("pause");
 }
+/*
 void inquiryAndCancel()
 {	
 	FILE* inputFile = NULL;
@@ -230,19 +333,33 @@ void inquiryAndCancel()
 		return; //해야함
 
 }
+*/
 
 void atmMenu()
 {
 	system("cls");
 	PRINTCEN(L"입출금 메뉴");
 	DRAWLINE('-');
+
+	GET_G_INPUT;
+	Q_CHECK();
+
+	wprintf(L"뒤로가기 커맨드 입력 안함.\n");
+	system("pause");
 }
 void transferMenu()
 {
 	system("cls");
 	PRINTCEN(L"계좌 이체 메뉴");
 	DRAWLINE('-');
+	GET_G_INPUT;
+
+	Q_CHECK();
+
+	wprintf(L"뒤로가기 커맨드 입력 안함.\n");
+	system("pause");
 }
+/* 
 void historyInquiry()
 {
 	char i_AccNum[8] = { 0, };
@@ -321,3 +438,4 @@ INVALIDINPUT:
 
 	return;
 }
+*/
