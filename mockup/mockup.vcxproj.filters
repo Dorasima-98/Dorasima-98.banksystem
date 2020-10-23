@@ -24,6 +24,9 @@
     <ClCompile Include="startmenu.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="additional_utils.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="userfunc.h">
