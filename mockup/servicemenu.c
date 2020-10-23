@@ -245,14 +245,79 @@ void transferMenu()
 }
 void historyInquiry()
 {
+	char i_AccNum[8] = { 0, };
+	long CurrentFileOffset = 0;
+	FILE* f_Account;
+	
 	system("cls");
 	PRINTCEN(L"내역 확인 메뉴");
 	DRAWLINE('-');
 
+#if TEST_OFF
+	PRINTRIGHT(L"조회하고자 하는 계좌번호를 입력해주세요");
+	printf("> ");
+INVALIDINPUT:
 	GET_G_INPUT;
 	Q_CHECK();
-	// branch merge test
+
+	//계좌번호 분석
+	int j =0,k= 0;
+	for (int i = 0; i < sizeof(i_AccNum)+2; i++)
+	{
+		if (!isdigit(g_buffer[i]))
+		{
+			if (g_buffer[i] == '-' && (i==2||i==4))
+			{
+				k++;
+				continue;
+			}
+			else
+			{
+				break;
+			}
+		}
+		i_AccNum[j++]= g_buffer[i];
+	}
+	i_AccNum[7] = '\0';
+	if (j != 7 || (k !=2 && k!=0))
+	{
+		PRINTRIGHT(L"계좌번호가 올바른 양식이 아닙니다. 다시 입력해주세요.");
+		goto INVALIDINPUT;
+	}
+	// 해당 계좌 파일찾아가기
+	tempwcp = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(i_AccNum)+1));
+	for (int i = 0; i < strlen(i_AccNum)+1; i++)
+	{
+		mbtowc(tempwcp+i,i_AccNum+i , MB_CUR_MAX);
+	}
+	swprintf(g_wpath,MAX_PATH, L"C:\\banksystemlog\\0%c\\%s.txt",i_AccNum[1] ,tempwcp);
+	free(tempwcp);
+
+	f_Account = _wfopen(g_wpath, L"r");
+	if (f_Account == NULL)
+	{
+		PRINTRIGHT(L"계좌번호를 찾을 수 없습니다. 다시 입력해주세요...");
+		goto INVALIDINPUT;
+	}
+
+	//출력 테스트
+	while (1)
+	{
+		fseek(f_Account, CurrentFileOffset, SEEK_SET);
+		fgets(g_buffer, BUFF_SIZE, f_Account);
+		if (feof(f_Account))
+		{
+			break;
+		}
+		printf("%s", g_buffer);
+
+		CurrentFileOffset = ftell(f_Account);
+	}
+	
+	fclose(f_Account);
+#endif
 	wprintf(L"뒤로가기 커맨드 입력 안함. \n");
 	system("pause");
 
+	return;
 }
