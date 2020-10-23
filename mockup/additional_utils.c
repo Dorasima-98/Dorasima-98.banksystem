@@ -14,7 +14,14 @@ void strToInquiry(char* str)
 		if (*piter == '|')
 		{
 			*piter = '\0';
-			attributes[i++] = piter+1;
+			if (i < 5)
+			{
+				attributes[i++] = piter + 1;
+			}
+			else
+			{
+				attributes[i] = piter + 1;
+			}
 		}
 		
 	}
@@ -37,5 +44,4 @@ void strToInquiry(char* str)
 	}
 
 	return;
-
 }
