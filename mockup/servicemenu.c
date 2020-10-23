@@ -248,4 +248,11 @@ void historyInquiry()
 	system("cls");
 	PRINTCEN(L"내역 확인 메뉴");
 	DRAWLINE('-');
+
+	GET_G_INPUT;
+	Q_CHECK();
+	// branch merge test
+	wprintf(L"뒤로가기 커맨드 입력 안함. \n");
+	system("pause");
+
 }
