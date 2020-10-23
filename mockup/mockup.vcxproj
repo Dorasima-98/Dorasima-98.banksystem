@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="kyujintest.c" />
     <ClCompile Include="servicemenu.c" />
     <ClCompile Include="startmenu.c" />
     <ClCompile Include="main.c" />

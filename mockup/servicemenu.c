@@ -69,71 +69,71 @@ void makeAccountMenu()
 	wprintf(L"뒤로가기 커맨드 입력 안함.\n");
 	system("pause");
 }
-void fixedDepositAndSavingsMenu()
-{
-	int selection;
-
-	system("cls");
-	PRINTCEN(L"예금과 적금 메뉴");
-	DRAWLINE('-');
-	PRINTLEFT(L"1) 예적금 상품 신청  2) 예적금 상품 이자조회 및 해지");
-INVALIDINPUT:
-	PRINTLEFT(L"주어진 메뉴의 번호를 입력하세요.");
-	wprintf(L"> ");
-
-	GET_G_INPUT;
-	Q_CHECK();
-
-	selection = atoi(g_buffer);
-
-	switch (selection)
-	{
-	case 1:
-		while (1)
-		{
-			system("cls");
-			PRINTLEFT(L"1) 예금	2) 적금");
-			GET_G_INPUT;
-			if (*g_buffer == ':')
-			{
-				if (*(g_buffer + 1) == 'q')
-				{
-					wprintf(L"뒤로가기 입력함 :q\n"); system("pause");
-					goto ESCAPE;
-				}
-			}
-			if (atoi(g_buffer) == 1)
-			{
-				fixedDeposit();
-				goto ESCAPE;
-			}
-			else if (atoi(g_buffer) == 2)
-			{
-				Savings();
-				goto ESCAPE;
-			}
-		}
-	ESCAPE:
-		return;
-	case 2:
-		inquiryAndCancel();
-		return;
-	default:
-		goto INVALIDINPUT;
-	}
-}
-void fixedDeposit()
-{
-	system("cls");
-	PRINTCEN(L"예금 신청");
-	DRAWLINE('-');
-}
-void Savings()
-{
-	system("cls");
-	PRINTCEN(L" 적금 신청");
-	DRAWLINE('-');
-}
+//void fixedDepositAndSavingsMenu()
+//{
+//	int selection;
+//
+//	system("cls");
+//	PRINTCEN(L"예금과 적금 메뉴");
+//	DRAWLINE('-');
+//	PRINTLEFT(L"1) 예적금 상품 신청  2) 예적금 상품 이자조회 및 해지");
+//INVALIDINPUT:
+//	PRINTLEFT(L"주어진 메뉴의 번호를 입력하세요.");
+//	wprintf(L"> ");
+//
+//	GET_G_INPUT;
+//	Q_CHECK();
+//
+//	selection = atoi(g_buffer);
+//
+//	switch (selection)
+//	{
+//	case 1:
+//		while (1)
+//		{
+//			system("cls");
+//			PRINTLEFT(L"1) 예금	2) 적금");
+//			GET_G_INPUT;
+//			if (*g_buffer == ':')
+//			{
+//				if (*(g_buffer + 1) == 'q')
+//				{
+//					wprintf(L"뒤로가기 입력함 :q\n"); system("pause");
+//					goto ESCAPE;
+//				}
+//			}
+//			if (atoi(g_buffer) == 1)
+//			{
+//				fixedDeposit();
+//				goto ESCAPE;
+//			}
+//			else if (atoi(g_buffer) == 2)
+//			{
+//				Savings();
+//				goto ESCAPE;
+//			}
+//		}
+//	ESCAPE:
+//		return;
+//	case 2:
+//		inquiryAndCancel();
+//		return;
+//	default:
+//		goto INVALIDINPUT;
+//	}
+//}
+//void fixedDeposit()
+//{
+//	system("cls");
+//	PRINTCEN(L"예금 신청");
+//	DRAWLINE('-');
+//}
+//void Savings()
+//{
+//	system("cls");
+//	PRINTCEN(L" 적금 신청");
+//	DRAWLINE('-');
+//}
 void inquiryAndCancel()
 {	
 	FILE* inputFile = NULL;

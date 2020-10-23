@@ -59,7 +59,7 @@ void registerMenu()
 	Q_CHECK();
 
 	PRINTLEFT(L"비밀번호를 입력하세요... (알파벳과 숫자 그리고 숫자키 특수문자의 조합으로 입력하세요[ !@#$%^&*() ]...  ) (뒤로가기 \":q\")");
-	GET_G_INPUT;
+	GET_G_INPUT; 
 	Q_CHECK();
 
 	PRINTLEFT(L"다시한번 비밀번호를 입력하세요... ) (뒤로가기 \":q\")");
