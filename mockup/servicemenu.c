@@ -127,7 +127,7 @@ void fixedDeposit()
 	FILE* inputFile = NULL;
 	int lineCount = 1;
 	float rate = 0.0; //이자율
-	int fixedDepositMoney = 0; //예치금(납입액)
+	float fixedDepositMoney = 0; //예치금(납입액)
 	int selection;
 	char accountName[10]; //계좌명
 
@@ -211,7 +211,7 @@ void fixedDeposit()
 	PRINTLEFT(L"(단위 : 1만원)");
 	wprintf(L"> ");
 	
-	scanf("%d", &fixedDepositMoney);
+	scanf("%f", &fixedDepositMoney);
 
 	//원래 여기 아까 선택한 계좌 잔액보다 적은지 많은지, 1원 이상인지 if문 있어야 함!!
 	if (fixedDepositMoney < 1 || fixedDepositMoney > 1000) {
@@ -226,17 +226,17 @@ void fixedDeposit()
 	switch (selection) {
 		case 1:
 			fixedDepositMoney = fixedDepositMoney+fixedDepositMoney*0.01*0.5;
-			printf("만기수령액은 %d만원 입니다.\n", fixedDepositMoney);
+			printf("만기수령액은 %f만원 입니다.\n", fixedDepositMoney);
 			break;
 
 		case 2:
 			fixedDepositMoney = fixedDepositMoney+fixedDepositMoney*0.015;
-			printf("만기수령액은 %d만원 입니다.\n", fixedDepositMoney);
+			printf("만기수령액은 %f만원 입니다.\n", fixedDepositMoney);
 			break;
 
 		case 3:
 			fixedDepositMoney = fixedDepositMoney+fixedDepositMoney*0.02*2;
-			printf("만기수령액은 %d만원 입니다.\n", fixedDepositMoney);
+			printf("만기수령액은 %f만원 입니다.\n", fixedDepositMoney);
 			break;
 	}
 
