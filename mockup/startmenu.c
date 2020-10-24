@@ -224,7 +224,7 @@ Invalidinput3:
 	} while (passcount < 5);
 
 
-};
+}
 
 int loginMenu()
 {
