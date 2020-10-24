@@ -10,6 +10,7 @@
 #include <locale.h>
 #include <assert.h>
 #include <Windows.h>
+#include <time.h>
 
 
 
