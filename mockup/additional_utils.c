@@ -1,7 +1,9 @@
 #include "userfunc.h"
 
-void strToInquiry(char* str,AccType_t type)
+int strToInquiry(char* str,char* accNum,const eAccType type)
 {
+	assert(str != NULL && accNum != NULL && "str or accNum points NULL");
+	
 	char* piter = str;
 	char* attributes[6] = { NULL,0 };
 	wchar_t* wtemps[6] = { NULL, 0};
@@ -25,6 +27,11 @@ void strToInquiry(char* str,AccType_t type)
 			}
 		}
 		
+	}
+	
+	if (strcmp(accNum, attributes[2]) != 0 && type!=T1) // °èÁÂ °ñ¶ó¼­ Ãâ·Â
+	{
+		goto ESCAPE;
 	}
 
 	for (int i = 0; i < 6; i++)
@@ -57,12 +64,11 @@ void strToInquiry(char* str,AccType_t type)
 
 	}
 
-	
-
 	for (int k = 0; k < 6; k++)
 	{
 		free(wtemps[k]);
 	}
-
-	return;
+	return 1;
+ESCAPE:
+	return 0;
 }
