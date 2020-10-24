@@ -47,6 +47,13 @@
 #define TEST_ON (1)
 #define TEST_OFF (0)
 
+typedef enum { T1 = 0, T2, T3 }eAccType; // 이름짓기 힘들어서...
+char g_buffer[BUFF_SIZE]; // 글로벌 입력 버퍼
+wchar_t g_wpath[MAX_PATH]; // 글로벌 경로 입력 버퍼
+FILE* f_MemberFile; // 회원정보 파일스트림
+FILE* f_AccountList; // 계좌리스트 파일스트림
+wchar_t* tempwcp; // 혹시 나중에 쓸지 몰라서 포인터로 만들었습니다.
+
 int startMenu();
 void registerMenu();
 int loginMenu();
@@ -60,11 +67,5 @@ void inquiryAndCancel();
 void transferMenu();
 void atmMenu();
 void historyInquiry();
-void strToInquiry(char* str);
-
-char g_buffer[BUFF_SIZE]; // 글로벌 입력 버퍼
-wchar_t g_wpath[MAX_PATH]; // 글로벌 경로 입력 버퍼
-FILE* f_MemberFile; // 회원정보 파일스트림
-FILE* f_AccountList; // 계좌리스트 파일스트림
-wchar_t* tempwcp; // 혹시 나중에 쓸지 몰라서 포인터로 만들었습니다.
+int strToInquiry(char* str, char* accNum,const eAccType type);
 

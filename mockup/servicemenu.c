@@ -413,6 +413,8 @@ void historyInquiry()
 	char i_AccNum[8] = { 0, };
 	long CurrentFileOffset = 0;
 	FILE* f_Account;
+	eAccType type;
+	int accCounter = 0;
 	
 	system("cls");
 	PRINTCEN(L"내역 확인 메뉴");
@@ -426,7 +428,8 @@ INVALIDINPUT:
 	Q_CHECK();
 
 	//계좌번호 분석
-	int j =0,k= 0;
+	int j = 0;
+	int k = 0;
 	for (int i = 0; i < sizeof(i_AccNum)+2; i++)
 	{
 		if (!isdigit(g_buffer[i]))
@@ -449,13 +452,31 @@ INVALIDINPUT:
 		PRINTRIGHT(L"계좌번호가 올바른 양식이 아닙니다. 다시 입력해주세요.");
 		goto INVALIDINPUT;
 	}
-	// 해당 계좌 파일찾아가기
+	
+	// 해당 파일찾아가기
 	tempwcp = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(i_AccNum)+1));
 	for (int i = 0; i < strlen(i_AccNum)+1; i++)
 	{
 		mbtowc(tempwcp+i,i_AccNum+i , MB_CUR_MAX);
 	}
-	swprintf(g_wpath,MAX_PATH, L"C:\\banksystemlog\\0%c\\%s.txt",i_AccNum[1] ,tempwcp);
+	switch (i_AccNum[2]) // 타입체크
+	{
+	case '1': // 입출금은 계좌마다
+		type = T1;
+		swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\%s.txt", tempwcp[1], tempwcp);
+		break;
+	case '2': // 예금은 하나
+		type = T2;
+		swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\%c%c%c.txt", tempwcp[1], tempwcp[0],tempwcp[1],tempwcp[2]);
+		break;
+	case'3': // 적금도 일단 하나
+		type = T3;
+		swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\%c%c%c.txt", tempwcp[1], tempwcp[0], tempwcp[1], tempwcp[2]);
+		break;
+	default:
+		PRINTRIGHT(L"계좌번호가 올바르지 않습니다. 다시 입력해주세요.");
+		goto INVALIDINPUT;
+	}
 	free(tempwcp);
 
 	f_Account = _wfopen(g_wpath, L"r");
@@ -474,9 +495,14 @@ INVALIDINPUT:
 		{
 			break;
 		}
-		printf("%s", g_buffer);
-
+		//printf("%s", g_buffer);
+		accCounter += strToInquiry(g_buffer,i_AccNum, type); //additional_utils.c
 		CurrentFileOffset = ftell(f_Account);
+	}
+	if (accCounter == 0)
+	{
+		PRINTRIGHT(L"해당 계좌는 존재하지 않습니다. 다시 입력해주세요...");
+		goto INVALIDINPUT;
 	}
 	
 	fclose(f_Account);
