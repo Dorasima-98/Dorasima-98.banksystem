@@ -391,6 +391,7 @@ void historyInquiry()
 	char i_AccNum[8] = { 0, };
 	long CurrentFileOffset = 0;
 	FILE* f_Account;
+	AccType_t type;
 	
 	system("cls");
 	PRINTCEN(L"내역 확인 메뉴");
@@ -427,6 +428,21 @@ INVALIDINPUT:
 		PRINTRIGHT(L"계좌번호가 올바른 양식이 아닙니다. 다시 입력해주세요.");
 		goto INVALIDINPUT;
 	}
+	switch (i_AccNum[2]) // 타입체크
+	{
+	case '1':
+		type = T1;
+		break;
+	case '2':
+		type = T2;
+		break;
+	case'3':
+		type = T3;
+		break;
+	default:
+		PRINTRIGHT(L"계좌번호가 올바르지 않습니다. 다시 입력해주세요.");
+		goto INVALIDINPUT;
+	}
 	// 해당 계좌 파일찾아가기
 	tempwcp = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(i_AccNum)+1));
 	for (int i = 0; i < strlen(i_AccNum)+1; i++)
@@ -452,8 +468,8 @@ INVALIDINPUT:
 		{
 			break;
 		}
-		printf("%s", g_buffer);
-
+		//printf("%s", g_buffer);
+		strToInquiry(g_buffer, type); //additional_utils.c
 		CurrentFileOffset = ftell(f_Account);
 	}
 	
