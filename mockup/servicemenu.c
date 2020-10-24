@@ -131,7 +131,7 @@ void fixedDeposit()
 	int duration; //예금 기간(6개월이면 6, 1년이면 1, 2년이면 2)
 	float fixedDepositMoney = 0.0; //예치금(납입액)
 	int selection;
-	char accountName[10]; //계좌명
+	char accountName[10]; //예금계좌명
 
 	inputFile = fopen("ioaccount.txt", "r"); //일단 테스트용 파일로 해보기
 
@@ -274,17 +274,131 @@ void Savings()
 {
 	FILE* inputFile = NULL;
 
+	int lineCount = 1;
+	float rate = 0.0; //이자율
+	int duration; //적금 기간(6개월이면 6, 1년이면 1, 2년이면 2)
+	float fixedDepositMoney = 0.0; //예치금(납입액)
+	int selection;
+	char accountName[10]; //적금계좌명
+
+	inputFile = fopen("ioaccount.txt", "r"); //일단 테스트용 파일로 해보기
+
 	system("cls");
-	PRINTCEN(L" 적금 신청");
+	PRINTCEN(L"출금할 계좌 선택");
+	DRAWLINE('-');
+	PRINTCEN(L"=== 만기 금액 수령이 가능한 입출금 계좌 목록 ===");
+
+	if (inputFile != NULL) {
+		char buffer[256]; //나중에 수정해야함
+		while (!feof(inputFile)) {
+			fgets(buffer, sizeof(buffer), inputFile);
+			printf("%d)", lineCount++);
+			char* ptr = strtok(buffer, "\n");
+			while (ptr != NULL) {
+				printf("%s\n", ptr);
+				ptr = strtok(NULL, "\n");
+			}
+		}
+	}
+	GET_G_INPUT;
+	fclose(inputFile);
+
+	/*g_buffer에 해당하는 숫자 라인의 입출금계좌에서 출금 후 예금계좌 생성해야하는데
+	파일 정리가 안돼서 printf로 대체함*/
+	if (atoi(g_buffer) == 1) {
+		printf("1번선택함~~\n");
+	}
+	else {
+		printf("다른거 선택함~~\n");
+	}
+
+	PRINTCEN(L"계좌명 입력");
+	DRAWLINE('-');
+	printf("적금 계좌명을 입력해주세요.\n");
+	wprintf(L"> ");
+	scanf("%s", &accountName);
+	printf("적금 계좌명이 %s로 설정되었습니다\n", accountName);
+	system("pause");
+
+	system("cls");
+	PRINTCEN(L"만기일 선택");
+	DRAWLINE('-');
+	PRINTCEN(L"===선택한 서비스의 만기일을 선택해주세요===");
+	PRINTLEFT(L"만기일  1) 6개월(1.0%)   2) 1년(1.5%)   3) 2년(2.0%)");
+	wprintf(L"> ");
+
+	scanf_s("%d", &selection, 1);
+
+	//printf는 그냥 확인용이라 다 빼야함. rate는 나중에 예금파일 첫 줄에 적어야 함
+	//나중에 이자율로 만기일 유추하는게 나을 것 같음
+	switch (selection) {
+	case 1:
+		rate = 1.0;
+		duration = 6;
+		printf("6개월 선택완료\n");
+		break;
+
+	case 2:
+		rate = 1.5;
+		duration = 1;
+		printf("1년 선택완료\n");
+		break;
+
+	case 3:
+		rate = 2.0;
+		duration = 2;
+		printf("2년 선택완료\n");
+		break;
+	}
+
+	system("pause");
+	system("cls");
+	PRINTCEN(L"납입액 입력");
 	DRAWLINE('-');
 
-	GET_G_INPUT;
-	Q_CHECK();
 
-	wprintf(L"뒤로가기 커맨드 입력 안함.\n");
+	PRINTCEN(L"===선택한 서비스의 납입액(예치금)을 입력해주세요===");
+	PRINTLEFT(L"**확인사항**");
+	PRINTLEFT(L"적금 : 월 납입액 한도의 경우 50만원으로 제한이 됩니다.");
+	PRINTLEFT(L"예금 : 예치금 한도의 경우 선택 입출금계좌 잔액입니다.");
+	PRINTLEFT(L"(단위 : 1만원)");
+	wprintf(L"> ");
+
+	scanf("%f", &fixedDepositMoney);
+
+	//원래 여기 아까 선택한 계좌 잔액보다 적은지 많은지, 1원 이상인지 if문 있어야 함!!
+	if (fixedDepositMoney < 1 || fixedDepositMoney > 1000) {
+		printf("납입한도액을 넘겼습니다. 처음부터 다시 하세요~~");
+		//이것도 다시 입력받는걸로 바꾸기
+	}
+	else {
+		printf("%.5f 만원이 적금계좌에 납입되었습니다^v^\n", fixedDepositMoney);
+	}
+
+	//계좌번호 랜덤생성
+	srand(time(NULL));
+	char accountNum[5];
+
+	printf("적금 계좌번호는 013"); 	//01은 은행에 따라 바꿔야함. 나중에 계정생성 파트 하시는 분한테 전역변수로 해달라고 말씀드려야 함
+
+	for (int k = 0; k < 5; k++) {
+		accountNum[k] = rand() % 10 + 48;
+		printf("%c", accountNum[k]);
+	}
+	printf("입니다^v^\n");
+
+
 	system("pause");
-}
+	//그리고 예금파일 첫 줄에 "해당 계좌의 잔액, 계좌 비밀번호, 서비스 신청기간, 이자율, 해지 시 수령액의 조합"이 들어감!
+	//해당 계좌 잔액, 계좌 비밀번호는 지금 구현 못해서 그거 빼고 나머지는 첫 줄에 씀
+	//inputFile = fopen("fixed.txt", "a");
+	//fprintf(inputFile, "%s|%d|%f|%f ", accountName, duration, rate, fixedDepositMoney);
+	//fclose(inputFile);
 
+	//Q_CHECK();
+	//wprintf(L"뒤로가기 커맨드 입력 안함.\n");
+	//system("pause");
+}
 
 void inquiryAndCancel()
 {	
