@@ -247,32 +247,37 @@ void fixedDeposit()
 
 	//계좌번호 랜덤생성
 	srand(time(NULL));
-	char accountNum[7];
+	char accountNum[8];
+
+	//01은 은행에 따라 바꿔야함. 나중에 계정생성 파트 하시는 분한테 전역변수로 해달라고 말씀드려야 함
+
 	accountNum[0] = '0';
 	accountNum[1] = '1';
 	accountNum[2] = '2';
-
-	printf("예금 계좌번호는 012"); 	//01은 은행에 따라 바꿔야함. 나중에 계정생성 파트 하시는 분한테 전역변수로 해달라고 말씀드려야 함
+	accountNum[7] = '\0';
 
 	for (int k = 3; k < 7; k++) {
 		accountNum[k] = rand() % 10 + 48;
-		printf("%c", accountNum[k]);
 	}
-	printf("입니다^v^\n");
 	
+	printf("예금 계좌번호는 %s입니다^v^\n", accountNum); 	
+
 	int accountPassword = 1234; //입출금계좌에서 받아오기
 	
 	system("pause");
-	//첫 줄에는 "계좌명, 계좌번호, 해당 계좌의 잔액, 계좌 비밀번호, 서비스 신청기간, 이자율, 해지 시 수령액의 조합"이 들어감!
-	//해당 계좌 잔액, 계좌 비밀번호는 지금 구현 못해서 그거 빼고 나머지는 첫 줄에 씀
-	inputFile = fopen("fixed.txt", "r+");
-	fprintf(inputFile, " %s|%s|%f|%d|%d|%f|%f", accountName, accountNum, fixedDepositMoney, accountPassword, duration, rate, finalFixedDepositMoney);
-	fclose(inputFile);
 
 	//마지막 줄에는 "추가된 계좌정보" 들어감
 	inputFile = fopen("fixed.txt", "a");
 	fprintf(inputFile, "%s|%s|%f|%f\n", accountName, accountNum, finalFixedDepositMoney, fixedDepositMoney);
 	fclose(inputFile);
+
+	//첫 줄에는 "계좌명, 계좌번호, 해당 계좌의 잔액, 계좌 비밀번호, 서비스 신청기간, 이자율, 해지 시 수령액의 조합"이 들어감!
+	//해당 계좌 잔액, 계좌 비밀번호는 지금 구현 못해서 그거 빼고 나머지는 첫 줄에 씀
+	//inputFile = fopen("fixed.txt", "r+");
+	//fprintf(inputFile, " %s|%s|%f|%d|%d|%f|%f", accountName, accountNum, fixedDepositMoney, accountPassword, duration, rate, finalFixedDepositMoney);
+	//fclose(inputFile);
+	
+	//파일포인터 다시 제일 마지막으로 옮기기
 
 	//Q_CHECK();
 	//wprintf(L"뒤로가기 커맨드 입력 안함.\n");
