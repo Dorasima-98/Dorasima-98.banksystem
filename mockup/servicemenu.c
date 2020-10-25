@@ -605,6 +605,7 @@ INVALIDINPUT:
 		goto INVALIDINPUT;
 	}
 	free(tempwcp);
+	tempwcp = NULL;
 
 	f_Account = _wfopen(g_wpath, L"r");
 	if (f_Account == NULL)
@@ -652,6 +653,7 @@ INVALIDINPUT:
 	}
 	
 	fclose(f_Account);
+	f_Account = NULL;
 #endif
 	wprintf(L"뒤로가기 커맨드 입력 안함. \n");
 	system("pause");
