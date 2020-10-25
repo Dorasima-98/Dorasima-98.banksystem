@@ -68,4 +68,6 @@ void transferMenu();
 void atmMenu();
 void historyInquiry();
 int strToInquiry(char* str, char* accNum,const eAccType type);
+int strToAccInfo(char* str, char* accNum, const eAccType type);
+//void strToFSInfo(char* str, char* accNum, const eAccType type);
 

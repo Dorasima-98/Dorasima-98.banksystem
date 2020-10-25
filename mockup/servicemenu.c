@@ -22,7 +22,6 @@ INVALIDINPUT:
 
 	GET_G_INPUT;
 	menuSelection = atoi(g_buffer);
-
 	switch (menuSelection)
 	{
 	case 1:
@@ -600,6 +599,7 @@ INVALIDINPUT:
 	}
 
 	//출력 테스트
+	int i = 0;
 	while (1)
 	{
 		fseek(f_Account, CurrentFileOffset, SEEK_SET);
@@ -609,7 +609,23 @@ INVALIDINPUT:
 			break;
 		}
 		//printf("%s", g_buffer);
-		accCounter += strToInquiry(g_buffer,i_AccNum, type); //additional_utils.c
+
+		if (i > 0)
+		{
+			accCounter += strToInquiry(g_buffer, i_AccNum, type); //additional_utils.c
+		}
+		else
+		{
+			if (type == T1)
+			{
+				strToAccInfo(g_buffer, i_AccNum, type);
+			}
+			else
+			{
+				//strToFSInfo(g_buffer, i_AccNum, type);
+			}
+			
+		}
 		CurrentFileOffset = ftell(f_Account);
 	}
 	if (accCounter == 0)
