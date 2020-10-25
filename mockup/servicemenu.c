@@ -1,5 +1,5 @@
 //아직 한참 덜 함ㅜㅜ
-
+#include <stdlib.h>
 #include "userfunc.h"
 
 static int con_flag = 1;
@@ -131,33 +131,41 @@ void fixedDeposit()
 	float fixedDepositMoney = 0.0; //예치금(납입액)
 	int selection;
 	char accountName[10]; //예금계좌명
-
+	char *a[200];
+	int p = 0;
 	inputFile = fopen("ioaccount.txt", "r"); //일단 테스트용 파일로 해보기
 
 	system("cls");
 	PRINTCEN(L"출금할 계좌 선택");
 	DRAWLINE('-');
 	PRINTCEN(L"=== 만기 금액 수령이 가능한 입출금 계좌 목록 ===");
-
 	if (inputFile != NULL) {
 		char buffer[256]; //나중에 수정해야함
 		while (!feof(inputFile)) {
 			fgets(buffer, sizeof(buffer), inputFile);
 			printf("%d)", lineCount++);
-			char* ptr = strtok(buffer, "\n");
+			char* ptr = strtok(buffer, "|,\n");
 			while (ptr != NULL) {
-				printf("%s\n", ptr);
-				ptr = strtok(NULL, "\n");
+				a[p] = ptr;
+				printf("[%d]%s", p,a[p]);
+				printf("\n");
+				p++;		
+				ptr = strtok(NULL, "|,\n");
 			}
 		}
 	}
 	GET_G_INPUT;
-	fclose(inputFile);
-
+	int moneySelection = 0;
 	/*g_buffer에 해당하는 숫자 라인의 입출금계좌에서 출금 후 예금계좌 생성해야하는데
 	파일 정리가 안돼서 printf로 대체함*/
-	if (atoi(g_buffer) == 1) {
-		printf("1번선택함~~\n");
+	if (atoi(g_buffer)) {
+		moneySelection = 2 + 5 * (atoi(g_buffer) - 1);
+		printf("%d", moneySelection);
+		printf("%d", atoi(a[moneySelection]));
+		if (atoi(a[moneySelection]) == 1111111) {
+			printf("hello");
+		}
+
 	}
 	else {
 		printf("다른거 선택함~~\n");
@@ -246,23 +254,21 @@ void fixedDeposit()
 
 	//계좌번호 랜덤생성
 	srand(time(NULL));
-	char accountNum[4];
-	
+	int accountNum;
 	printf("예금 계좌번호는 012"); 	//01은 은행에 따라 바꿔야함. 나중에 계정생성 파트 하시는 분한테 전역변수로 해달라고 말씀드려야 함
+	accountNum = rand() % 9999;
+	printf("%d", accountNum);
 
-	for (int k = 0; k < 4; k++) {
-		accountNum[k] = rand() % 10 + 48;
-		printf("%c", accountNum[k]);
-	}
 	printf("입니다^v^\n");
+
 	
 	
 	system("pause");
 	//그리고 예금파일 첫 줄에 "해당 계좌의 잔액, 계좌 비밀번호, 서비스 신청기간, 이자율, 해지 시 수령액의 조합"이 들어감!
 	//해당 계좌 잔액, 계좌 비밀번호는 지금 구현 못해서 그거 빼고 나머지는 첫 줄에 씀
-	//inputFile = fopen("fixed.txt", "a");
-	//fprintf(inputFile, "%s|%d|%f|%f ", accountName, duration, rate, fixedDepositMoney);
-	//fclose(inputFile);
+	inputFile = fopen("fixed.txt", "a");
+	fprintf(inputFile, "%s|%d|%f|%f ", accountName, duration, rate, fixedDepositMoney);
+	fclose(inputFile);
 
 	//Q_CHECK();
 	//wprintf(L"뒤로가기 커맨드 입력 안함.\n");
@@ -300,12 +306,12 @@ void Savings()
 		}
 	}
 	GET_G_INPUT;
-	fclose(inputFile);
 
 	/*g_buffer에 해당하는 숫자 라인의 입출금계좌에서 출금 후 예금계좌 생성해야하는데
 	파일 정리가 안돼서 printf로 대체함*/
 	if (atoi(g_buffer) == 1) {
 		printf("1번선택함~~\n");
+
 	}
 	else {
 		printf("다른거 선택함~~\n");
@@ -414,6 +420,7 @@ void inquiryAndCancel()
 	wprintf(L"> ");
 	//7자리는 계좌번호, 그 다음 8자리는 해지예상일자
 
+
 	GET_G_INPUT;
 	if (*g_buffer == ':')
 	{
@@ -424,15 +431,16 @@ void inquiryAndCancel()
 		}
 	}
 
-	for (int i=0; i<8; i++) {
+	for (int i=0; i<7; i++) {
 		account[i] = *(g_buffer + i);
 		printf("%c", account[i]);
 	}
 	printf("\n");
-	for (int j = 0; j < 9; j++) {
-		finalDate[j] = *(g_buffer + (j + 8));
+	for (int j = 0; j < 8; j++) {
+		finalDate[j] = *(g_buffer + (j + 7));
 		printf("%c", finalDate[j]);
 	}
+	printf("\n");
 	system("pause"); //입력받은거 잘 저장됐나 확인하려고 pause해둠. printf함수들 나중에 다 지워야 함.
 
 	//예금 또는 적금계좌 파일에서 string 받아오기(|로 항목 구분)
@@ -479,6 +487,9 @@ void inquiryAndCancel()
 		wprintf(L"해당 예적금 계좌를 해지했습니다. ");
 		system("pause");
 		//계좌정보 삭제 함수 필요, 지정된 입출금계좌에 돈 입금도 해야함
+		
+
+
 	}
 	else if (*g_buffer == 'n' || *g_buffer == 'N') {
 		wprintf(L"해당 예적금 계좌를 해지하지 않았습니다. ");
