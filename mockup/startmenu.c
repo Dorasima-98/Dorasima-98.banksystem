@@ -1,7 +1,7 @@
 #include "userfunc.h"
 
 static int con_flag = 1;
-static int Bank = 0;	
+static int Bank = 0;
 
 int startMenu()
 {
@@ -45,12 +45,14 @@ INVALIDINPUT:
 	{
 		return 1;
 	}
+	
+	
 
 }
 
-
 void registerMenu() {
-
+	printf("레지스터^v^");
+	/*
 	char Name[100];
 	char Id[100];
 	char password1[100];
@@ -63,8 +65,8 @@ Invalidinput1:
 	printf("사용자 이름을 입력해주세요> \n");
 	scanf_s("%s", Name, sizeof(Name));
 	while (getchar() != '\n');
-	/*GET_G_INPUT;	입력이 없는것을 체크, 나중에 수정
-	Q_CHECK;		:Q 나가는거 체크*/
+	//GET_G_INPUT;	입력이 없는것을 체크, 나중에 수정
+	//Q_CHECK;		:Q 나가는거 체크
 	EraseSpace(Name);
 	for (int i = 0; ; i++) {
 		if (Name[i] == NULL) {
@@ -89,8 +91,8 @@ Invalidinput2:
 	printf("은행을 선택해주세요> ");
 	scanf("%d", &Bank);	//이렇게하면 스페이스바만 처리할수있음
 	while (getchar() != '\n');
-	/*GET_G_INPUT;
-	Q_CHECK;*/
+	//GET_G_INPUT;	입력이 없는것을 체크, 나중에 수정
+	//Q_CHECK;		:Q 나가는거 체크
 	if (1 <= Bank && Bank <= 5) {
 		printf("은행이 선택되었습니다\n");
 		Sleep(3000);
@@ -106,8 +108,8 @@ Invalidinput3:
 	printf("아이디> ");
 	scanf_s("%s", Id, sizeof(Id));
 	while (getchar() != '\n');
-	/*GET_G_INPUT;
-	Q_CHECK;*/
+	//GET_G_INPUT;	입력이 없는것을 체크, 나중에 수정
+	//Q_CHECK;		:Q 나가는거 체크
 	EraseSpace(Id);
 	for (int i = 0; i < strlen(Id); i++) {
 		if (isalnum(Id[i]) != NULL) 			//영문자 또는 숫자이면 0아닌 값 반환
@@ -129,8 +131,8 @@ Invalidinput3:
 	//비밀번호
 	do {
 		printf("비밀번호> ");
-		/*GET_G_INPUT;
-		Q_CHECK;*/
+		//GET_G_INPUT;	입력이 없는것을 체크, 나중에 수정
+		//Q_CHECK;		:Q 나가는거 체크
 		scanf_s("%s", password1, sizeof(password1));
 		while (getchar() != '\n');
 		EraseSpace(password1);
@@ -161,31 +163,33 @@ Invalidinput3:
 	} while (passcount < 5);
 
 	//이제 파일에 어떻게 입력할건가?
+
+	*/
 }
 
 //이제 파일을 어떻게 불러올것인가?
-//int loginMenu() {
-//
-//	char Id[100];
-//	char password1[100];
-//	char password2[100];
-//	char buffer[200];
-//
-//	FILE* fp = fopen("12345.txt", "r");
-//	fgets(buffer, sizeof(buffer), fp);
-//
-//	printf("아이디> ");
-//	scanf_s("%s", Id, sizeof(Id));
-//	while (getchar() != '\n');
-//	/*GET_G_INPUT;
-//	Q_CHECK;*/
-//	EraseSpace(Id);
-//	//strcmp(Id, buffer); 그렇다면 어떻게 아이디, 비밀번호만 분류할것인가
-//
-//
-//
-//	return 0;
-//}
+int loginMenu() {
+
+	char Id[100];
+	char password1[100];
+	char password2[100];
+	char buffer[200];
+
+	FILE* fp = fopen("12345.txt", "r");
+	fgets(buffer, sizeof(buffer), fp);
+
+	printf("아이디> ");
+	scanf_s("%s", Id, sizeof(Id));
+	while (getchar() != '\n');
+	/*GET_G_INPUT;
+	Q_CHECK;*/
+	EraseSpace(Id);
+	//strcmp(Id, buffer); 그렇다면 어떻게 아이디, 비밀번호만 분류할것인가
+
+
+
+	return 0;
+}
 
 
 void EraseSpace(char* ap_string)
