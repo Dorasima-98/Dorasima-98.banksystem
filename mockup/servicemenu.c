@@ -246,11 +246,11 @@ void fixedDeposit()
 
 	//계좌번호 랜덤생성
 	srand(time(NULL));
-	char accountNum[5];
+	char accountNum[4];
 	
 	printf("예금 계좌번호는 012"); 	//01은 은행에 따라 바꿔야함. 나중에 계정생성 파트 하시는 분한테 전역변수로 해달라고 말씀드려야 함
 
-	for (int k = 0; k < 5; k++) {
+	for (int k = 0; k < 4; k++) {
 		accountNum[k] = rand() % 10 + 48;
 		printf("%c", accountNum[k]);
 	}
@@ -376,11 +376,11 @@ void Savings()
 
 	//계좌번호 랜덤생성
 	srand(time(NULL));
-	char accountNum[5];
+	char accountNum[4];
 
 	printf("적금 계좌번호는 013"); 	//01은 은행에 따라 바꿔야함. 나중에 계정생성 파트 하시는 분한테 전역변수로 해달라고 말씀드려야 함
 
-	for (int k = 0; k < 5; k++) {
+	for (int k = 0; k < 4; k++) {
 		accountNum[k] = rand() % 10 + 48;
 		printf("%c", accountNum[k]);
 	}
