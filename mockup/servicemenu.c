@@ -57,7 +57,6 @@ INVALIDINPUT:
 		return 1;
 	}
 }
-
 void makeAccountMenu()
 {
 	system("cls");
@@ -248,17 +247,18 @@ void fixedDeposit()
 
 	//계좌번호 랜덤생성
 	srand(time(NULL));
-	char accountNum[4];
+	char accountNum[5];
 	
 	printf("예금 계좌번호는 012"); 	//01은 은행에 따라 바꿔야함. 나중에 계정생성 파트 하시는 분한테 전역변수로 해달라고 말씀드려야 함
 
-	for (int k = 0; k < 4; k++) {
+	for (int k = 0; k < 5; k++) {
 		accountNum[k] = rand() % 10 + 48;
 		printf("%c", accountNum[k]);
 	}
 	printf("입니다^v^\n");
 	
-	system("pause"); 
+	
+	system("pause");
 	//그리고 예금파일 첫 줄에 "해당 계좌의 잔액, 계좌 비밀번호, 서비스 신청기간, 이자율, 해지 시 수령액의 조합"이 들어감!
 	//해당 계좌 잔액, 계좌 비밀번호는 지금 구현 못해서 그거 빼고 나머지는 첫 줄에 씀
 	//inputFile = fopen("fixed.txt", "a");
@@ -377,11 +377,11 @@ void Savings()
 
 	//계좌번호 랜덤생성
 	srand(time(NULL));
-	char accountNum[4];
+	char accountNum[5];
 
 	printf("적금 계좌번호는 013"); 	//01은 은행에 따라 바꿔야함. 나중에 계정생성 파트 하시는 분한테 전역변수로 해달라고 말씀드려야 함
 
-	for (int k = 0; k < 4; k++) {
+	for (int k = 0; k < 5; k++) {
 		accountNum[k] = rand() % 10 + 48;
 		printf("%c", accountNum[k]);
 	}
