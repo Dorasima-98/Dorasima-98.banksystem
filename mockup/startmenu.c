@@ -183,26 +183,69 @@ Invalidinput3:
 int loginMenu() {
 	
 	char Id[100];
+	char password[100];
+	char Idbuffer[100];
+	char passwordbuffer[100];
+	char* ptr;		//파일에서 읽어온 아이디, 비밀번호
+	int passcount = 0;	//비밀번호 재입력 횟수 5번
 	FILE* fp = fopen("HumanList.txt", "r");
-	char buffer[256];
 	
+	//아이디 검사
+RETURN1:
 	printf("아이디> ");
 	scanf_s("%s", Id, sizeof(Id));
 	while (getchar() != '\n');
 	/*GET_G_INPUT;
 	Q_CHECK;*/
 	if (fp != NULL) { 
-		while (!feof(fp)) {
-			fgets(buffer, sizeof(buffer), fp);
-			char* ptr = strtok(buffer, "|");
-			while (ptr != NULL) {
-				printf("%s\n", ptr);
-				ptr = strtok(NULL, "\n");
+		if(!feof(fp)) {
+			fgets(Idbuffer, sizeof(Idbuffer), fp);
+			ptr = strtok(Idbuffer, "|");
+			ptr = strtok(NULL, "|");	//첫번째 아이디반환
+		}
+	}else
+		printf("파일에 입력된 정보x");
+	
+	if(strcmp(ptr, Id) != 0) {
+		printf("계정 생성이 안된 아이디입니다\n");
+		printf("다시 입력해주세요\n");
+		goto RETURN1;
+	}
+
+
+	//아이디가 입력됐다면 비밀번호 검사
+	if (strcmp(ptr, Id) == 0) {
+		printf("비밀번호> ");
+		scanf_s("%s", password, sizeof(password));
+		while (getchar() != '\n');
+		/*GET_G_INPUT;
+		Q_CHECK;*/
+		if (fp != NULL) {
+			if (!feof(fp)) {
+				ptr = strtok(NULL, "|");	//두번쨰 비밀번호 반환
 			}
 		}
+		else
+			printf("파일에 입력된 정보x");
+
+		do {
+			if (strcmp(ptr, password) == 0) {
+				printf("비밀번호 제대로 입력했습니다\n");
+			}else {
+				++passcount;
+				printf("비밀번호를 %d번 더 입력할 수 있습니다\n", 5-passcount);
+				if (passcount == 5) {
+					printf("비밀번호 입력가능횟수 5번 초과\n");
+					printf("프로그램을 종료합니다\n");
+					Sleep(2000);
+					exit(0);
+				}
+			}
+		} while (passcount < 5);
 	}
+
+	fclose(fp);
 	
-	//strcmp(Id, buffer); 그렇다면 어떻게 아이디, 비밀번호만 분류할것인가
 	return 0;
 }
 
