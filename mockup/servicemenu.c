@@ -129,6 +129,7 @@ void fixedDeposit()
 	float rate = 0.0; //이자율
 	int duration; //예금 기간(6개월이면 6, 1년이면 1, 2년이면 2)
 	float fixedDepositMoney = 0.0; //예치금(납입액)
+	float finalFixedDepositMoney = 0.0; //만기해지금
 	int selection;
 	char accountName[10]; //예금계좌명
 
@@ -229,40 +230,49 @@ void fixedDeposit()
 	//만기수령액 계산하기
 	switch (selection) {
 		case 1:
-			fixedDepositMoney = fixedDepositMoney+fixedDepositMoney*0.01*0.5;
+			finalFixedDepositMoney = fixedDepositMoney+fixedDepositMoney*0.01*0.5;
 			printf("만기수령액은 %.5f만원 입니다.\n", fixedDepositMoney);
 			break;
 
 		case 2:
-			fixedDepositMoney = fixedDepositMoney+fixedDepositMoney*0.015;
+			finalFixedDepositMoney = fixedDepositMoney+fixedDepositMoney*0.015;
 			printf("만기수령액은 %.5f만원 입니다.\n", fixedDepositMoney);
 			break;
 
 		case 3:
-			fixedDepositMoney = fixedDepositMoney+fixedDepositMoney*0.02*2;
+			finalFixedDepositMoney = fixedDepositMoney+fixedDepositMoney*0.02*2;
 			printf("만기수령액은 %.5f만원 입니다.\n", fixedDepositMoney);
 			break;
 	}
 
 	//계좌번호 랜덤생성
 	srand(time(NULL));
-	char accountNum[4];
-	
+	char accountNum[7];
+	accountNum[0] = '0';
+	accountNum[1] = '1';
+	accountNum[2] = '2';
+
 	printf("예금 계좌번호는 012"); 	//01은 은행에 따라 바꿔야함. 나중에 계정생성 파트 하시는 분한테 전역변수로 해달라고 말씀드려야 함
 
-	for (int k = 0; k < 4; k++) {
+	for (int k = 3; k < 7; k++) {
 		accountNum[k] = rand() % 10 + 48;
 		printf("%c", accountNum[k]);
 	}
 	printf("입니다^v^\n");
 	
+	int accountPassword = 1234; //입출금계좌에서 받아오기
 	
 	system("pause");
-	//그리고 예금파일 첫 줄에 "해당 계좌의 잔액, 계좌 비밀번호, 서비스 신청기간, 이자율, 해지 시 수령액의 조합"이 들어감!
+	//첫 줄에는 "계좌명, 계좌번호, 해당 계좌의 잔액, 계좌 비밀번호, 서비스 신청기간, 이자율, 해지 시 수령액의 조합"이 들어감!
 	//해당 계좌 잔액, 계좌 비밀번호는 지금 구현 못해서 그거 빼고 나머지는 첫 줄에 씀
-	//inputFile = fopen("fixed.txt", "a");
-	//fprintf(inputFile, "%s|%d|%f|%f ", accountName, duration, rate, fixedDepositMoney);
-	//fclose(inputFile);
+	inputFile = fopen("fixed.txt", "r+");
+	fprintf(inputFile, " %s|%s|%f|%d|%d|%f|%f", accountName, accountNum, fixedDepositMoney, accountPassword, duration, rate, finalFixedDepositMoney);
+	fclose(inputFile);
+
+	//마지막 줄에는 "추가된 계좌정보" 들어감
+	inputFile = fopen("fixed.txt", "a");
+	fprintf(inputFile, "%s|%s|%f|%f\n", accountName, accountNum, finalFixedDepositMoney, fixedDepositMoney);
+	fclose(inputFile);
 
 	//Q_CHECK();
 	//wprintf(L"뒤로가기 커맨드 입력 안함.\n");

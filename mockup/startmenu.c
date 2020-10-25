@@ -1,7 +1,7 @@
 #include "userfunc.h"
 
 static int con_flag = 1;
-static int Bank = 0;	
+static int Bank = 0;
 
 int startMenu()
 {
@@ -45,8 +45,8 @@ INVALIDINPUT:
 	{
 		return 1;
 	}
-	
-	
+
+
 
 }
 
