@@ -3,6 +3,7 @@
 #include "userfunc.h"
 
 void setting();
+int Bank = 0;
 
 int main(void)
 {
