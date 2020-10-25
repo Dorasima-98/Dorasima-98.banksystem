@@ -203,4 +203,5 @@ void EraseSpace(char* ap_string)
 		ap_string++;
 	}
 	*p_dest = 0;	//맨 마지막에 null 저장
+	//
 }
