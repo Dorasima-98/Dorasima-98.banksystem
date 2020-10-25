@@ -67,7 +67,7 @@ void inquiryAndCancel();
 void transferMenu();
 void atmMenu();
 void historyInquiry();
-void EraseSpace(char* []);
+void EraseSpace(char* ap_string);
 int strToInquiry(char* str, char* accNum,const eAccType type);
 int strToAccInfo(char* str, char* accNum, const eAccType type);
 int strToFSInfo(char* str, char* accNum, const eAccType type);

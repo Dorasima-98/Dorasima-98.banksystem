@@ -89,7 +89,7 @@ Invalidinput2:
 	printf("건은행-1  국은행-2  대은행-3  학은행-4  교은행-5\n");
 	DRAWLINE('-');
 	printf("은행을 선택해주세요> ");
-	scanf_s("%d", &Bank, sizeof(Bank));	//이렇게하면 스페이스바만 처리할수있음
+	scanf("%d", &Bank);	//이렇게하면 스페이스바만 처리할수있음
 	while (getchar() != '\n');
 	/*GET_G_INPUT;
 	Q_CHECK;*/
@@ -166,28 +166,28 @@ Invalidinput3:
 }
 
 //이제 파일을 어떻게 불러올것인가?
-int loginMenu() {
-
-	char Id[100];
-	char password1[100];
-	char password2[100];
-	char buffer[200];
-
-	FILE* fp = fopen("12345.txt", "r");
-	fgets(buffer, sizeof(buffer), fp);
-
-	printf("아이디> ");
-	scanf_s("%s", Id, sizeof(Id));
-	while (getchar() != '\n');
-	/*GET_G_INPUT;
-	Q_CHECK;*/
-	EraseSpace(Id);
-	//strcmp(Id, buffer); 그렇다면 어떻게 아이디, 비밀번호만 분류할것인가
-
-
-
-	return 0;
-}
+//int loginMenu() {
+//
+//	char Id[100];
+//	char password1[100];
+//	char password2[100];
+//	char buffer[200];
+//
+//	FILE* fp = fopen("12345.txt", "r");
+//	fgets(buffer, sizeof(buffer), fp);
+//
+//	printf("아이디> ");
+//	scanf_s("%s", Id, sizeof(Id));
+//	while (getchar() != '\n');
+//	/*GET_G_INPUT;
+//	Q_CHECK;*/
+//	EraseSpace(Id);
+//	//strcmp(Id, buffer); 그렇다면 어떻게 아이디, 비밀번호만 분류할것인가
+//
+//
+//
+//	return 0;
+//}
 
 
 void EraseSpace(char* ap_string)
@@ -203,5 +203,4 @@ void EraseSpace(char* ap_string)
 		ap_string++;
 	}
 	*p_dest = 0;	//맨 마지막에 null 저장
-	//
 }
