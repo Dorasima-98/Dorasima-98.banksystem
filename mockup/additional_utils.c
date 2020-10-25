@@ -81,7 +81,7 @@ int strToInquiry(char* str,char* accNum,const eAccType type)
 					mbtowc(wtemps[i] + j, attributes[i] + j, MB_CUR_MAX);
 				}
 			}
-			wprintf(L"< %s >/ %16s: %s/ 최대 월 납입액: %s ( %s )/ 현재 금액: %s\n",
+			wprintf(L"< %s >/ %16s: %s/ 최대 월 납입액: %s / 현재 금액: %s\n",
 				wtemps[0], wtemps[1], wtemps[2], wtemps[3], wtemps[4]);
 			break;
 		default:
