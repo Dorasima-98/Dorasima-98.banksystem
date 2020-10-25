@@ -24,7 +24,7 @@
     <ClCompile Include="startmenu.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="kyujintest.c">
+    <ClCompile Include="additional_utils.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

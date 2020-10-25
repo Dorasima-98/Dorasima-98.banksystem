@@ -17,6 +17,8 @@ int main(void)
 
 	fclose(f_MemberFile);
 	fclose(f_AccountList);
+	f_MemberFile = NULL;
+	f_AccountList = NULL;
 	return 0;
 }
 
@@ -43,5 +45,16 @@ void setting()
 	f_MemberFile = _wfopen(L"C:\\banksystemlog\\members.txt", L"a+");
 	f_AccountList = _wfopen(L"C:\\banksystemlog\\accounts.txt", L"a+");
 	assert(f_MemberFile != NULL && f_AccountList != NULL&&"\nfile opening is failed.");
+
+	if (setError(f_AccountList) == 1)
+	{
+		fclose(f_MemberFile);
+		fclose(f_AccountList);
+		f_MemberFile = NULL;
+		f_AccountList = NULL;
+
+		system("pause");
+		exit(0);
+	}
 }
 

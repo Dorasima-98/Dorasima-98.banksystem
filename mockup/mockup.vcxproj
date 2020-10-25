@@ -139,9 +139,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="kyujintest.c" />
+    <ClCompile Include="additional_utils.c" />
     <ClCompile Include="servicemenu.c" />
-    <ClCompile Include="startmenu.c" />
+    <ClCompile Include="startmenu.c">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
