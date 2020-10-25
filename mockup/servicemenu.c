@@ -124,6 +124,8 @@ INVALIDINPUT:
 void fixedDeposit()
 {
 	FILE* inputFile = NULL;
+	//FILE* tempFile = NULL;
+	//FILE* tempFile2 = NULL;
 
 	int lineCount = 1;
 	float rate = 0.0; //이자율
@@ -152,6 +154,7 @@ void fixedDeposit()
 			}
 		}
 	}
+
 	GET_G_INPUT;
 	fclose(inputFile);
 
@@ -182,24 +185,23 @@ void fixedDeposit()
 	scanf_s("%d", &selection, 1);
 
 	//printf는 그냥 확인용이라 다 빼야함. rate는 나중에 예금파일 첫 줄에 적어야 함
-	//나중에 이자율로 만기일 유추하는게 나을 것 같음
 	switch (selection) {
 		case 1:
 			rate = 1.0;
 			duration = 6;
-			printf("6개월 선택완료\n");
+			//printf("6개월 선택완료\n");
 			break;
 
 		case 2:
 			rate = 1.5;
 			duration = 1;
-			printf("1년 선택완료\n");
+			//printf("1년 선택완료\n");
 			break;
 
 		case 3:
 			rate = 2.0;
 			duration = 2;
-			printf("2년 선택완료\n");
+			//printf("2년 선택완료\n");
 			break;
 	}
 
@@ -207,7 +209,6 @@ void fixedDeposit()
 	system("cls");
 	PRINTCEN(L"납입액 입력");
 	DRAWLINE('-');
-	
 	
 	PRINTCEN(L"===선택한 서비스의 납입액(예치금)을 입력해주세요===");
 	PRINTLEFT(L"**확인사항**");
@@ -219,14 +220,9 @@ void fixedDeposit()
 	scanf("%f", &fixedDepositMoney);
 
 	//원래 여기 아까 선택한 계좌 잔액보다 적은지 많은지, 1원 이상인지 if문 있어야 함!!
-	if (fixedDepositMoney < 1 || fixedDepositMoney > 1000) {
-		printf("납입한도액을 넘겼습니다. 처음부터 다시 하세요~~"); 
-		//이것도 다시 입력받는걸로 바꾸기
-	}
-	else {
-		printf("%.5f 만원이 예금계좌에 예치되었습니다^v^\n", fixedDepositMoney);
-	}
-
+	
+	printf("%.5f 만원이 예금계좌에 예치되었습니다^v^\n", fixedDepositMoney);
+	
 	//만기수령액 계산하기
 	switch (selection) {
 		case 1:
@@ -273,11 +269,9 @@ void fixedDeposit()
 
 	//첫 줄에는 "계좌명, 계좌번호, 해당 계좌의 잔액, 계좌 비밀번호, 서비스 신청기간, 이자율, 해지 시 수령액의 조합"이 들어감!
 	//해당 계좌 잔액, 계좌 비밀번호는 지금 구현 못해서 그거 빼고 나머지는 첫 줄에 씀
-	//inputFile = fopen("fixed.txt", "r+");
-	//fprintf(inputFile, " %s|%s|%f|%d|%d|%f|%f", accountName, accountNum, fixedDepositMoney, accountPassword, duration, rate, finalFixedDepositMoney);
-	//fclose(inputFile);
-	
-	//파일포인터 다시 제일 마지막으로 옮기기
+	//tempFile = fopen("temp.txt", "w");
+	//fprintf(tempFile, " %s|%s|%f|%d|%d|%f|%f", accountName, accountNum, fixedDepositMoney, accountPassword, duration, rate, finalFixedDepositMoney);
+	//fclose(tempFile);
 
 	//Q_CHECK();
 	//wprintf(L"뒤로가기 커맨드 입력 안함.\n");
@@ -381,25 +375,25 @@ void Savings()
 	scanf("%f", &fixedDepositMoney);
 
 	//원래 여기 아까 선택한 계좌 잔액보다 적은지 많은지, 1원 이상인지 if문 있어야 함!!
-	if (fixedDepositMoney < 1 || fixedDepositMoney > 1000) {
-		printf("납입한도액을 넘겼습니다. 처음부터 다시 하세요~~");
-		//이것도 다시 입력받는걸로 바꾸기
-	}
-	else {
-		printf("%.5f 만원이 적금계좌에 납입되었습니다^v^\n", fixedDepositMoney);
-	}
+	printf("%.5f 만원이 적금계좌에 납입되었습니다^v^\n", fixedDepositMoney);
+	
 
 	//계좌번호 랜덤생성
-	srand(time(NULL));
-	char accountNum[4];
+	char accountNum[8];
 
-	printf("적금 계좌번호는 013"); 	//01은 은행에 따라 바꿔야함. 나중에 계정생성 파트 하시는 분한테 전역변수로 해달라고 말씀드려야 함
+	//01은 은행에 따라 바꿔야함. 나중에 계정생성 파트 하시는 분한테 전역변수로 해달라고 말씀드려야 함
 
-	for (int k = 0; k < 4; k++) {
+	accountNum[0] = '0';
+	accountNum[1] = '1';
+	accountNum[2] = '3';
+	accountNum[7] = '\0';
+
+	for (int k = 3; k < 7; k++) {
 		accountNum[k] = rand() % 10 + 48;
-		printf("%c", accountNum[k]);
 	}
-	printf("입니다^v^\n");
+
+	printf("적금 계좌번호는 %s입니다^v^\n", accountNum);
+
 
 	system("pause");
 	//그리고 예금파일 첫 줄에 "해당 계좌의 잔액, 계좌 비밀번호, 서비스 신청기간, 이자율, 해지 시 수령액의 조합"이 들어감!
@@ -413,9 +407,11 @@ void Savings()
 	//system("pause");
 }
 
-void inquiryAndCancel()
+void inquiryAndCancel() //Cancel 만 하기~~~
 {	
 	FILE* inputFile = NULL;
+
+	/*
 	char accountName[6];
 
 	char account[7];
@@ -470,10 +466,11 @@ void inquiryAndCancel()
 			}
 		}
 	}
+
 	fclose(inputFile);
 	printf("%d\n", money); //지워야 함. 테스트한다고 적은 것
 	system("pause");
-
+	
 	system("cls");
 	PRINTCEN(L"예적금 이자조회");
 	DRAWLINE('-');
@@ -483,6 +480,9 @@ void inquiryAndCancel()
 	system("pause");
 	
 	system("cls");
+
+	*/
+
 	PRINTCEN(L"예적금 해지");
 	DRAWLINE('-');
 	PRINTLEFT(L"예적금을 해지하시겠습니까?(y/n)");
@@ -503,10 +503,10 @@ void inquiryAndCancel()
 		goto INVALIDINPUT;
 	}
 
-	INVALIDINPUT:
-		return; //해야함
-	ESCAPE:
-		return; //해야함
+INVALIDINPUT:
+	return; //해야함
+ESCAPE:
+	return; //해야함
 
 }
 
