@@ -527,7 +527,7 @@ void historyInquiry()
 	FILE* f_Account;
 	eAccType type;
 	int accCounter = 0;
-	
+
 	system("cls");
 	PRINTCEN(L"내역 확인 메뉴");
 	DRAWLINE('-');
@@ -564,7 +564,7 @@ INVALIDINPUT:
 		PRINTRIGHT(L"계좌번호가 올바른 양식이 아닙니다. 다시 입력해주세요.");
 		goto INVALIDINPUT;
 	}
-	
+
 	// 해당 파일찾아가기
 	tempwcp = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(i_AccNum)+1));
 	for (int i = 0; i < strlen(i_AccNum)+1; i++)
@@ -626,6 +626,7 @@ INVALIDINPUT:
 			}
 			
 		}
+		strToInquiry(g_buffer,type,type); //additional_utils.c
 		CurrentFileOffset = ftell(f_Account);
 	}
 	if (accCounter == 0)
