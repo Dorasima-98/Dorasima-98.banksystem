@@ -3,6 +3,7 @@
 #include "userfunc.h"
 
 static int con_flag = 1;
+extern int Bank;
 
 int serviceMenu()
 {
@@ -274,7 +275,8 @@ void fixedDeposit()
 	//01은 은행에 따라 바꿔야함. 나중에 계정생성 파트 하시는 분한테 전역변수로 해달라고 말씀드려야 함
 
 	accountNum[0] = '0';
-	accountNum[1] = '1';
+	if (Bank != 0)
+		accountNum[1] = atoi(Bank, accountNum, 10);
 	accountNum[2] = '2';
 	accountNum[7] = '\0';
 
