@@ -11,11 +11,15 @@
 #include <assert.h>
 #include <Windows.h>
 #include <time.h>
+<<<<<<< HEAD
 #include <ctype.h>	//isalpha »ç¿ë
 
+=======
+>>>>>>> ì½”ë“œ ê²€?¬í•¨???‰ë‚´ë§??ˆìŠµ?ˆë‹¤.
 
 // ¹öÆÛ»çÀÌÁî Á¤ÀÇ
 #define BUFF_SIZE (128)
+#define FILE_BUFF (1024)
 // ÄÜ¼Ö °¡¿îµ¥ Á¤·Ä
 #define PRINTCEN(str) wprintf(L"%*s\n",48+wcslen(str)/2,str) 
 // ÄÜ¼Ö ¿À¸¥ÂÊ Á¤·Ä
@@ -49,6 +53,7 @@
 
 typedef enum { T1 = 0, T2, T3 }eAccType; // ÀÌ¸§Áş±â Èûµé¾î¼­...
 char g_buffer[BUFF_SIZE]; // ±Û·Î¹ú ÀÔ·Â ¹öÆÛ
+char g_filebuff[FILE_BUFF]; // ³¢¿ö¾²±â¿ë
 wchar_t g_wpath[MAX_PATH]; // ±Û·Î¹ú °æ·Î ÀÔ·Â ¹öÆÛ
 FILE* f_MemberFile; // È¸¿øÁ¤º¸ ÆÄÀÏ½ºÆ®¸²
 FILE* f_AccountList; // °èÁÂ¸®½ºÆ® ÆÄÀÏ½ºÆ®¸²
@@ -71,4 +76,9 @@ void EraseSpace(char* []);
 int strToInquiry(char* str, char* accNum,const eAccType type);
 int strToAccInfo(char* str, char* accNum, const eAccType type);
 int strToFSInfo(char* str, char* accNum, const eAccType type);
+int setError(FILE* f_accList);
+int checkAcc(FILE* f_target);
+int checkFix(FILE* f_target);
+int checkSav(FILE* f_setSav);
+int setInterest(FILE* f_target);
 
