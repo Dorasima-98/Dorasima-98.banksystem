@@ -46,14 +46,9 @@ INVALIDINPUT:
 		return 1;
 	}
 
-<<<<<<< HEAD
 }
 
-=======
->>>>>>> ì½”ë“œ ê²€?¬í•¨???‰ë‚´ë§??ˆìŠµ?ˆë‹¤.
 
-
-}
 void registerMenu() {
 
 	char Name[100];

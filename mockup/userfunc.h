@@ -11,11 +11,8 @@
 #include <assert.h>
 #include <Windows.h>
 #include <time.h>
-<<<<<<< HEAD
 #include <ctype.h>	//isalpha »ç¿ë
 
-=======
->>>>>>> ì½”ë“œ ê²€?¬í•¨???‰ë‚´ë§??ˆìŠµ?ˆë‹¤.
 
 // ¹öÆÛ»çÀÌÁî Á¤ÀÇ
 #define BUFF_SIZE (128)
