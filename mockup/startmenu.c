@@ -69,14 +69,14 @@ REPRINT:
 INVALIDINPUT:
 	PRINTLEFT("Please select menu by give number");
 	printf("> ");
-	if (fgets(buffer, BUFF_SIZE, stdin) == NULL)
+	if (fgets(g_buffer, BUFF_SIZE, stdin) == NULL)
 	{
 		perror("fgets() failed");
 		fprintf(stderr, "error on %s,lines %d", __FILE__, __LINE__);
 		system("pause");
 		exit(1);
 	}
-	selection = atoi(buffer);
+	selection = atoi(g_buffer);
 	switch (selection)
 	{
 	case 1:
