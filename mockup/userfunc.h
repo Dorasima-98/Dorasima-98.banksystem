@@ -11,7 +11,7 @@
 #include <assert.h>
 #include <Windows.h>
 #include <time.h>
-
+#include <ctype.h>	//isalpha 사용
 
 
 // 버퍼사이즈 정의

@@ -1,6 +1,7 @@
 #include "userfunc.h"
 
 static int con_flag = 1;
+static int Bank = 0;	
 
 int startMenu()
 {
@@ -48,12 +49,11 @@ INVALIDINPUT:
 	
 
 }
-#include "userfunc.h"
+
 
 void registerMenu() {
-#if TEST_OFF
+
 	char Name[100];
-	int Bank;
 	char Id[100];
 	char password1[100];
 	char password2[100];
@@ -62,21 +62,22 @@ void registerMenu() {
 
 	//사용자 이름
 Invalidinput1:
-	PRINTLEFT(L"사용자 이름을 입력해주세요");
-	wprintf(L">");
-	scanf_s("%s", Name, sizoef(Name));
+	printf("사용자 이름을 입력해주세요> \n");
+	scanf_s("%s", Name, sizeof(Name));
+	while (getchar() != '\n');
 	/*GET_G_INPUT;	입력이 없는것을 체크, 나중에 수정
 	Q_CHECK;		:Q 나가는거 체크*/
 	EraseSpace(Name);
 	for (int i = 0; ; i++) {
 		if (Name[i] == NULL) {
 			if (0 < i && i <= 40) {
-				PRINTLEFT(L"아이디를 제대로 입력했습니다, 은행을 선택합니다");
-				Sleep(5000);
+				printf("아이디를 제대로 입력했습니다, 은행을 선택합니다\n");
+				Sleep(3000);
 				system("cls");
+				break;
 			}
 			else {
-				PRINTLEFT(L"이름의길이가 초과됐습니다, 이름을 다시 입력해주세요\n");
+				printf(L"이름의길이가 초과됐습니다, 이름을 다시 입력해주세요\n");
 				goto Invalidinput1;
 			}
 		}
@@ -85,28 +86,28 @@ Invalidinput1:
 	//은행
 Invalidinput2:
 	DRAWLINE('-');
-	PRINTCEN(L"건은행-1  국은행-2  대은행-3  학은행-4  교은행-5");
+	printf("건은행-1  국은행-2  대은행-3  학은행-4  교은행-5\n");
 	DRAWLINE('-');
-	PRINTLEFT(L"은행을 선택해주세요");
-	wprintf(L">");
+	printf("은행을 선택해주세요> ");
 	scanf_s("%d", &Bank, sizeof(Bank));	//이렇게하면 스페이스바만 처리할수있음
+	while (getchar() != '\n');
 	/*GET_G_INPUT;
 	Q_CHECK;*/
 	if (1 <= Bank && Bank <= 5) {
-		printf("은행이 선택되었습니다");
-		Sleep(5000);
+		printf("은행이 선택되었습니다\n");
+		Sleep(3000);
 		system("cls");
 	}
 	else {
-		PRINTLEFT(L"은행을 다시 입력해주세요");
+		printf("은행을 다시 입력해주세요\n");
 		goto Invalidinput2;
 	}
 
 	//아이디
 Invalidinput3:
-	PRINTLEFT(L"아이디");
-	wprintf(L">");
+	printf("아이디> ");
 	scanf_s("%s", Id, sizeof(Id));
+	while (getchar() != '\n');
 	/*GET_G_INPUT;
 	Q_CHECK;*/
 	EraseSpace(Id);
@@ -114,14 +115,14 @@ Invalidinput3:
 		if (isalnum(Id[i]) != NULL) 			//영문자 또는 숫자이면 0아닌 값 반환
 			continue;
 		else {
-			PRINTLEFT(L"잘못된 입력이 들어왔습니다, 다시 입력해주세요");
+			printf("잘못된 입력이 들어왔습니다, 다시 입력해주세요\n");
 			goto Invalidinput3;
 		}
 
-		if (Id[i] = NULL) {
-			PRINTLEFT(L"아이디 입력이 됐습니다");
-			PRINTLEFT(L"비밀번호를 입력합니다");
-			Sleep(5000);
+		if (Id[i] == NULL) {
+			printf("아이디 입력이 완료됐습니다\n");
+			printf("비밀번호를 입력합니다\n");
+			Sleep(3000);
 			system("cls");
 			break;
 		}
@@ -129,58 +130,77 @@ Invalidinput3:
 
 	//비밀번호
 	do {
-		PRINTLEFT(L"비밀번호");
-		wprintf(L">");
+		printf("비밀번호> ");
 		/*GET_G_INPUT;
 		Q_CHECK;*/
 		scanf_s("%s", password1, sizeof(password1));
+		while (getchar() != '\n');
 		EraseSpace(password1);
-		PRINTLEFT(L"비밀번호 확인");
-		wprintf(L">");
-		scanf_s("%s", password2, sizeof(password2));
+		printf("비밀번호 확인> ");
 		EraseSpace(password2);
+		while (getchar() != '\n');
 
-		for (int i = 0; i < strlen(password1); i++) {
-			if (strcmp(password1[i], password2[i]) == 0)
-				pass += 0;
-			else
-				pass++;
-		}
+		if (strcmp(password1, password2) == 0)		//일단 여기만 오류 -> 나주엥 수정
+			pass = 0;
+		else
+			pass++;
 
 		if (pass > 0) {
-			PRINTLEFT(L"비밀번호를 다르게 입력했습니다, 다시 입력해주세요");
+			printf("비밀번호를 다르게 입력했습니다, 다시 입력해주세요\n");
+			pass = 0;		//pass 값 다시 초기화
 			passcount++;	//입력횟수 - 5번 넘어가면 안됨
 		}
 		else if (pass == 0)
-			PRINTLEFT(L"비밀번호를 제대로 입력했습니다");
+			printf("비밀번호를 제대로 입력했습니다\n");
 
 		if (passcount == 5) {
-			PRINTLEFT(L"비밀번호 입력횟수 5회초과");
-			PRINTLEFT(L"프로그램 종료");
-			Sleep(5000);
+			printf("비밀번호 입력횟수 5회초과\n");
+			printf("프로그램 종료\n");
+			Sleep(3000);
 			system("cls");
 			exit(0); //정상적인 종료 0, 비정상적인 종료 1
 		}
 	} while (passcount < 5);
 
-#endif
+	//이제 파일에 어떻게 입력할건가?
 }
 
-int loginMenu()
+//이제 파일을 어떻게 불러올것인가?
+int loginMenu() {
+
+	char Id[100];
+	char password1[100];
+	char password2[100];
+	char buffer[200];
+
+	FILE* fp = fopen("12345.txt", "r");
+	fgets(buffer, sizeof(buffer), fp);
+
+	printf("아이디> ");
+	scanf_s("%s", Id, sizeof(Id));
+	while (getchar() != '\n');
+	/*GET_G_INPUT;
+	Q_CHECK;*/
+	EraseSpace(Id);
+	//strcmp(Id, buffer); 그렇다면 어떻게 아이디, 비밀번호만 분류할것인가
+
+
+
+	return 0;
+}
+
+
+void EraseSpace(char* ap_string)
 {
-	system("cls");
-	PRINTCEN(L"로그인 메뉴");
-	DRAWLINE('-');
+	char* p_dest = ap_string;
 
-	PRINTLEFT(L"아이디를 입력하세요...(뒤로가기 \":q\")");
-	GET_G_INPUT;
-	Q_CHECK(0);
+	while (*ap_string != 0) {
+		if (*ap_string != ' ') {
+			*p_dest = *ap_string;
+			p_dest++;
+		}
 
-	PRINTLEFT(L"비밀번호를 입력하세요...(뒤로가기 \":q\")");
-	GET_G_INPUT;
-	Q_CHECK(0);
-
-	wprintf(L"뒤로가기 커맨드 입력 안함.\n");
-	system("pause");
-	return 1;
+		ap_string++;
+	}
+	*p_dest = 0;	//맨 마지막에 null 저장
 }
