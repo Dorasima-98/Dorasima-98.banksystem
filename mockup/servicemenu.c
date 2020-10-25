@@ -532,7 +532,7 @@ void historyInquiry()
 	PRINTCEN(L"내역 확인 메뉴");
 	DRAWLINE('-');
 
-#if TEST_ON
+#if TEST_ON 
 	PRINTRIGHT(L"조회하고자 하는 계좌번호를 입력해주세요");
 	printf("> ");
 INVALIDINPUT:
@@ -619,14 +619,15 @@ INVALIDINPUT:
 			if (type == T1)
 			{
 				strToAccInfo(g_buffer, i_AccNum, type);
+				i++;
 			}
 			else
 			{
-				//strToFSInfo(g_buffer, i_AccNum, type);
+				strToFSInfo(g_buffer, i_AccNum, type);
+				i++;
 			}
 			
 		}
-		strToInquiry(g_buffer,type,type); //additional_utils.c
 		CurrentFileOffset = ftell(f_Account);
 	}
 	if (accCounter == 0)
