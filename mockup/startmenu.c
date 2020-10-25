@@ -45,8 +45,6 @@ INVALIDINPUT:
 	{
 		return 1;
 	}
-	
-	
 
 }
 

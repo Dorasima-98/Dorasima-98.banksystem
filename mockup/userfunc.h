@@ -16,6 +16,7 @@
 
 // 버퍼사이즈 정의
 #define BUFF_SIZE (128)
+#define FILE_BUFF (1024)
 // 콘솔 가운데 정렬
 #define PRINTCEN(str) wprintf(L"%*s\n",48+wcslen(str)/2,str) 
 // 콘솔 오른쪽 정렬
@@ -49,6 +50,7 @@
 
 typedef enum { T1 = 0, T2, T3 }eAccType; // 이름짓기 힘들어서...
 char g_buffer[BUFF_SIZE]; // 글로벌 입력 버퍼
+char g_filebuff[FILE_BUFF]; // 끼워쓰기용
 wchar_t g_wpath[MAX_PATH]; // 글로벌 경로 입력 버퍼
 FILE* f_MemberFile; // 회원정보 파일스트림
 FILE* f_AccountList; // 계좌리스트 파일스트림
@@ -71,4 +73,9 @@ void EraseSpace(char* ap_string);
 int strToInquiry(char* str, char* accNum,const eAccType type);
 int strToAccInfo(char* str, char* accNum, const eAccType type);
 int strToFSInfo(char* str, char* accNum, const eAccType type);
+int setError(FILE* f_accList);
+int checkAcc(FILE* f_target);
+int checkFix(FILE* f_target);
+int checkSav(FILE* f_setSav);
+int setInterest(FILE* f_target);
 
