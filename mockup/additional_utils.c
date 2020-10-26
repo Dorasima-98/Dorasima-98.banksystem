@@ -1,5 +1,199 @@
 #include "userfunc.h"
 
+// 숫자 + 영문자가 아니면 1반환
+int checkID(const char* ap_string)
+{
+	char* p_dest = ap_string;
+	int IDcon[2] = { 0, };
+
+	while (*p_dest != '\0')
+	{
+		if (isalnum(*p_dest) == 0)
+		{
+			return 1;
+		}
+		else if (isdigit(*p_dest) != 0)
+		{
+			IDcon[1] = 1;
+		}
+		else
+		{
+			IDcon[0] = 1;
+		}
+		p_dest++;
+	}
+	if (IDcon[0] && IDcon[1])
+	{
+		return 0;
+	}
+	return 1;
+}
+// 영문자 혹은 공백이 아니면 1반환
+int checkName(const char* ap_string)
+{
+	char* p_dest = ap_string;
+
+	while (*p_dest != '\0')
+	{
+		if (isalpha(*p_dest) == 0 && *p_dest !=' ')
+		{
+			return 1;
+		}
+		p_dest++;
+	}
+	return 0;
+}
+// 영어, 숫자, 특문 하나 씩 있어야함. 이상한거 들어오거나, 없으면 1반환
+int checkPW(const char* ap_string)
+{
+	char* p_dest = ap_string;
+	char SC[10] = {'!','@','#','$','%','^','&','*','(',')'};
+	int PWcon[3] = { 0, };
+	int i = 0;
+
+	while (*p_dest != '\0')
+	{
+		if (isalpha(*p_dest) != 0)
+		{
+			PWcon[0] = 1;
+		}
+		else if(isdigit(*p_dest)!=0)
+		{
+			PWcon[1] = 1;
+		}
+		else
+		{
+			for (i = 0; i < 10; i++)
+			{
+				if (SC[i] == *p_dest)
+				{
+					PWcon[2] = 1;
+					break;
+				}
+			}
+		}
+		p_dest++;
+	}
+	if (PWcon[0] && PWcon[1] && PWcon[2])
+	{
+		return 0;
+	}
+	return 1;
+}
+//중간 공백 체크하기
+int checkSpace(const char* ap_string)
+{
+	char* p_dest = ap_string;
+
+	while (*p_dest != '\0')
+	{
+		if (*p_dest++ == ' ')
+		{
+			return 1;
+		}
+	}
+	return 0;	//맨 마지막에 null 저장
+}
+//중간 공백 지우기
+void EraseSpace(char* ap_string)
+{
+	char* p_dest = ap_string;
+
+	while (*ap_string != 0)
+	{
+		if (*ap_string != ' ')
+		{
+			*p_dest = *ap_string;
+			p_dest++;
+		}
+
+		ap_string++;
+	}
+	*p_dest = 0;	//맨 마지막에 null 저장
+}
+// 문자열 우측 공백문자 삭제 함수
+char* rtrim_malloc(char* des, const char* src)
+{
+	assert(src != NULL && "src is NULL");
+	des = (char*)malloc(sizeof(char) * strlen(src));//fgets 하면 개행문자도 같이들어갑니다.
+	assert(des != NULL && "temp memory allocation is failed.");
+	char* tdes = des;
+	char* tsrc = src;
+
+	while (*tsrc != '\0') 
+	{
+		*tdes++ = *tsrc++;
+	}
+		
+	while (*tsrc == ' ')
+	{
+		tsrc--;
+		tdes--;
+	}
+	*++tdes = '\0';
+
+	return des;
+}
+// 문자열 좌측 공백문자 삭제 함수
+char* ltrim_malloc(char* des, const char* src)
+{
+	assert(src != NULL && "src is NULL");
+	des = (char*)malloc(sizeof(char) * strlen(src));//fgets 하면 개행문자도 같이들어갑니다.
+	assert(des != NULL && "temp memory allocation is failed.");
+	char* end;
+	int startFlags = 0;
+	char* tdes = des;
+	char* tsrc = src;
+
+	while (*tsrc != '\0')
+	{
+		if (*tsrc == ' ' && startFlags == 0)
+		{
+			tsrc++;
+		}
+		else
+		{
+			startFlags = 1;
+			*tdes++ = *tsrc++;
+		}
+	}
+	*tdes = '\0';
+
+	return des;
+}
+// 문자열 앞뒤 공백 모두 삭제 함수
+char* trim_malloc(char* des, const char* src)
+{
+	assert(src != NULL && "src is NULL");
+	des = (char*)malloc(sizeof(char) * strlen(src));//fgets 하면 개행문자도 같이들어갑니다.
+	assert(des != NULL && "temp memory allocation is failed.");
+	char* end;
+	int startFlags = 0;
+	char* tdes = des;
+	char* tsrc = src;
+
+	while (*tsrc != '\0')
+	{
+		if (*tsrc == ' ' && startFlags == 0)
+		{
+			tsrc++;
+		}
+		else
+		{
+			startFlags = 1;
+			*tdes++ = *tsrc++;
+		}
+	}
+	while (*tsrc == ' ')
+	{
+		tsrc--;
+		tdes--;
+	}
+	*--tdes = '\0';
+
+
+	return des;
+}
 int strToInquiry(char* str, char* accNum, const eAccType type)
 {
 	assert(str != NULL && accNum != NULL && "str or accNum points NULL");
@@ -475,7 +669,7 @@ int checkAcc(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋ�
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset+1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char),1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char),FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char),19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -493,7 +687,7 @@ int checkAcc(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋ�
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -513,7 +707,7 @@ int checkAcc(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋ�
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -531,7 +725,7 @@ int checkAcc(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋ�
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -549,7 +743,7 @@ int checkAcc(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋ�
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -567,7 +761,7 @@ int checkAcc(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋ�
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -585,7 +779,7 @@ int checkAcc(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋ�
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -603,7 +797,7 @@ int checkAcc(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋ�
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -652,7 +846,7 @@ ANOTHER_ACCOUNT:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -670,7 +864,7 @@ ANOTHER_ACCOUNT:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -688,7 +882,7 @@ ANOTHER_ACCOUNT:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -706,7 +900,7 @@ ANOTHER_ACCOUNT:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -724,7 +918,7 @@ ANOTHER_ACCOUNT:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -742,7 +936,7 @@ ANOTHER_ACCOUNT:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -760,7 +954,7 @@ ANOTHER_ACCOUNT:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -785,7 +979,7 @@ ANOTHER_ACCOUNT:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -803,7 +997,7 @@ ANOTHER_ACCOUNT:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -821,7 +1015,7 @@ ANOTHER_ACCOUNT:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -839,7 +1033,7 @@ ANOTHER_ACCOUNT:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -857,7 +1051,7 @@ ANOTHER_ACCOUNT:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -905,7 +1099,7 @@ ANOTHER:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -923,7 +1117,7 @@ ANOTHER:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -941,7 +1135,7 @@ ANOTHER:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -959,7 +1153,7 @@ ANOTHER:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -977,7 +1171,7 @@ ANOTHER:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -995,7 +1189,7 @@ ANOTHER:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -1013,7 +1207,7 @@ ANOTHER:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -1038,7 +1232,7 @@ ANOTHER:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -1056,7 +1250,7 @@ ANOTHER:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -1074,7 +1268,7 @@ ANOTHER:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -1092,7 +1286,7 @@ ANOTHER:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -1110,7 +1304,7 @@ ANOTHER:
 						CurrentFileOffset++;
 					}
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char), 1024, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
@@ -1140,4 +1334,51 @@ int setInterest(FILE* f_target)
 	year = pTS->tm_year + 1900;
 	month = pTS->tm_mon + 1;
 	day = pTS->tm_mday;
+}
+int checkDupID(const char* ID)
+{
+	assert(ID != NULL && "ID is NULL");
+	long CurrentFileOffset = 0;
+	int bDulpicate = 0;
+
+	char* IDs =NULL;
+	int IDNums = 0;
+	int i = 0;
+	char* pbuf=NULL;
+	char* pID = NULL;
+
+	while (1)
+	{
+		fseek(f_MemberFile, CurrentFileOffset, SEEK_SET);
+		fgets(g_buffer, BUFF_SIZE, f_MemberFile);
+		if (feof(f_MemberFile))
+		{
+			break;
+		}
+		IDNums++;
+		IDs = (char*)malloc(sizeof(char) * 17);
+		assert(IDs != NULL && "IDs memory allocation is error");
+		pbuf = g_buffer;
+		pID = IDs;
+
+		while (*pbuf++ != '|');
+		while(*pbuf != '|')
+		{
+			*pID++ = *pbuf++;
+		}
+		*pID = '\0';
+
+		if (strcmp(ID, IDs) == 0)
+		{
+			free(IDs);
+			return 1;
+		}
+
+		CurrentFileOffset = ftell(f_MemberFile);
+	}
+	if (IDs != NULL)
+	{
+		free(IDs);
+	}
+	return 0;
 }

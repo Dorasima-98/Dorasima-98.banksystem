@@ -18,13 +18,13 @@
 #define BUFF_SIZE (128)
 #define FILE_BUFF (1024)
 // 콘솔 가운데 정렬
-#define PRINTCEN(str) wprintf(L"%*s\n",48+wcslen(str)/2,str) 
+#define PRINTCEN(str) wprintf(L"%*s\n",72+wcslen(str)/2,str) 
 // 콘솔 오른쪽 정렬
 #define PRINTRIGHT(str) wprintf(L"%75s\n",str) 
 // 콘솔 왼쪽 정렬
 #define PRINTLEFT(str) wprintf(L"%-s\n",str) 
 // 캐릭터로 선(?)긋기
-#define DRAWLINE(ch) for(int i=0;i<100;i++)printf("%c",ch); printf("\n") 
+#define DRAWLINE(ch) for(int i=0;i<150;i++)printf("%c",ch); printf("\n") 
 
 // 글로벌 버퍼에 입력 받기
 #define GET_G_INPUT if (fgets(g_buffer, BUFF_SIZE, stdin) == NULL)	\
@@ -56,12 +56,19 @@ FILE* f_MemberFile; // 회원정보 파일스트림
 FILE* f_AccountList; // 계좌리스트 파일스트림
 wchar_t* tempwcp; // 혹시 나중에 쓸지 몰라서 포인터로 만들었습니다.
 
+
 int startMenu();
 void registerMenu();
 int loginMenu();
-char* trim(char* s); // 문자열 좌우 공백 모두 삭제 함수
-char* ltrim(char* s); // 문자열 좌측 공백 제거 함수
-char* rtrim(char* s); // 문자열 우측 공백 제거 함수
+
+int checkID(const char* ap_string);
+int checkName(const char* ap_string);
+int checkPW(const char* ap_string);
+int checkSpace(const char* ap_string); // 문자열 중간 공백 체크 (있으면 1 반환, 없으면 0 반환)
+void EraseSpace(char* ap_string); 
+char* trim_malloc(char* des, const char* src); // 문자열 좌우 공백 모두 삭제 함수
+char* ltrim_malloc(char* des, const  char* src); // 문자열 좌측 공백 제거 함수
+char* rtrim_malloc(char* des, const  char* src); // 문자열 우측 공백 제거 함수
 
 int serviceMenu();
 void makeAccountMenu();
@@ -72,7 +79,7 @@ void inquiryAndCancel();
 void transferMenu();
 void atmMenu();
 void historyInquiry();
-void EraseSpace(char* ap_string);
+
 int strToInquiry(char* str, char* accNum,const eAccType type);
 int strToAccInfo(char* str, char* accNum, const eAccType type);
 int strToFSInfo(char* str, char* accNum, const eAccType type);
@@ -81,4 +88,4 @@ int checkAcc(FILE* f_target);
 int checkFix(FILE* f_target);
 int checkSav(FILE* f_setSav);
 int setInterest(FILE* f_target);
-
+int checkDupID(const char* ID);

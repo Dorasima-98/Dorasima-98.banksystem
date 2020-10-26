@@ -25,7 +25,7 @@ int main(void)
 
 void setting()
 {
-	system("mode con: cols=100 lines=20");
+	system("mode con: cols=150 lines=30");
 	setlocale(LC_ALL, "korean");
 	_wsetlocale(LC_ALL, L"korean");
 	
