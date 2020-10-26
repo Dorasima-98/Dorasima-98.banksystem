@@ -165,12 +165,12 @@ void fixedDeposit()
 	p = 0;
 
 	if (inputFile != NULL) {
-		char buffer[256]; //나중에 수정해야함
+		char buffer2[256]; //나중에 수정해야함
 		printf("%d\n", p);
 
 		while (!feof(inputFile)) {
-			fgets(buffer, sizeof(buffer), inputFile);
-			char* ptr2 = strtok(buffer, "\n|");
+			fgets(buffer2, sizeof(buffer2), inputFile);
+			char* ptr2 = strtok(buffer2, "\n|");
 			while (ptr2 != NULL) {
 				ptrAdd[p] = ptr2;
 				ptr2 = strtok(NULL, "\n|");
