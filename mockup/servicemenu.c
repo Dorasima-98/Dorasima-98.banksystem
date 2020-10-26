@@ -165,20 +165,21 @@ void fixedDeposit()
 	p = 0;
 
 	if (inputFile != NULL) {
-		char buffer2[256]; //나중에 수정해야함
+		char buffer[256]; //나중에 수정해야함
 		printf("%d\n", p);
 
 		while (!feof(inputFile)) {
-			fgets(buffer2, sizeof(buffer2), inputFile);
-			char* ptr2 = strtok(buffer2, "\n|");
+			fgets(buffer, sizeof(buffer), inputFile);
+			char* ptr2 = strtok(buffer, "\n|");
 			while (ptr2 != NULL) {
 				ptrAdd[p] = ptr2;
 				ptr2 = strtok(NULL, "\n|");
 				printf("%d", p);
-				printf("ptrAdd[%d]는 %s임\n",p, (ptrAdd[p]));
+				printf("ptrAdd[%d]는 %s임\n",p, ptrAdd[p]);
 				p++;
 			
 			}
+			printf("ptrAdd[%d]는 %s임\n", p, ptrAdd[p]);
 		}
 	}
 	
@@ -188,7 +189,7 @@ void fixedDeposit()
 	if (atoi(g_buffer)) {
 		moneySelection = 2+5*(atoi(g_buffer)-1);
 		printf("%d", moneySelection);
-		printf("%d", atoi(ptrAdd[moneySelection]));
+		printf("ptrAdd [%d] 는 %d 입니당", moneySelection, atoi(ptrAdd[moneySelection]));
 		if (atoi(ptrAdd[moneySelection]) == 111111) {
 			printf("hello");
 		}
