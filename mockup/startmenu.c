@@ -186,7 +186,7 @@ int loginMenu() {
 	char password[100];
 	char Idbuffer[100];
 	char passwordbuffer[100];
-	char* ptr;		//파일에서 읽어온 아이디, 비밀번호
+	char* ptr =NULL;		//파일에서 읽어온 아이디, 비밀번호
 	int passcount = 0;	//비밀번호 재입력 횟수 5번
 	FILE* fp = fopen("HumanList.txt", "r");
 	
@@ -203,9 +203,17 @@ RETURN1:
 			ptr = strtok(Idbuffer, "|");
 			ptr = strtok(NULL, "|");	//첫번째 아이디반환
 		}
-	}else
+	}
+	else
+	{
 		printf("파일에 입력된 정보x");
-	
+		return;
+	}
+		
+	if (ptr == NULL)
+	{
+		return;
+	}
 	if(strcmp(ptr, Id) != 0) {
 		printf("계정 생성이 안된 아이디입니다\n");
 		printf("다시 입력해주세요\n");
