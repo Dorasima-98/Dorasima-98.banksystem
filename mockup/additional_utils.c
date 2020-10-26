@@ -850,7 +850,7 @@ ANOTHER_ACCOUNT:
 			piter++;
 			while ((*piter) != '|')
 			{
-				if (isdigit(*piter) == 0)//ภÜพื
+				if (isdigit(*piter) == 0&&(*piter) != '.')//ภÜพื
 				{
 					while (*(++pFileOffset) != '\n')
 					{
@@ -1101,7 +1101,7 @@ ANOTHER:
 				piter++;
 			}
 			piter++;
-			while ((*piter) != '|')
+			while ((*piter) != '|' && (*piter) != '.')
 			{
 				if (isdigit(*piter) == 0)//ภÜพื
 				{
