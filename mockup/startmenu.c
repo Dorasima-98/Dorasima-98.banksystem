@@ -224,13 +224,13 @@ Invalidinput5:
 	while (fgetc(f_MemberFile) != '|')
 	{
 		CurrentFileOffset--;
-		fseek(f_MemberFile, CurrentFileOffset - 1, SEEK_END);
+		fseek(f_MemberFile, CurrentFileOffset, SEEK_END);
 	}
 	fseek(f_MemberFile, CurrentFileOffset, SEEK_END);
 	memberInfoSize = strlen(Name_malloc) + strlen(ID_malloc) + strlen(PW1_malloc) + 8;
 	memberInfo = (char*)malloc(sizeof(char) * memberInfoSize);
 	assert(memberInfo != NULL && "memberInfo allcation failed");
-	sprintf(memberInfo,"\n%s|%s|%s|0%d|", Name_malloc, ID_malloc, PW1_malloc, bank);
+	sprintf(memberInfo,"%s|%s|%s|0%d|\n", Name_malloc, ID_malloc, PW1_malloc, bank);
 	fwrite(memberInfo, sizeof(char), memberInfoSize, f_MemberFile);
 
 	free(Name_malloc);
@@ -244,79 +244,56 @@ Invalidinput5:
 }
 
 int loginMenu() {
-	
-	char Id[100];
-	char password[100];
-	char Idbuffer[100];
-	char passwordbuffer[100];
-	char* ptr =NULL;		//파일에서 읽어온 아이디, 비밀번호
-	int passcount = 0;	//비밀번호 재입력 횟수 5번
-	FILE* fp = fopen("HumanList.txt", "r");
-	
-	//아이디 검사
-RETURN1:
-	printf("아이디> ");
-	scanf_s("%s", Id, sizeof(Id));
-	while (getchar() != '\n');
-	/*GET_G_INPUT;
-	Q_CHECK;*/
-	if (fp != NULL) { 
-		if(!feof(fp)) {
-			fgets(Idbuffer, sizeof(Idbuffer), fp);
-			ptr = strtok(Idbuffer, "|");
-			ptr = strtok(NULL, "|");	//첫번째 아이디반환
-		}
-	}
-	else
-	{
-		printf("파일에 입력된 정보x");
-		return;
-	}
-		
-	if (ptr == NULL)
-	{
-		return;
-	}
-	if(strcmp(ptr, Id) != 0) {
-		printf("계정 생성이 안된 아이디입니다\n");
-		printf("다시 입력해주세요\n");
-		goto RETURN1;
-	}
+	char* userInput = NULL;
+	int IDresult = 0;
+	int PWresult = 0;
+	int trial = 5;
 
+	while (trial != 0)
+	{
+		PRINTLEFT(L"아이디를 입력하시오.\n> ");
+		GET_G_INPUT;
+		//Q_CHECK();
 
-	//아이디가 입력됐다면 비밀번호 검사
-	if (strcmp(ptr, Id) == 0) {
-		printf("비밀번호> ");
-		scanf_s("%s", password, sizeof(password));
-		while (getchar() != '\n');
-		/*GET_G_INPUT;
-		Q_CHECK;*/
-		if (fp != NULL) {
-			if (!feof(fp)) {
-				ptr = strtok(NULL, "|");	//두번쨰 비밀번호 반환
-			}
+		userInput = trim_malloc(userInput, g_buffer);
+		assert(userInput != NULL && "trim is Something wrong...");
+		printf("%s %d\n", userInput, strlen(userInput));
+		printf("%s\n", g_buffer);
+
+		IDresult = checkDupID(userInput);
+
+		free(userInput);
+		userInput = NULL;
+
+		Sleep(500);
+
+		PRINTLEFT(L"비밀번호를 입력하시오.\n>");
+		GET_G_INPUT;
+		//Q_CHECK();
+
+		userInput = trim_malloc(userInput, g_buffer);
+		assert(userInput != NULL && "trim is Something wrong...");
+		printf("%s %d\n", userInput, strlen(userInput));
+		printf("%s\n", g_buffer);
+
+		PWresult = checkDupPW(userInput);
+
+		free(userInput);
+		userInput = NULL;
+
+		if (IDresult && PWresult)
+		{
+			PRINTLEFT(L"로그인 성공!!!");
+			Sleep(1000);
+			return 1;
 		}
 		else
-			printf("파일에 입력된 정보x");
-
-		do {
-			if (strcmp(ptr, password) == 0) {
-				printf("비밀번호 제대로 입력했습니다\n");
-			}else {
-				++passcount;
-				printf("비밀번호를 %d번 더 입력할 수 있습니다\n", 5-passcount);
-				if (passcount == 5) {
-					printf("비밀번호 입력가능횟수 5번 초과\n");
-					printf("프로그램을 종료합니다\n");
-					Sleep(1000);
-					exit(0);
-				}
-			}
-		} while (passcount < 5);
+		{
+			PRINTRIGHT(L"둘 중 뭐가 틀렸는지도 안 알려줄겁니다.");
+			trial--;
+		}
 	}
-
-	fclose(fp);
-	
+	PRINTRIGHT(L"5번 틀렸습니다... 좀 쉬었다가 오세요.");
 	return 0;
 }
 

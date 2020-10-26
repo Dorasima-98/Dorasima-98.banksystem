@@ -83,9 +83,12 @@ void historyInquiry();
 int strToInquiry(char* str, char* accNum,const eAccType type);
 int strToAccInfo(char* str, char* accNum, const eAccType type);
 int strToFSInfo(char* str, char* accNum, const eAccType type);
+
 int setError(FILE* f_accList);
 int checkAcc(FILE* f_target);
 int checkFix(FILE* f_target);
 int checkSav(FILE* f_setSav);
 int setInterest(FILE* f_target);
+
 int checkDupID(const char* ID);
+int checkDupPW(const char* PW);

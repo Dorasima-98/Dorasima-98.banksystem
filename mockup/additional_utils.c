@@ -1382,3 +1382,52 @@ int checkDupID(const char* ID)
 	}
 	return 0;
 }
+int checkDupPW(const char* PW)
+{
+	assert(PW != NULL && "PW is NULL");
+	long CurrentFileOffset = 0;
+	int bDulpicate = 0;
+
+	char* PWs = NULL;
+	int PWNums = 0;
+	int i = 0;
+	char* pbuf = NULL;
+	char* pPW = NULL;
+
+	while (1)
+	{
+		fseek(f_MemberFile, CurrentFileOffset, SEEK_SET);
+		fgets(g_buffer, BUFF_SIZE, f_MemberFile);
+		if (feof(f_MemberFile))
+		{
+			break;
+		}
+		PWNums++;
+		PWs = (char*)malloc(sizeof(char) * 17);
+		assert(PWs != NULL && "PWs memory allocation is error");
+		pbuf = g_buffer;
+		pPW = PWs;
+
+		while (*pbuf++ != '|');
+		pbuf++;
+		while (*pbuf++ != '|');
+		while (*pbuf != '|')
+		{
+			*pPW++ = *pbuf++;
+		}
+		*pPW = '\0';
+
+		if (strcmp(PW, PWs) == 0)
+		{
+			free(PWs);
+			return 1;
+		}
+
+		CurrentFileOffset = ftell(f_MemberFile);
+	}
+	if (PWs != NULL)
+	{
+		free(PWs);
+	}
+	return 0;
+}
