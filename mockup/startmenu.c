@@ -50,8 +50,6 @@ INVALIDINPUT:
 
 }
 
-
-
 void registerMenu() {
 
 	char* Name_malloc = NULL;
@@ -75,8 +73,7 @@ Invalidinput1:
 	
 	Name_malloc = trim_malloc(Name_malloc,g_buffer);
 	assert(Name_malloc != NULL && "trim is Something wrong...");
-	printf("%s %d\n", Name_malloc,strlen(Name_malloc));
-	printf("%s\n", g_buffer);
+
 	if (strlen(Name_malloc) > 16 || strlen(Name_malloc) < 1)
 	{
 		PRINTRIGHT(L"이름의 길이는 1자 ~ 16자 입니다. 다시 입력해주세요.\n");
@@ -131,9 +128,7 @@ Invalidinput3:
 
 	ID_malloc = trim_malloc(ID_malloc, g_buffer);
 	assert(ID_malloc != NULL && "trim is Something wrong...");
-	printf("%s\n", ID_malloc);
-	printf("%s\n", g_buffer);
-	char* tempID = ID_malloc;
+
 	if (strlen(ID_malloc) > 16 || strlen(ID_malloc) < 8)
 	{
 		PRINTRIGHT(L"ID의 길이는 8~ 16자 입니다. 다시 입력해주세요.\n");
@@ -176,8 +171,7 @@ Invalidinput4:
 
 	PW1_malloc = trim_malloc(PW1_malloc, g_buffer);
 	assert(PW1_malloc != NULL && "trim is Something wrong...");
-	printf("%s\n", PW1_malloc);
-	printf("%s\n", g_buffer);
+	
 	if (strlen(PW1_malloc) > 32 || strlen(PW1_malloc) < 8)
 	{
 		PRINTRIGHT(L"PassWords의 길이는 8자 ~ 32자 입니다. 다시 입력해주세요.\n");
@@ -209,8 +203,7 @@ Invalidinput5:
 
 	PW2_malloc = trim_malloc(PW2_malloc, g_buffer);
 	assert(PW2_malloc != NULL && "trim is Something wrong...");
-	printf("%s\n", PW2_malloc);
-	printf("%s\n", g_buffer);
+	
 	if (strcmp(PW2_malloc, PW1_malloc) != 0)
 	{
 		PRINTRIGHT(L"PassWords가 서로 일치하지 않습니다.\n ");
@@ -257,10 +250,12 @@ int loginMenu() {
 
 		userInput = trim_malloc(userInput, g_buffer);
 		assert(userInput != NULL && "trim is Something wrong...");
-		printf("%s %d\n", userInput, strlen(userInput));
-		printf("%s\n", g_buffer);
 
 		IDresult = checkDupID(userInput);
+
+
+		setAccListByID_malloc(userInput);
+		strncpy(g_userID, userInput, strlen(userInput)+1);
 
 		free(userInput);
 		userInput = NULL;
@@ -273,8 +268,6 @@ int loginMenu() {
 
 		userInput = trim_malloc(userInput, g_buffer);
 		assert(userInput != NULL && "trim is Something wrong...");
-		printf("%s %d\n", userInput, strlen(userInput));
-		printf("%s\n", g_buffer);
 
 		PWresult = checkDupPW(userInput);
 

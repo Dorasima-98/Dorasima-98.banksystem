@@ -1,5 +1,36 @@
 #include "userfunc.h"
 
+
+int checkDigit(const char* ap_string)
+{
+	char* p_dest = ap_string;
+	while (*p_dest != '\0')
+	{
+		if (isdigit(*p_dest) == 0)
+		{
+			if (*p_dest == ' ' || *p_dest == '\t')
+			{
+				return 2;
+			}
+			return 1;
+		}
+		p_dest++;
+	}
+	return 0;
+}
+int checkAlnum(const char* ap_string) //숫자 or 영문자 아니면 1반환
+{
+	char* p_dest = ap_string;
+	while (*p_dest != '\0')
+	{
+		if (isalnum(*p_dest) == 0)
+		{
+			return 1;
+		}
+		p_dest++;
+	}
+	return 0;
+}
 // 숫자 + 영문자가 아니면 1반환
 int checkID(const char* ap_string)
 {
@@ -35,7 +66,7 @@ int checkName(const char* ap_string)
 
 	while (*p_dest != '\0')
 	{
-		if (isalpha(*p_dest) == 0 && *p_dest !=' ')
+		if (isalpha(*p_dest) == 0 && *p_dest != ' ')
 		{
 			return 1;
 		}
@@ -47,7 +78,7 @@ int checkName(const char* ap_string)
 int checkPW(const char* ap_string)
 {
 	char* p_dest = ap_string;
-	char SC[10] = {'!','@','#','$','%','^','&','*','(',')'};
+	char SC[10] = { '!','@','#','$','%','^','&','*','(',')' };
 	int PWcon[3] = { 0, };
 	int i = 0;
 
@@ -57,7 +88,7 @@ int checkPW(const char* ap_string)
 		{
 			PWcon[0] = 1;
 		}
-		else if(isdigit(*p_dest)!=0)
+		else if (isdigit(*p_dest) != 0)
 		{
 			PWcon[1] = 1;
 		}
@@ -120,11 +151,11 @@ char* rtrim_malloc(char* des, const char* src)
 	char* tdes = des;
 	char* tsrc = src;
 
-	while (*tsrc != '\0') 
+	while (*tsrc != '\0')
 	{
 		*tdes++ = *tsrc++;
 	}
-		
+
 	while (*tsrc == ' ')
 	{
 		tsrc--;
@@ -232,6 +263,7 @@ int strToInquiry(char* str, char* accNum, const eAccType type)
 		for (int i = 0; i < 6; i++)
 		{
 			wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(attributes[i]) + 1));
+			assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
 			for (int j = 0; j < strlen(attributes[i]) + 1; j++)
 			{
 				mbtowc(wtemps[i] + j, attributes[i] + j, MB_CUR_MAX);
@@ -403,6 +435,7 @@ ESCAPE:
 	for (int i = 0; i < 6; i++)
 	{
 		wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(attributes[i]) + 1));
+		assert(wtemps[i] != NULL && "wtemps[i] memory allocation failed");
 		for (int j = 0; j < strlen(attributes[i]) + 1; j++)
 		{
 			mbtowc(wtemps[i] + j, attributes[i] + j, MB_CUR_MAX);
@@ -427,6 +460,12 @@ ESCAPE:
 			wprintf(L"[자동이체 정보]: 매월 %s일 %s (만)원을 %s 계좌에 %s 만큼 보냅니다.\n",
 				wATInfo[0], wATInfo[1], wATInfo[2], wATInfo[3]);
 		}
+		for (int c = 0; c < 4; c++)
+		{
+			free(wATInfo[c]);
+			wATInfo[c] = NULL;
+		}
+		free(wATInfo);
 	}
 
 
@@ -440,12 +479,7 @@ ESCAPE:
 		free(wtemps[5]);
 		wtemps[5] = NULL;
 	}
-	for (int c = 0; c < 4; c++)
-	{
-		free(wATInfo[c]);
-		wATInfo[c] = NULL;
-	}
-	free(wATInfo);
+
 	wATInfo = NULL;
 	for (int f1 = 0; f1 < autoNums - 2; f1++)
 	{
@@ -532,11 +566,11 @@ int setError(FILE* f_accList)
 	assert(f_accList != NULL && "accList is NULL");
 
 	long CurrentFileOffset = 0;
-	
+
 	int i = 0;
-	int accNumToCheck = 0;
-	char* piter;
-	char** accNums = NULL;
+	int tempnamelen = 0;
+	char* piter = NULL;;
+	char* pitertemp = NULL;
 	eAccType type;
 	FILE* f_setter;
 
@@ -548,39 +582,65 @@ int setError(FILE* f_accList)
 		{
 			break;
 		}
-		accNumToCheck++;
+		g_allALANNums++;
 		CurrentFileOffset = ftell(f_accList);
 	}
 	i = 0;
 	CurrentFileOffset = 0;
 
-	accNums = (char**)malloc(sizeof(char*) * accNumToCheck);
-	for (int j = 0; j < accNumToCheck; j++)
+	g_allAccountsListAndName = (char***)malloc(sizeof(char**) * 2);
+	assert(g_allAccountsListAndName != NULL && "g_allAcountsListAndName allocation failed");
+	for (int j = 0; j < 2; j++)
 	{
-		accNums[j] = (char*)malloc(sizeof(char) * 8);
+		g_allAccountsListAndName[j] = (char**)malloc(sizeof(char*) * g_allALANNums);
+		assert(g_allAccountsListAndName[j] != NULL && "g_allAcountsListAndName allocation failed");
 	}
-	while (i < accNumToCheck) // 계좌번호 버퍼에 담기
+	for (int k = 0; k < g_allALANNums; k++)
 	{
+		g_allAccountsListAndName[0][k] = (char*)malloc(sizeof(char) * 8);
+		assert(g_allAccountsListAndName[1][k] != NULL && "g_allAcountsListAndName allocation failed");
+
+	}
+
+	while (i < g_allALANNums) // 계좌번호 버퍼에 담기
+	{
+		tempnamelen = 0;
 		fseek(f_accList, CurrentFileOffset, SEEK_SET);
 		fgets(g_buffer, BUFF_SIZE, f_accList);
 		if (feof(f_accList))
 		{
 			break;
 		}
-		strncpy(accNums[i], g_buffer, 7);
-		accNums[i++][7] = '\0';
+		piter = g_buffer;
+		strncpy(g_allAccountsListAndName[0][i], g_buffer, 7);
+		g_allAccountsListAndName[0][i][7] = '\0';
+		printf("%s | ", g_allAccountsListAndName[0][i]);
+
+		while (*piter++ != '|');
+		pitertemp = piter;
+		while (*piter++ != '|')
+		{
+			tempnamelen++;
+		}
+		g_allAccountsListAndName[1][i] = (char*)malloc(sizeof(char) * tempnamelen+1);
+		assert(g_allAccountsListAndName[1][i] != NULL && "g_allAcountsListAndName allocation failed");
+
+		strncpy(g_allAccountsListAndName[1][i], pitertemp, tempnamelen);
+		g_allAccountsListAndName[1][i][tempnamelen] = '\0';
+		printf("%s\n", g_allAccountsListAndName[1][i]);
+
 		CurrentFileOffset = ftell(f_accList);
+		i++;
 	}
-	int senseError = 0;
-	for (int f = 0; f < accNumToCheck; f++) //루프돌면서
+	for (int f = 0; f < g_allALANNums; f++) //루프돌면서
 	{
 		// 해당 파일찾아가기
 		wchar_t waccNums[8];
 		for (int i = 0; i < 8; i++)
 		{
-			mbtowc(waccNums+i, accNums[f]+i, MB_CUR_MAX);
+			mbtowc(waccNums + i, g_allAccountsListAndName[0][f] + i, MB_CUR_MAX);
 		}
-		switch (accNums[f][2]) // 타입체크
+		switch (g_allAccountsListAndName[0][f][2]) // 타입체크
 		{
 		case '1': // 입출금
 			type = T1;
@@ -628,13 +688,6 @@ int setError(FILE* f_accList)
 			assert("Critical + fatal + horrendous error.... function: \"setInterset()\"" && 0);
 		}
 	}
-	for (int k = 0; k < accNumToCheck; k++)
-	{
-		free(accNums[k]);
-		accNums[k] = NULL;
-	}
-	free(accNums);
-	accNums = NULL;
 	return 0;
 NEEDTOCORRECTFILE:
 	return 1;
@@ -645,9 +698,9 @@ int checkAcc(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋ�
 
 	long CurrentFileOffset = 0;
 	int line = 0;
-	int delNume=6;
+	int delNume = 6;
 	char* piter = NULL;
-	char* pFileOffset =NULL;
+	char* pFileOffset = NULL;
 	while (1)
 	{
 		fseek(f_target, CurrentFileOffset, SEEK_SET);
@@ -660,7 +713,7 @@ int checkAcc(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋ�
 		pFileOffset = g_buffer;
 		if (line == 0) //첫번째줄
 		{
-			while ((*piter)!='|') // 계좌이름
+			while ((*piter) != '|') // 계좌이름
 			{
 				if (isalnum(*piter) == 0)
 				{
@@ -668,10 +721,10 @@ int checkAcc(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋ�
 					{
 						CurrentFileOffset++;
 					}
-					fseek(f_target, CurrentFileOffset+1, SEEK_SET);
-					int numOfWords = fread(g_filebuff, sizeof(char),FILE_BUFF, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char),19, f_target);
+					int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
+					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
+					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -680,7 +733,7 @@ int checkAcc(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋ�
 			piter++;
 			while ((*piter) != '\n') //나머지 걍 숫자
 			{
-				if (isdigit(*piter) == 0 && (*piter)!='|')
+				if (isdigit(*piter) == 0 && (*piter) != '|')
 				{
 					while (*(++pFileOffset) != '\n')
 					{
@@ -806,13 +859,13 @@ int checkAcc(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋ�
 				piter++;
 			}
 			piter++;
-			
+
 		}
 		line++;
 		CurrentFileOffset = ftell(f_target);
 	}
-	
-	
+
+
 	return 0;
 }
 int checkFix(FILE* f_target)
@@ -836,7 +889,7 @@ int checkFix(FILE* f_target)
 		pFileOffset = g_buffer;
 		if (line == 0) //첫번째줄
 		{
-ANOTHER_ACCOUNT:
+		ANOTHER_ACCOUNT:
 			while ((*piter) != '|') // 계좌이름
 			{
 				if (isalnum(*piter) == 0)
@@ -877,7 +930,7 @@ ANOTHER_ACCOUNT:
 			{
 				if (isdigit(*piter) == 0 && (*piter) != '.') //현재금액
 				{
-					while (*(++pFileOffset) != '\n' )
+					while (*(++pFileOffset) != '\n')
 					{
 						CurrentFileOffset++;
 					}
@@ -1044,7 +1097,7 @@ ANOTHER_ACCOUNT:
 			piter++;
 			while ((*piter) != '|')
 			{
-				if (isdigit(*piter) == 0&&(*piter) != '.')//잔액
+				if (isdigit(*piter) == 0 && (*piter) != '.')//잔액
 				{
 					while (*(++pFileOffset) != '\n')
 					{
@@ -1086,11 +1139,11 @@ int checkSav(FILE* f_target)
 		}
 		piter = g_buffer;
 		pFileOffset = g_buffer;
-ANOTHER:
+	ANOTHER:
 		if (line == 0) //첫번째줄
 		{
 
- 			while ((*piter) != '|') // 계좌이름
+			while ((*piter) != '|') // 계좌이름
 			{
 				if (isalnum(*piter) == 0)
 				{
@@ -1339,12 +1392,10 @@ int checkDupID(const char* ID)
 {
 	assert(ID != NULL && "ID is NULL");
 	long CurrentFileOffset = 0;
-	int bDulpicate = 0;
 
-	char* IDs =NULL;
-	int IDNums = 0;
+	char* IDs = NULL;
 	int i = 0;
-	char* pbuf=NULL;
+	char* pbuf = NULL;
 	char* pID = NULL;
 
 	while (1)
@@ -1355,14 +1406,13 @@ int checkDupID(const char* ID)
 		{
 			break;
 		}
-		IDNums++;
 		IDs = (char*)malloc(sizeof(char) * 17);
 		assert(IDs != NULL && "IDs memory allocation is error");
 		pbuf = g_buffer;
 		pID = IDs;
 
 		while (*pbuf++ != '|');
-		while(*pbuf != '|')
+		while (*pbuf != '|')
 		{
 			*pID++ = *pbuf++;
 		}
@@ -1371,6 +1421,7 @@ int checkDupID(const char* ID)
 		if (strcmp(ID, IDs) == 0)
 		{
 			free(IDs);
+			IDs = NULL;
 			return 1;
 		}
 
@@ -1378,6 +1429,7 @@ int checkDupID(const char* ID)
 	}
 	if (IDs != NULL)
 	{
+		IDs = NULL;
 		free(IDs);
 	}
 	return 0;
@@ -1386,10 +1438,8 @@ int checkDupPW(const char* PW)
 {
 	assert(PW != NULL && "PW is NULL");
 	long CurrentFileOffset = 0;
-	int bDulpicate = 0;
 
 	char* PWs = NULL;
-	int PWNums = 0;
 	int i = 0;
 	char* pbuf = NULL;
 	char* pPW = NULL;
@@ -1402,8 +1452,7 @@ int checkDupPW(const char* PW)
 		{
 			break;
 		}
-		PWNums++;
-		PWs = (char*)malloc(sizeof(char) * 17);
+		PWs = (char*)malloc(sizeof(char) * 33);
 		assert(PWs != NULL && "PWs memory allocation is error");
 		pbuf = g_buffer;
 		pPW = PWs;
@@ -1420,6 +1469,7 @@ int checkDupPW(const char* PW)
 		if (strcmp(PW, PWs) == 0)
 		{
 			free(PWs);
+			PWs = NULL;
 			return 1;
 		}
 
@@ -1428,6 +1478,151 @@ int checkDupPW(const char* PW)
 	if (PWs != NULL)
 	{
 		free(PWs);
+		PWs = NULL;
+	}
+	return 0;
+}
+int setBankByID(const char* ID) // 아이디로 뱅크 코드 가져오고 그 줄 오프셋 반환 합니다....없으면 0반환
+{
+	assert(ID != NULL && "ID is NULL");
+	long CurrentFileOffset = 0;
+
+	char* IDs = NULL;
+	int IDNums = 0;
+	int i = 0;
+	char* pbuf = NULL;
+	char* pID = NULL;
+	int bankCode = 0;
+
+	while (1)
+	{
+		fseek(f_MemberFile, CurrentFileOffset, SEEK_SET);
+		fgets(g_buffer, BUFF_SIZE, f_MemberFile);
+		if (feof(f_MemberFile))
+		{
+			break;
+		}
+		IDs = (char*)malloc(sizeof(char) * 17);
+		assert(IDs != NULL && "IDs memory allocation is error");
+		pbuf = g_buffer;
+		pID = IDs;
+
+		while (*pbuf++ != '|');
+		while (*pbuf != '|')
+		{
+			*pID++ = *pbuf++;
+		}
+		*pID = '\0';
+
+		if (strcmp(ID, IDs) == 0)
+		{
+			while (*pbuf++ != '|');
+			while (*pbuf++ != '|');
+			bankCode = atoi(pbuf);
+			assert((isdigit(bankCode) == 0 || bankCode == 0) && "get BankCode is failed");
+
+			IDs = NULL;
+			free(IDs);
+
+			g_userBank= bankCode;
+			return CurrentFileOffset;
+		}
+		CurrentFileOffset = ftell(f_MemberFile);
+	}
+	if (IDs != NULL)
+	{
+		IDs = NULL;
+		free(IDs);
+	}
+	return 0;
+}
+int checkDupAN(const char* input)
+{
+	assert(input != NULL && "ID is NULL");
+
+	long CurrentFileOffset = 0;
+	int bDulpicate = 0;
+
+	int ANlen = 0;
+	char* pbuf = NULL;
+	char* pbuftemp = NULL;
+
+	for (int i = 0; i < g_allALANNums; i++)
+	{
+		for (int j = 0; j < g_userALNums; j++)
+		{
+			if(strcmp(g_allAccountsListAndName[0][i], g_userAccountsList[j]) == 0)
+			{
+				if (strcmp(g_allAccountsListAndName[1][i], input)==0)
+				{
+					return 1;
+				}
+			}
+		}
+	}
+	return 0;
+}
+int setAccListByID_malloc(const char* ID) // 아이디로 사용자 소유 계좌리스트 생성
+{
+
+	assert(ID != NULL && "ID is NULL");
+	long CurrentFileOffset = 0;
+	int bDulpicate = 0;
+
+	char* IDs = NULL;
+	int AccountsNums = 0;
+	int i = 0;
+	char* pbuf = NULL;
+	char* pbuftemp = NULL;
+	char* pID = NULL;
+
+	CurrentFileOffset = setBankByID(ID);
+
+	fseek(f_MemberFile, CurrentFileOffset, SEEK_SET);
+	fgets(g_buffer, BUFF_SIZE, f_MemberFile);
+	if (feof(f_MemberFile))
+	{
+		return 0;
+	}
+	pbuf = g_buffer;
+	pID = IDs;
+	for (int j = 0; j < 4; j++)
+	{
+		while (*pbuf++ != '|')
+		{
+			CurrentFileOffset++;
+		}
+	}
+	pbuftemp = pbuf;
+	while (*pbuf != '\0')
+	{
+		if (*pbuf++ == '|')
+		{
+			AccountsNums++;
+		}
+	}
+	pbuf = pbuftemp;
+
+	g_userALNums = AccountsNums;
+
+	if (AccountsNums != 0)
+	{
+		g_userAccountsList = (char**)malloc(sizeof(char*) * AccountsNums);
+		assert(g_userAccountsList != NULL && "g_userAccountsList memory allocation is failed");
+		for (int k = 0; k < AccountsNums; k++)
+		{
+			g_userAccountsList[k] = (char*)malloc(sizeof(char)*8);
+			assert(g_userAccountsList[k] != NULL && "g_userAccountsList[i] memory allocation is failed");
+			for (int h = 0; h < 7; h++)
+			{
+				g_userAccountsList[k][h] = *pbuf++;
+			}
+			pbuf++;
+			g_userAccountsList[k][7] = '\0';
+			printf("%s\n",g_userAccountsList[k]);
+			printf("%d", g_userALNums);
+		}
+		return AccountsNums;
 	}
 	return 0;
 }

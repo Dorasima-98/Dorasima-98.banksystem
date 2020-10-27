@@ -5,6 +5,7 @@
 static int con_flag = 1;
 extern int Bank;
 
+
 int serviceMenu()
 {
 	int menuSelection;
@@ -16,6 +17,10 @@ int serviceMenu()
 	PRINTLEFT(L"1) 계좌 생성 2) 예금과 적금 3) 입금과 출금");
 	PRINTLEFT(L"4) 계좌 이체 5) 계좌 내역 6) 로그아웃");
 	DRAWLINE('-');
+	if (g_userALNums == 0)
+	{
+		PRINTRIGHT(L"여담이지만... 본인 소유의 계좌가 하나도 없으십니다. 계좌 생성 먼저 하시죠?");
+	}
 INVALIDINPUT:
 	PRINTLEFT(L"주어진 메뉴의 번호를 선택해주세요. ");
 	wprintf(L"> ");
@@ -28,19 +33,47 @@ INVALIDINPUT:
 		makeAccountMenu();
 		break;
 	case 2:
+		if (g_userALNums == 0)
+		{
+			PRINTRIGHT(L"입출금이 없는데 뭔 예적금입니까?");
+			goto INVALIDINPUT;
+		}
 		fixedDepositAndSavingsMenu();
 		break;
 	case 3:
+		if (g_userALNums == 0)
+		{
+			PRINTRIGHT(L"돈은 있으세요? 입출금 계좌 먼저 만드세요.");
+			goto INVALIDINPUT;
+		}
 		transferMenu();
 		break;
 	case 4:
+		if (g_userALNums == 0)
+		{
+			PRINTRIGHT(L"좋은 말로할때 1번 메뉴 선택하세요.");
+			goto INVALIDINPUT;
+		}
 		atmMenu();
 		break;
 	case 5:
+		if (g_userALNums == 0)
+		{
+			PRINTRIGHT(L"볼게 없습니다. 1번 메뉴로 가셔서 입출금 계좌먼저 만드세요.");
+			goto INVALIDINPUT;
+		}
 		historyInquiry();
 		break;
 	case 6:
 		con_flag = 0;
+		g_userBank = 0;
+		for (int i = 0; i < g_userALNums; i++)
+		{
+			free(g_userAccountsList[i]);
+			g_userAccountsList[i] = NULL;
+		}
+		g_userAccountsList = NULL;
+		g_userALNums = 0;
 		break;
 	default:
 		goto INVALIDINPUT;
@@ -59,14 +92,196 @@ INVALIDINPUT:
 void makeAccountMenu()
 {
 	system("cls");
+
 	PRINTCEN(L"계좌생성 메뉴");
 	DRAWLINE('-');
 
-	GET_G_INPUT;
-	Q_CHECK();
+	char* AccountName_malloc = NULL;
+	char* PIN1 = NULL;
+	char* PIN2 = NULL;
+	char* toListfile = NULL;
+	char* toTargetfile = NULL;
+	wchar_t* temppath = NULL;
 
-	wprintf(L"뒤로가기 커맨드 입력 안함.\n");
-	system("pause");
+	FILE* f_accFile = NULL;
+
+	char ranNum[8] = { 0, };
+	char toMemfile[10] = { 0, };
+	int toLfnums = 0;
+	int toTfnums = 0;
+	int tempPass = 0;
+
+	long CurrentFileOffset = 0;
+
+
+
+	PRINTLEFT(L"계좌 명을 입력해주세요.\n> ");
+Invalidinput1:
+	GET_G_INPUT;
+	//Q_CHECK();
+
+	AccountName_malloc = trim_malloc(AccountName_malloc, g_buffer);
+	assert(AccountName_malloc != NULL && "trim is Something wrong...");
+
+	if (strlen(AccountName_malloc) > 16 || strlen(AccountName_malloc) < 1)
+	{
+		PRINTRIGHT(L"이름의 길이는 1자 ~ 16자 입니다. 다시 입력해주세요.\n> ");
+		free(AccountName_malloc);
+		AccountName_malloc = NULL;
+		goto Invalidinput1;
+	}
+	else if (strlen(AccountName_malloc) == 1 && isdigit(*AccountName_malloc) == 1)
+	{
+		PRINTRIGHT(L"한 글자로 지정하시려면 알파벳으로 입력 해주세요...\n> ");
+		free(AccountName_malloc);
+		AccountName_malloc = NULL;
+		goto Invalidinput1;
+	}
+	else if (checkAlnum(AccountName_malloc) == 1)
+	{
+		PRINTRIGHT(L"계좌명은 알파벳 기본, 숫자 선택으로 입력 해주세요..\n> ");
+		free(AccountName_malloc);
+		AccountName_malloc = NULL;
+		goto Invalidinput1;
+	}
+	else if (checkDupAN(AccountName_malloc) == 1)
+	{
+		PRINTRIGHT(L"소유한 계좌중 중복되는 계좌명이 있습니다...\n> ");
+		free(AccountName_malloc);
+		AccountName_malloc = NULL;
+		goto Invalidinput1;
+	}
+	else
+	{
+		PRINTLEFT(L"계좌명을 제대로 입력했습니다. \n");
+		Sleep(1000);
+		system("cls");
+	}
+
+	PRINTLEFT(L"계좌 비밀번호를 입력해주세요. 4자리 정수입니다.\n> ");
+Invalidinput2:
+	GET_G_INPUT;
+
+	PIN1 = trim_malloc(PIN1, g_buffer);
+	assert(PIN1 != NULL && "trim is Something wrong...");
+
+	if (checkDigit(PIN1) == 1)
+	{
+		PRINTRIGHT(L"계좌 비밀번호는 4자리 \"정수\"입니다..\n >");
+		free(PIN1);
+		PIN1 = NULL;
+		goto Invalidinput2;
+	}
+	else if (checkDigit(PIN1) == 2)
+	{
+		PRINTRIGHT(L"계좌 비밀번호는 사이공백을 허용하지 않습니다.. 다시 입력해주세요.\n >");
+		free(PIN1);
+		PIN1 = NULL;
+		goto Invalidinput2;
+	}
+
+	PRINTLEFT(L"계좌 비밀번호를 다시 입력해주세요. \n> ");
+Invalidinput3:
+	GET_G_INPUT;
+
+	PIN2 = trim_malloc(PIN2, g_buffer);
+	assert(PIN2 != NULL && "trim is Something wrong...");
+	if (strncmp(PIN2, PIN1,4) != 0)
+	{
+		PRINTRIGHT(L"PassWords가 서로 일치하지 않습니다.\n ");
+		PRINTLEFT(L"PassWords 를 다시한번 입력하세요. \n> ");
+		free(PIN2);
+		PIN2 = NULL;
+		goto Invalidinput3;
+	}
+
+	srand(time(NULL));
+	ranNum[0] = '0';
+	ranNum[1] = g_userBank + '0';
+	ranNum[2] = '1';
+	for (int k = 3; k < 7; k++)
+	{
+		ranNum[k] = rand() % 10 + 48;
+	}
+	ranNum[7] = '\0';
+
+	toLfnums = 11 + strlen(AccountName_malloc);
+	toTfnums = 27 + strlen(AccountName_malloc);
+
+	toListfile = (char*)malloc(sizeof(char)*toLfnums);
+	toTargetfile = (char*)malloc(sizeof(char) * toTfnums);
+
+	sprintf(toListfile, "\n%s|%s|", ranNum, AccountName_malloc);
+	sprintf(toTargetfile, "%s|%s|0|%s|300|5000|\n", AccountName_malloc, ranNum, PIN1);
+
+
+
+	temppath = (wchar_t*)malloc(sizeof(wchar_t) * ((strlen(ranNum)) + 1)); // 계좌파일 만들기
+	for (int j = 0; j < (strlen(ranNum)) + 1; j++)
+	{
+		mbtowc(temppath + j, ranNum + j, MB_CUR_MAX);
+	}
+	swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%d\\%s.txt", g_userBank, temppath);
+
+	f_accFile = _wfopen(g_wpath, L"a+");
+	assert(f_accFile != NULL && "create new account file failed");
+
+	fseek(f_accFile, 0, SEEK_SET);
+	fwrite(toTargetfile, sizeof(char), strlen(toTargetfile), f_accFile);
+
+	fclose(f_accFile);
+	f_accFile = NULL;
+
+	fseek(f_AccountList, 0, SEEK_END);	//계좌리스트 파일에 적기
+	fwrite(toListfile, sizeof(char), strlen(toListfile), f_AccountList); 
+	fflush(f_AccountList);
+
+
+	sprintf(toMemfile, "%s|", ranNum);
+
+	CurrentFileOffset = setBankByID(g_userID);
+	fseek(f_MemberFile, CurrentFileOffset, SEEK_SET);
+	while (fgetc(f_MemberFile) != '\n') 
+	{
+		CurrentFileOffset++;
+		fseek(f_MemberFile, CurrentFileOffset, SEEK_SET);
+		printf("%c", fgetc(f_MemberFile));
+	}
+	fseek(f_MemberFile, CurrentFileOffset+1, SEEK_SET);
+	int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_MemberFile);
+	fseek(f_MemberFile, CurrentFileOffset+1, SEEK_SET);
+	fwrite(toMemfile, sizeof(char), strlen(toMemfile), f_MemberFile);
+	fwrite(g_filebuff, sizeof(char), numOfWords, f_MemberFile);
+
+	for (int i = 0; i < g_userALNums; i++)
+	{
+		free(g_userAccountsList[i]);
+		g_userAccountsList[i] = NULL;
+	}
+	g_userAccountsList = NULL;
+	g_userALNums = 0;
+	setAccListByID_malloc(g_userID);
+	
+	// heap corruption은 free할 때 생깁니다. 중단점으로 못찾어 ㅅㄱ
+	free(AccountName_malloc);
+	AccountName_malloc = NULL;
+	free(PIN1);
+	PIN1 = NULL;
+	free(PIN2);
+	PIN2 = NULL;
+	free(toListfile);
+	toListfile = NULL;
+	free(toTargetfile);
+	toTargetfile = NULL;
+	free(temppath);
+	temppath = NULL;
+
+
+	printf("생성완료되었습니다.\n");
+
+	wprintf(L"뒤로가기 커맨드 입력 안함.\n");	system("pause");
+
+	return;
 }
 void fixedDepositAndSavingsMenu()
 {
@@ -123,6 +338,7 @@ INVALIDINPUT:
 }
 void fixedDeposit()
 {
+#if TEST_OFF
 	FILE* inputFile = NULL;
 
 	int lineCount = 1;
@@ -141,14 +357,17 @@ void fixedDeposit()
 	DRAWLINE('-');
 	PRINTCEN(L"=== 만기 금액 수령이 가능한 입출금 계좌 목록 ===");
 
-	if (inputFile != NULL) {
+	if (inputFile != NULL)
+	{
 		char buffer[256]; //나중에 수정해야함
-		while (!feof(inputFile)) {
+		while (!feof(inputFile))
+		{
 			fgets(buffer, sizeof(buffer), inputFile);
 			printf("%d)", lineCount++);
 			char* ptr = strtok(buffer, "\n");
 			printf("%s\n", ptr);
-			while (ptr != NULL) {
+			while (ptr != NULL)
+			{
 				ptrAdd[p] = ptr;
 				ptr = strtok(NULL, "\n");
 
@@ -161,36 +380,41 @@ void fixedDeposit()
 	int accountSelection;
 
 	inputFile = fopen("ioaccount.txt", "r");
-	
+
 	p = 0;
 
-	if (inputFile != NULL) {
+	if (inputFile != NULL)
+	{
 		char buffer2[256]; //나중에 수정해야함
 		printf("%d\n", p);
 
-		while (!feof(inputFile)) {
+		while (!feof(inputFile))
+		{
 			fgets(buffer2, sizeof(buffer2), inputFile);
 			char* ptr2 = strtok(buffer2, "\n|");
-			while (ptr2 != NULL) {
+			while (ptr2 != NULL)
+			{
 				ptrAdd[p] = ptr2;
 				ptr2 = strtok(NULL, "\n|");
 				printf("%d", p);
-				printf("ptrAdd[%d]는 %s임\n",p, ptrAdd[p]);
+				printf("ptrAdd[%d]는 %s임\n", p, ptrAdd[p]);
 				p++;
-			
+
 			}
 			printf("ptrAdd[%d]는 %s임\n", p, ptrAdd[p]);
 		}
 	}
-	
+
 	int moneySelection = 0;
 	/*g_buffer에 해당하는 숫자 라인의 입출금계좌에서 출금*/
-	
-	if (atoi(g_buffer)) {
-		moneySelection = 2+5*(atoi(g_buffer)-1);
+
+	if (atoi(g_buffer))
+	{
+		moneySelection = 2 + 5 * (atoi(g_buffer) - 1);
 		printf("%d", moneySelection);
 		printf("ptrAdd [%d] 는 %d 입니당", moneySelection, atoi(ptrAdd[moneySelection]));
-		if (atoi(ptrAdd[moneySelection]) == 111111) {
+		if (atoi(ptrAdd[moneySelection]) == 111111)
+		{
 			printf("hello");
 		}
 	}
@@ -213,7 +437,8 @@ void fixedDeposit()
 	scanf_s("%d", &selection, 1);
 
 	//printf는 그냥 확인용이라 다 빼야함. rate는 나중에 예금파일 첫 줄에 적어야 함
-	switch (selection) {
+	switch (selection)
+	{
 	case 1:
 		rate = 1.0;
 		duration = 6;
@@ -252,7 +477,8 @@ void fixedDeposit()
 	printf("%.5f 만원이 예금계좌에 예치되었습니다^v^\n", fixedDepositMoney);
 
 	//만기수령액 계산하기
-	switch (selection) {
+	switch (selection)
+	{
 	case 1:
 		finalFixedDepositMoney = fixedDepositMoney + fixedDepositMoney * 0.01 * 0.5;
 		printf("만기수령액은 %.5f만원 입니다.\n", finalFixedDepositMoney);
@@ -281,7 +507,8 @@ void fixedDeposit()
 	accountNum[2] = '2';
 	accountNum[7] = '\0';
 
-	for (int k = 3; k < 7; k++) {
+	for (int k = 3; k < 7; k++)
+	{
 		accountNum[k] = rand() % 10 + 48;
 	}
 
@@ -305,10 +532,12 @@ void fixedDeposit()
 	//Q_CHECK();
 	//wprintf(L"뒤로가기 커맨드 입력 안함.\n");
 	//system("pause");
+#endif
 }
 
 void Savings()
 {
+#if TEST_OFF
 	FILE* inputFile = NULL;
 
 	int lineCount = 1;
@@ -325,13 +554,16 @@ void Savings()
 	DRAWLINE('-');
 	PRINTCEN(L"=== 만기 금액 수령이 가능한 입출금 계좌 목록 ===");
 
-	if (inputFile != NULL) {
+	if (inputFile != NULL)
+	{
 		char buffer[256]; //나중에 수정해야함
-		while (!feof(inputFile)) {
+		while (!feof(inputFile))
+		{
 			fgets(buffer, sizeof(buffer), inputFile);
 			printf("%d)", lineCount++);
 			char* ptr = strtok(buffer, "\n");
-			while (ptr != NULL) {
+			while (ptr != NULL)
+			{
 				printf("%s\n", ptr);
 				ptr = strtok(NULL, "\n");
 			}
@@ -342,10 +574,12 @@ void Savings()
 
 	/*g_buffer에 해당하는 숫자 라인의 입출금계좌에서 출금 후 예금계좌 생성해야하는데
 	파일 정리가 안돼서 printf로 대체함*/
-	if (atoi(g_buffer) == 1) {
+	if (atoi(g_buffer) == 1)
+	{
 		printf("1번선택함~~\n");
 	}
-	else {
+	else
+	{
 		printf("다른거 선택함~~\n");
 	}
 
@@ -368,7 +602,8 @@ void Savings()
 
 	//printf는 그냥 확인용이라 다 빼야함. rate는 나중에 예금파일 첫 줄에 적어야 함
 	//나중에 이자율로 만기일 유추하는게 나을 것 같음
-	switch (selection) {
+	switch (selection)
+	{
 	case 1:
 		rate = 1.0;
 		duration = 6;
@@ -417,7 +652,8 @@ void Savings()
 	accountNum[2] = '3';
 	accountNum[7] = '\0';
 
-	for (int k = 3; k < 7; k++) {
+	for (int k = 3; k < 7; k++)
+	{
 		accountNum[k] = rand() % 10 + 48;
 	}
 
@@ -437,6 +673,7 @@ void Savings()
 	//Q_CHECK();
 	//wprintf(L"뒤로가기 커맨드 입력 안함.\n");
 	//system("pause");
+#endif
 }
 
 void inquiryAndCancel() //Cancel 만 하기~~~
@@ -527,11 +764,13 @@ void inquiryAndCancel() //Cancel 만 하기~~~
 		system("pause");
 		//계좌정보 삭제 함수 필요, 지정된 입출금계좌에 돈 입금도 해야함
 	}
-	else if (*g_buffer == 'n' || *g_buffer == 'N') {
+	else if (*g_buffer == 'n' || *g_buffer == 'N')
+	{
 		wprintf(L"해당 예적금 계좌를 해지하지 않았습니다. ");
 		system("pause");
 	}
-	else {
+	else
+	{
 		goto INVALIDINPUT;
 	}
 
