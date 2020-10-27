@@ -179,7 +179,7 @@ void fixedDeposit()
 				p++;
 			
 			}
-			printf("ptrAdd[%d]는 %s임\n", p, ptrAdd[p]);
+			printf("ptrAdd[%d]는 %s임\n", p, ptrAdd[p]); 
 		}
 	}
 	
