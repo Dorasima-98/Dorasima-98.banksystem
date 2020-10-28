@@ -49,6 +49,47 @@
 #define TEST_OFF (0)
 
 typedef enum { T1 = 0, T2, T3 }eAccType; // 이름짓기 힘들어서...
+typedef struct
+{
+	char IO_day[11];
+	char IO_name[17];
+	char IO_othernum[8];
+	char IO_money[13];
+	char IO_io[2];
+	char IO_balance[13];
+}IOinqury_t;
+typedef struct
+{
+	char IO_name[17];
+	char IO_mynum[8];
+	char IO_balance[13];
+	char IO_Passwords[5];
+	char IO_dayLimits[7];
+	char IO_monthLimits[8];
+
+	char*** autoattributes;
+	int autoNums;
+}IOattributes_malloc_t;
+typedef struct
+{
+	eAccType FS_type;
+	char FS_day[11];
+	char FS_name[17];
+	char FS_mynum[8];
+	char FS_money[10];
+	char FS_balance[13];
+}FSinqury_t;
+typedef struct
+{
+	eAccType type;
+	char FS_name[17];
+	char FS_mynum[8];
+	char FS_received[13];
+	char FS_Passwords[5];
+	char FS_remainService[3];
+	char FS_interest[4];
+	char FS_balance[13];
+}FSattributes_t;
 char g_buffer[BUFF_SIZE]; // 글로벌 입력 버퍼
 char g_filebuff[FILE_BUFF]; // 끼워쓰기용
 char g_userID[17];
@@ -89,12 +130,25 @@ void transferMenu();
 void atmMenu();
 void historyInquiry();
 
-int strToInquiry(char* str, char* accNum,const eAccType type);
-int strToAccInfo(char* str, char* accNum, const eAccType type);
-int strToFSInfo(char* str, char* accNum, const eAccType type);
+
+/*요기있는거는...아마 될걸요?*/
+int strToIOiq(const char* str, IOinqury_t* ioacc);
+int strToFSiq(const char* str, FSinqury_t* fsacc, const char* accNum);
+// 이친구는 자동이체 내역때문에 내부보셔야 합니다.
+int strToIOatt_malloc(const char* str, IOattributes_malloc_t* ioacc); 
+int strToFSatt(const char* str, FSattributes_t* fsacc, const char* accNum);
+
+/*요 4개는 쓰면 안됩니다.*/
+void printIOinquiry(const IOinqury_t* ioacc);
+void printFSinquiry(const FSinqury_t* fsacc);
+void printIOatt(const IOattributes_malloc_t* ioacc);
+void printFSatt(FSattributes_t* fsacc);
+
+void freeIOattriutes(IOattributes_malloc_t* ioacc);
+
 
 int setError();
-int checkAcc(FILE* f_target);
+int checkIO(FILE* f_target);
 int checkFix(FILE* f_target);
 int checkSav(FILE* f_setSav);
 int setInterest(FILE* f_target);
@@ -105,3 +159,4 @@ int setBankByID(const char* ID);
 int checkDupAN(const char* input);
 int setAccListByID_malloc(const char* ID);
 int setAccListOfAll_malloc();
+eAccType getAccType(const char* AccNum);

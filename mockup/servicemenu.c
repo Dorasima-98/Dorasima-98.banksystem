@@ -819,6 +819,11 @@ void historyInquiry()
 	eAccType type;
 	int accCounter = 0;
 
+	IOinqury_t* ii;
+	IOattributes_malloc_t* ia;
+	FSinqury_t* fsi;
+	FSattributes_t* fsa;
+
 	system("cls");
 	PRINTCEN(L"내역 확인 메뉴");
 	DRAWLINE('-');
@@ -862,17 +867,17 @@ INVALIDINPUT:
 	{
 		mbtowc(tempwcp + i, i_AccNum + i, MB_CUR_MAX);
 	}
-	switch (i_AccNum[2]) // 타입체크
+	switch (getAccType(i_AccNum)) // 타입체크
 	{
-	case '1': // 입출금은 계좌마다
+	case T1: // 입출금은 계좌마다
 		type = T1;
 		swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\%s.txt", tempwcp[1], tempwcp);
 		break;
-	case '2': // 예금은 하나
+	case T2: // 예금은 하나
 		type = T2;
 		swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\%c%c%c.txt", tempwcp[1], tempwcp[0], tempwcp[1], tempwcp[2]);
 		break;
-	case'3': // 적금도 일단 하나
+	case T3: // 적금도 일단 하나
 		type = T3;
 		swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\%c%c%c.txt", tempwcp[1], tempwcp[0], tempwcp[1], tempwcp[2]);
 		break;
@@ -900,26 +905,50 @@ INVALIDINPUT:
 		{
 			break;
 		}
-		//printf("%s", g_buffer);
-
-		if (i > 0)
+		switch (getAccType(i_AccNum))
 		{
-			accCounter += strToInquiry(g_buffer, i_AccNum, type); //additional_utils.c
-		}
-		else
-		{
-			if (type == T1)
+		case T1:
+			if (CurrentFileOffset == 0)
 			{
-				strToAccInfo(g_buffer, i_AccNum, type);
-				i++;
+				ia = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
+				strToIOatt_malloc(g_buffer, ia);
+				printIOatt(ia);
+				freeIOattriutes(ia);
+				free(ia);
+				ia = NULL;
 			}
 			else
 			{
-				strToFSInfo(g_buffer, i_AccNum, type);
-				i++;
+				ii = (IOinqury_t*)malloc(sizeof(IOinqury_t));
+				strToIOiq(g_buffer, ii);
+				//printIOinquiry(ii);
+				free(ii);
+				ii = NULL;
 			}
-
+			break;
+		case T2:
+		case T3:
+			if (CurrentFileOffset == 0)
+			{
+				fsa = (FSattributes_t*)malloc(sizeof(FSattributes_t));
+				strToFSatt(g_buffer, fsa, i_AccNum);
+				//printFSatt(fsa);
+				free(fsa);
+				fsa = NULL;
+			}
+			else
+			{
+				fsi = (FSinqury_t*)malloc(sizeof(FSinqury_t));
+				strToFSiq(g_buffer, fsi, i_AccNum);
+				//printFSinquiry(fsi);
+				free(fsi);
+				fsi = NULL;
+			}
+			break;
+		default:
+			assert("you can be  here");
 		}
+
 		CurrentFileOffset = ftell(f_Account);
 	}
 	if (accCounter == 0)

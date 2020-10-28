@@ -227,97 +227,278 @@ char* trim_malloc(char* des, const char* src)
 
 	return des;
 }
-// 막만든 함수
-int strToInquiry(char* str, char* accNum, const eAccType type)
+// 입출금 계좌파일 내역 한줄을 IOinqury에 내역 넣어줍니다. 성공하면 1 실패하면 0 반환(ioacc는 NULL)
+int strToIOiq(const char* str, IOinqury_t* ioacc)
 {
-	assert(str != NULL && accNum != NULL && "str or accNum points NULL");
+	assert(str != NULL && ioacc != NULL && "str or ioacc is NULL");
 
 	char* piter = str;
-	char* attributes[6] = { NULL,0 };
+	char* pcounter;
+	wchar_t* wtemps[6] = { NULL, 0 };
+	int i = 0;
+	int counter = 0;
+
+	//계좌 내역 뽑기
+	pcounter = piter;
+	while (*pcounter++ != '|')
+	{
+		counter++;
+	}
+	strncpy(ioacc->IO_day, piter, counter);
+	ioacc->IO_day[counter] = '\0';
+
+	piter = pcounter;
+	counter = 0;
+	while (*pcounter++ != '|')
+	{
+		counter++;
+	}
+	strncpy(ioacc->IO_name, piter, counter);
+	ioacc->IO_name[counter] = '\0';
+
+	piter = pcounter;
+	counter = 0;
+	while (*pcounter++ != '|')
+	{
+		counter++;
+	}
+	strncpy(ioacc->IO_othernum, piter, counter);
+	ioacc->IO_othernum[counter] = '\0';
+
+	piter = pcounter;
+	counter = 0;
+	while (*pcounter++ != '|')
+	{
+		counter++;
+	}
+	strncpy(ioacc->IO_money, piter, counter);
+	ioacc->IO_money[counter] = '\0';
+
+	piter = pcounter;
+	counter = 0;
+	while (*pcounter++ != '|')
+	{
+		if (counter > 2)
+		{
+			ioacc = NULL;
+			return 0;
+		}
+		counter++;
+	}
+	strncpy(ioacc->IO_io, piter, counter);
+	ioacc->IO_io[counter] = '\0';
+
+	piter = pcounter;
+	counter = 0;
+	while (*pcounter++ != '|')
+	{
+		if (*pcounter == '\n')
+		{
+			ioacc = NULL;
+			return 0;
+		}
+		counter++;
+	}
+	strncpy(ioacc->IO_balance, piter, counter);
+	ioacc->IO_balance[counter] = '\0';
+	return 1;
+}
+// 예적금 계좌파일 내역 한줄을 IOinqury에 내역 넣어줍니다. 3번째 인자로 넣어준 계좌번호만 출력. 성공하면 1 실패하면 0반환 (fsacc는 NULL)
+int strToFSiq(const char* str, FSinqury_t* fsacc, const char* accNum)
+{
+	assert(str != NULL && fsacc != NULL && accNum != NULL && "str or fsacc or accNum is NULL");
+
+	char* piter = str;
+	char* pcounter;
+	int counter = 0;
+
+	//계좌 내역 뽑기
+	pcounter = piter;
+	while (*pcounter++ != '|')
+	{
+		counter++;
+	}
+	strncpy(fsacc->FS_day, piter, counter);
+	fsacc->FS_day[counter] = '\0';
+
+	piter = pcounter;
+	counter = 0;
+	while (*pcounter++ != '|')
+	{
+		counter++;
+	}
+	strncpy(fsacc->FS_name, piter, counter);
+	fsacc->FS_name[counter] = '\0';
+
+	piter = pcounter;
+	counter = 0;
+	while (*pcounter++ != '|')
+	{
+		counter++;
+	}
+	strncpy(fsacc->FS_mynum, piter, counter);
+	fsacc->FS_mynum[counter] = '\0';
+
+	fsacc->FS_type = getAccType(fsacc->FS_mynum);
+
+	if (strncmp(accNum, fsacc->FS_mynum, 7) != 0)
+	{
+		fsacc = NULL;
+		return 0;
+	}
+
+	piter = pcounter;
+	counter = 0;
+	while (*pcounter++ != '|')
+	{
+		counter++;
+	}
+	strncpy(fsacc->FS_money, piter, counter);
+	fsacc->FS_money[counter] = '\0';
+
+	piter = pcounter;
+	counter = 0;
+	while (*pcounter++ != '|')
+	{
+		counter++;
+	}
+	strncpy(fsacc->FS_balance, piter, counter);
+	fsacc->FS_balance[counter] = '\0';
+
+	while (*pcounter++ != '\0')
+	{
+		if (*pcounter = '|')
+		{
+			fsacc = NULL;
+			return 0;
+		}
+	}
+
+	return 1;
+}
+// IOinqury_t 포인터 받아서 내역 출력합니다.
+void printIOinquiry(const IOinqury_t* ioacc)
+{
+	assert(ioacc != NULL && "fascc is NULL pointer");
 	wchar_t* wtemps[6] = { NULL, 0 };
 	int i = 0;
 
-	//계좌 내역 뽑기
-	attributes[i++] = piter;
-	while (*piter != '\n')
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(ioacc->IO_day) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(ioacc->IO_day) + 1; j++)
 	{
-		piter++;
-		if (*piter == '|')
-		{
-			*piter = '\0';
-			if (i < 6)
-			{
-				attributes[i++] = piter + 1;
-			}
-			else
-			{
-				break;
-			}
-		}
+		mbtowc(wtemps[i] + j, ioacc->IO_day[i] + j, MB_CUR_MAX);
 	}
-	if (strcmp(accNum, attributes[2]) != 0 && type != T1) // 계좌 골라서 출력
+	i++;
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(ioacc->IO_name) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(ioacc->IO_day) + 1; j++)
 	{
-		goto ESCAPE;
+		mbtowc(wtemps[i] + j, ioacc->IO_day[i] + j, MB_CUR_MAX);
 	}
-	// 타입체크
-	switch (type)
+	i++;
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(ioacc->IO_othernum) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(ioacc->IO_othernum) + 1; j++)
 	{
-	case T1:
-		for (int i = 0; i < 6; i++)
-		{
-			wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(attributes[i]) + 1));
-			assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
-			for (int j = 0; j < strlen(attributes[i]) + 1; j++)
-			{
-				mbtowc(wtemps[i] + j, attributes[i] + j, MB_CUR_MAX);
-			}
-		}
-		if (attributes[4][0] == 'i')
-		{
-			wprintf(L"< %s >/ %16s: %s/ 금액: %s (입금)/ 잔액: %s\n",
-				wtemps[0], wtemps[1], wtemps[2], wtemps[3], wtemps[5]);
-		}
-		else if (attributes[4][0] == 'o')
-		{
-			wprintf(L"< %s >/ %16s: %s/ 금액: %s (출금)/ 잔액: %s\n",
-				wtemps[0], wtemps[1], wtemps[2], wtemps[3], wtemps[5]);
-		}
-		else
-		{
-			fprintf(stderr, "In and Out account wrong in printing history\n");
-			system("pause");
-			break;
-		}
+		mbtowc(wtemps[i] + j, ioacc->IO_othernum[i] + j, MB_CUR_MAX);
+	}
+	i++;
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(ioacc->IO_money) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(ioacc->IO_money) + 1; j++)
+	{
+		mbtowc(wtemps[i] + j, ioacc->IO_money[i] + j, MB_CUR_MAX);
+	}
+	i++;
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(ioacc->IO_io) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(ioacc->IO_io) + 1; j++)
+	{
+		mbtowc(wtemps[i] + j, ioacc->IO_io[i] + j, MB_CUR_MAX);
+	}
+	i++;
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(ioacc->IO_balance) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(ioacc->IO_balance) + 1; j++)
+	{
+		mbtowc(wtemps[i] + j, ioacc->IO_balance[i] + j, MB_CUR_MAX);
+	}
+
+	switch (*(ioacc->IO_io))
+	{
+	case 'i':
+		wprintf(L"< %s >/ %16s: %s/ 금액: %s (입금)/ 잔액: %s\n",
+			wtemps[0], wtemps[1], wtemps[2], wtemps[3], wtemps[5]);
 		break;
+	case 'o':
+		wprintf(L"< %s >/ %16s: %s/ 금액: %s (출금)/ 잔액: %s\n",
+			wtemps[0], wtemps[1], wtemps[2], wtemps[3], wtemps[5]);
+		break;
+	default:
+		assert("Print Inquriy Error in \"printIOInquiry()\"");
+	}
+
+	for (int k = 0; k < 6; k++)
+	{
+		free(wtemps[k]);
+		wtemps[k] = NULL;
+	}
+}
+// FSinquiry_t 포인터를 받아서 내역 출력합니다.
+void printFSinquiry(const FSinqury_t* fsacc)
+{
+	assert(fsacc != NULL && "fascc is NULL pointer");
+	wchar_t* wtemps[6] = { NULL, 0 };
+	int i = 0;
+
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(fsacc->FS_day) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocatFSn failed");
+	for (int j = 0; j < strlen(fsacc->FS_day) + 1; j++)
+	{
+		mbtowc(wtemps[i] + j, fsacc->FS_day[i] + j, MB_CUR_MAX);
+	}
+	i++;
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(fsacc->FS_name) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(fsacc->FS_day) + 1; j++)
+	{
+		mbtowc(wtemps[i] + j, fsacc->FS_day[i] + j, MB_CUR_MAX);
+	}
+	i++;
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(fsacc->FS_mynum) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(fsacc->FS_mynum) + 1; j++)
+	{
+		mbtowc(wtemps[i] + j, fsacc->FS_mynum[i] + j, MB_CUR_MAX);
+	}
+	i++;
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(fsacc->FS_money) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(fsacc->FS_money) + 1; j++)
+	{
+		mbtowc(wtemps[i] + j, fsacc->FS_money[i] + j, MB_CUR_MAX);
+	}
+	i++;
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(fsacc->FS_balance) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(fsacc->FS_balance) + 1; j++)
+	{
+		mbtowc(wtemps[i] + j, fsacc->FS_balance[i] + j, MB_CUR_MAX);
+	}
+
+	switch (fsacc->FS_type)
+	{
 	case T2:
-		for (int i = 0; i < 5; i++)
-		{
-			wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(attributes[i]) + 1));
-			for (int j = 0; j < strlen(attributes[i]) + 1; j++)
-			{
-				mbtowc(wtemps[i] + j, attributes[i] + j, MB_CUR_MAX);
-			}
-		}
 		wprintf(L"< %s >/ %16s: %s/ 만기해지시 금액: %s / 현재 금액: %s\n",
 			wtemps[0], wtemps[1], wtemps[2], wtemps[3], wtemps[4]);
-		break;
+			break;
 	case T3:
-		for (int i = 0; i < 5; i++)
-		{
-			wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(attributes[i]) + 1));
-			for (int j = 0; j < strlen(attributes[i]) + 1; j++)
-			{
-				mbtowc(wtemps[i] + j, attributes[i] + j, MB_CUR_MAX);
-			}
-		}
 		wprintf(L"< %s >/ %16s: %s/ 최대 월 납입액: %s/ 현재 금액: %s\n",
 			wtemps[0], wtemps[1], wtemps[2], wtemps[3], wtemps[4]);
 		break;
 	default:
-		fprintf(stderr, "Something wrong in printing history.\n");
-		system("pause");
-		break;
-
+		assert("Print Inquriy Error in \"printFSInquiry()\"");
 	}
 
 	for (int k = 0; k < 5; k++)
@@ -325,247 +506,453 @@ int strToInquiry(char* str, char* accNum, const eAccType type)
 		free(wtemps[k]);
 		wtemps[k] = NULL;
 	}
-	if (type == T1)
-	{
-		free(wtemps[5]);
-		wtemps[5] = NULL;
-	}
-	return 1;
-ESCAPE:
-	return 0;
 }
-// 막만든 함수2
-int strToAccInfo(char* str, char* accNum, const eAccType type)
+// 입출금 계좌파일 속성 한줄을 IOattributes_malloc_t에 넣어 줍니다. 성공하면 1 실패하면 0 반환(ioacc는 NULL)
+int strToIOatt_malloc(const char* str, IOattributes_malloc_t* ioacc)
 {
-	assert(str != NULL && accNum != NULL && "str or accNum points NULL");
+	assert(str != NULL && ioacc != NULL && "str or ioacc is NULL");
 
 	char* piter = str;
-	char* attributes[6] = { NULL, };
-	char*** autoTransferInfo = NULL;
-	char*** autoTemp1 = NULL;
-	char** autoTemp2 = NULL;
-	wchar_t* wtemps[6] = { NULL, };
-	wchar_t** wATInfo = NULL;
+	char* pcounter;
+	int counter = 0;
+	int autonum = 0;
 
-	int i = 0;
-	size_t l = 0;
-	int autoFlags = 0;
-	size_t autoNums = 0;
-
-
-
-	//계좌 정보 뽑기
-	attributes[i++] = piter;
-	while (*piter != '\n')
+	//계좌 내역 뽑기
+	pcounter = piter;
+	while (*pcounter++ != '|')
 	{
-		piter++;
-		if (*piter == '|')
+		counter++;
+	}
+	strncpy(ioacc->IO_name, piter, counter);
+	ioacc->IO_name[counter] = '\0';
+
+	piter = pcounter;
+	counter = 0;
+	while (*pcounter++ != '|')
+	{
+		counter++;
+	}
+	strncpy(ioacc->IO_mynum, piter, counter);
+	ioacc->IO_mynum[counter] = '\0';
+
+	piter = pcounter;
+	counter = 0;
+	while (*pcounter++ != '|')
+	{
+		counter++;
+	}
+	strncpy(ioacc->IO_balance, piter, counter);
+	ioacc->IO_balance[counter] = '\0';
+
+	piter = pcounter;
+	counter = 0;
+	while (*pcounter++ != '|')
+	{
+		counter++;
+	}
+	strncpy(ioacc->IO_Passwords, piter, counter);
+	ioacc->IO_Passwords[counter] = '\0';
+
+	piter = pcounter;
+	counter = 0;
+	while (*pcounter++ != '|')
+	{
+		if (counter > 2)
 		{
-			*piter = '\0';
-			if (i < 6)
-			{
-				attributes[i++] = piter + 1;
-			}
-			else
-			{
-				autoFlags = 1;
-				autoNums = 1;
-				break;
-			}
+			ioacc = NULL;
+			return 0;
+		}
+		counter++;
+	}
+	strncpy(ioacc->IO_dayLimits, piter, counter);
+	ioacc->IO_dayLimits[counter] = '\0';
+
+	piter = pcounter;
+	counter = 0;
+	while (*pcounter++ != '|')
+	{
+		if (*pcounter == '\n')
+		{
+			ioacc = NULL;
+			return 0;
+		}
+		counter++;
+	}
+	strncpy(ioacc->IO_monthLimits, piter, counter);
+	ioacc->IO_monthLimits[counter] = '\0';
+
+	piter = pcounter;
+	counter = 0;
+	while (*pcounter++ != '|')
+	{
+		if (*pcounter == '\n')
+		{
+			ioacc->autoattributes = NULL;
+			ioacc->autoNums = 0;
+			return 1;
 		}
 	}
-	//자동이체 정보 뽑기
-	l = autoNums - 1;
-	while (autoFlags == 1 && *piter != '\n')
+	pcounter = piter;
+	while (*pcounter != '\n')
 	{
-		if (autoTransferInfo == NULL)
+		for (int i = 0; i < 4; i++)
 		{
-			autoTransferInfo = (char***)malloc(sizeof(char**) * autoNums);
-			assert(autoTransferInfo != NULL && "\nautoTransferInfo memory allocation failed\n");
-			autoTransferInfo[0] = (char**)malloc(sizeof(char*) * 4);
-			assert(autoTransferInfo[0] != NULL && "\nautoTransferInfo[0] memory allocation failed\n");
+			while (*pcounter++ != '|');
 		}
-		else if (l == autoNums - 2)
+		autonum++;
+	}
+	pcounter = piter;
+	ioacc->autoNums = autonum;
+	ioacc->autoattributes = (char***)malloc(sizeof(char**) * autonum);
+	for (int j = 0; j < autonum; j++)
+	{
+		ioacc->autoattributes[j] = (char**)malloc(sizeof(char*) * 4);
+		ioacc->autoattributes[j][0] = (char*)malloc(sizeof(char) * 3);
+		piter = pcounter;
+		counter = 0;
+		while (*pcounter++ != '|')
 		{
-			l++;
-			//autoTemp1 = (char***)realloc(autoTransferInfo, sizeof(char**) * autoNums);
-			autoTemp1 = (char***)malloc(sizeof(char**) * autoNums);
-			assert(autoTransferInfo != NULL && "\nautoTransferInfo memory 're'allocation failed\n");
-			memcpy(autoTemp1, autoTransferInfo, sizeof(char**) * autoNums - 1);
-			autoTransferInfo = autoTemp1;
-			autoTemp1 = NULL;
-			for (int d = 0; d < autoNums - 1; d++)
-			{
-				autoTemp2 = (char**)malloc(sizeof(char*) * 4);
-				memcpy(autoTemp2, autoTransferInfo[d], sizeof(char*) * 4);
-				autoTransferInfo[d] = autoTemp2;
-				autoTemp2 = NULL;
-				//autoTemp2 = (char**)realloc(autoTransferInfo,sizeof(char*) * 4);
-				//autoTransferInfo[d] = autoTemp2;
-				//autoTemp2 = NULL;
-			}
-			autoTransferInfo[autoNums - 1] = (char**)malloc(sizeof(char*) * 4);
-			assert(autoTransferInfo[l] != NULL && "\nautoTransferInfo[l] memory allocation failed\n");
+			counter++;
 		}
-		autoTransferInfo[l][0] = ++piter;
-		i = 0;
-		while (1)
+		strncpy(ioacc->autoattributes[j][0], piter, counter);
+		ioacc->autoattributes[j][0][counter] = '\0';
+		ioacc->autoattributes[j][1] = (char*)malloc(sizeof(char) * 13);
+		piter = pcounter;
+		counter = 0;
+		while (*pcounter++ != '|')
 		{
-			if (i % 4 != 0 || i == 0)
-			{
-				piter++;
-				if (*piter == '|')
-				{
-					*piter = '\0';
-					if (i % 4 != 0 || i == 0)
-					{
-						autoTransferInfo[l][++i] = piter + 1;
-					}
-				}
-			}
-			else
-			{
-				autoNums++;
-				break;
-			}
+			counter++;
 		}
-		if (*(piter + 1) == '\n')
+		strncpy(ioacc->autoattributes[j][1], piter, counter);
+		ioacc->autoattributes[j][1][counter] = '\0';
+		ioacc->autoattributes[j][2] = (char*)malloc(sizeof(char) * 8);
+		piter = pcounter;
+		counter = 0;
+		while (*pcounter++ != '|')
+		{
+			counter++;
+		}
+		strncpy(ioacc->autoattributes[j][2], piter, counter);
+		ioacc->autoattributes[j][2][counter] = '\0';
+		ioacc->autoattributes[j][3] = (char*)malloc(sizeof(char) * 3);
+		piter = pcounter;
+		counter = 0;
+		while (*pcounter++ != '|')
+		{
+			counter++;
+		}
+		strncpy(ioacc->autoattributes[j][3], piter, counter);
+		ioacc->autoattributes[j][3][counter] = '\0';
+	}
+
+	return 1;
+}
+// 다쓴 IOattributes_malloc_t 해제
+void freeIOattriutes(IOattributes_malloc_t* ioacc)
+{
+	if (ioacc != NULL)
+	{
+		for (int f1 = 0; f1 < ioacc->autoNums; f1++)
+		{
+			for (int f2 = 0; f2 < 4; f2++)
+			{
+				free(ioacc->autoattributes[f1][f2]);
+				ioacc->autoattributes[f1][f2] = NULL;
+			}
+			free(ioacc->autoattributes[f1]);
+			ioacc->autoattributes[f1] = NULL;
+		}
+		ioacc->autoattributes = NULL;
+	}
+}
+// 예적금 계좌파일 속성 한줄을 FSattritubes_t에 넣어줍니다. 3번째 인자로 넣어준 계좌번호만 출력. 성공하면 1, 실패하면 0 반환
+int strToFSatt(const char* str, FSattributes_t* fsacc, const char* accNum)
+{
+	assert(str != NULL && fsacc != NULL && accNum != NULL && "str or ioacc or accNum is NULL");
+
+	char* piter = str;
+	char* pcounter;
+	wchar_t* wtemps[6] = { NULL, 0 };
+	int i = 0;
+	int counter = 0;
+	int flag = 1;
+	int findflag = 0;
+
+	//계좌 내역 뽑기
+
+	while (flag == 1 && *piter != '\n')
+	{
+
+		pcounter = piter;
+		while (*pcounter++ != '|')
+		{
+			counter++;
+		}
+		strncpy(fsacc->FS_name, piter, counter);
+		fsacc->FS_name[counter] = '\0';
+
+		piter = pcounter;
+		counter = 0;
+		while (*pcounter++ != '|')
+		{
+			counter++;
+		}
+		strncpy(fsacc->FS_mynum, piter, counter);
+		fsacc->FS_mynum[counter] = '\0';
+
+		if (strncmp(fsacc->FS_mynum, accNum, 7) == 0)
+		{
+			findflag = 1;
+		}
+
+		piter = pcounter;
+		counter = 0;
+		while (*pcounter++ != '|')
+		{
+			counter++;
+		}
+		strncpy(fsacc->FS_received, piter, counter);
+		fsacc->FS_received[counter] = '\0';
+
+
+		piter = pcounter;
+		counter = 0;
+		while (*pcounter++ != '|')
+		{
+			counter++;
+		}
+		strncpy(fsacc->FS_Passwords, piter, counter);
+		fsacc->FS_Passwords[counter] = '\0';
+
+		piter = pcounter;
+		counter = 0;
+		while (*pcounter++ != '|')
+		{
+			counter++;
+		}
+		strncpy(fsacc->FS_remainService, piter, counter);
+		fsacc->FS_remainService[counter] = '\0';
+
+		piter = pcounter;
+		counter = 0;
+		while (*pcounter++ != '|')
+		{
+			counter++;
+		}
+		strncpy(fsacc->FS_interest, piter, counter);
+		fsacc->FS_interest[counter] = '\0';
+
+		piter = pcounter;
+		counter = 0;
+		while (*pcounter++ != '|')
+		{
+			if (counter > 2)
+			{
+				fsacc = NULL;
+				return 0;
+			}
+			counter++;
+		}
+		strncpy(fsacc->FS_balance, piter, counter);
+		fsacc->FS_balance[counter] = '\0';
+
+		if (findflag == 1)
 		{
 			break;
 		}
-	}
-ESCAPE:
-
-	for (int i = 0; i < 6; i++)
-	{
-		wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(attributes[i]) + 1));
-		assert(wtemps[i] != NULL && "wtemps[i] memory allocation failed");
-		for (int j = 0; j < strlen(attributes[i]) + 1; j++)
+		else
 		{
-			mbtowc(wtemps[i] + j, attributes[i] + j, MB_CUR_MAX);
-		}
-	}
-	wprintf(L"< 입출금 계좌 >/ %16s: %s/ 잔액: %s 이체한도 %s(일)/%s(월)\n",
-		wtemps[0], wtemps[1], wtemps[2], wtemps[4], wtemps[5]);
-	if (autoNums != 0)
-	{
-		wATInfo = (wchar_t**)malloc(sizeof(wchar_t*) * 4);
-
-		for (int u = 0; u < autoNums - 1; u++)
-		{
-			for (int y = 0; y < 4; y++)
+			while (*pcounter != '\n')
 			{
-				wATInfo[y] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(autoTransferInfo[u][y]) + 1));
-				for (int t = 0; t < strlen(autoTransferInfo[u][y]) + 1; t++)
+				if (*pcounter++ == ' ')
 				{
-					mbtowc(wATInfo[y] + t, autoTransferInfo[u][y] + t, MB_CUR_MAX);
-				}
-			}
-			wprintf(L"[자동이체 정보]: 매월 %s일 %s (만)원을 %s 계좌에 %s 만큼 보냅니다.\n",
-				wATInfo[0], wATInfo[1], wATInfo[2], wATInfo[3]);
-		}
-		for (int c = 0; c < 4; c++)
-		{
-			free(wATInfo[c]);
-			wATInfo[c] = NULL;
-		}
-		free(wATInfo);
-	}
-
-
-	for (int k = 0; k < 5; k++)
-	{
-		free(wtemps[k]);
-		wtemps[k] = NULL;
-	}
-	if (type == T1)
-	{
-		free(wtemps[5]);
-		wtemps[5] = NULL;
-	}
-
-	wATInfo = NULL;
-	for (int f1 = 0; f1 < autoNums - 2; f1++)
-	{
-		free(autoTransferInfo[f1]);
-		autoTransferInfo[f1] = NULL;
-	}
-
-	free(autoTransferInfo);
-	autoTransferInfo = NULL;
-
-	return autoNums;
-}
-// 막만든 함수3
-int strToFSInfo(char* str, char* accNum, const eAccType type)
-{
-	assert(str != NULL && accNum != NULL && "str or accNum points NULL");
-
-
-	char* piter = str;
-	char* attributes[7] = { NULL, };
-	wchar_t* wtemps[7] = { NULL, };
-
-	int k = 0;
-	int flags = 0;
-
-	//계좌 정보 뽑기
-	attributes[k++] = piter;
-	while (*piter != '\n')
-	{
-		piter++;
-		if (*piter == '|')
-		{
-			*piter = '\0';
-			if (k < 7)
-			{
-				attributes[k++] = piter + k;
-			}
-			else
-			{
-				if (strcmp(attributes[1], accNum) == 0)
-				{
-					flags = 1;
+					flag = 1;
+					piter = pcounter;
 					break;
 				}
 				else
 				{
-					k = 0;
-					attributes[k++] = ++piter;
-					continue;
+					flag = 0;
 				}
 			}
-		}
-	}
-	if (flags == 1)
-	{
-		for (int i = 0; i < 7; i++)
-		{
-			wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(attributes[i]) + 1));
-			for (int j = 0; j < strlen(attributes[i]) + 1; j++)
+			if (flag == 0)
 			{
-				mbtowc(wtemps[i] + j, attributes[i] + j, MB_CUR_MAX);
+				fsacc = NULL;
+				return 0;
 			}
-		}
-		if (type == T2)
-		{
-			wprintf(L"< 예금 계좌 >/ %16s: %s/ 잔액: %s 남은 신청기간 %s(일) 이자율: %s 해지시 금액 %s\n",
-				wtemps[0], wtemps[1], wtemps[2], wtemps[4], wtemps[5], wtemps[6]);
-		}
-		else
-		{
-			wprintf(L"< 적금 계좌 >/ %16s: %s/ 잔액: %s 남은 신청기간 %s(일) 이자율: %s 해지시 금액 %s\n",
-				wtemps[0], wtemps[1], wtemps[2], wtemps[4], wtemps[5], wtemps[6]);
-		}
-		for (int f = 0; f < 7; f++)
-		{
-			free(wtemps[f]);
-			wtemps[f] = NULL;
+
 		}
 		return 1;
 	}
-	return 0;
 }
+void printIOatt(const IOattributes_malloc_t* ioacc)
+{
+	assert(ioacc != NULL && "fascc is NULL pointer");
+	wchar_t* wtemps[6] = { NULL, 0 };
+	wchar_t*** wautotemps;
+	int i = 0;
+
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(ioacc->IO_name) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(ioacc->IO_name) + 1; j++)
+	{
+		mbtowc(&wtemps[i][j], (ioacc->IO_balance[i]) + j, MB_CUR_MAX);
+	}
+	i++;
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(ioacc->IO_mynum) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(ioacc->IO_mynum) + 1; j++)
+	{
+		mbtowc(wtemps[i] + j, (ioacc->IO_balance[i]) + j, MB_CUR_MAX);
+	}
+	i++;
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(ioacc->IO_balance) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(ioacc->IO_balance) + 1; j++)
+	{
+		mbtowc(wtemps[i] + j, (ioacc->IO_balance[i]) + j, MB_CUR_MAX);
+	}
+	i++;
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(ioacc->IO_Passwords) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(ioacc->IO_Passwords) + 1; j++)
+	{
+		mbtowc(wtemps[i] + j, (ioacc->IO_Passwords[i]) + j, MB_CUR_MAX);
+	}
+	i++;
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(ioacc->IO_dayLimits) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(ioacc->IO_dayLimits) + 1; j++)
+	{
+		mbtowc(wtemps[i] + j, (ioacc->IO_dayLimits[i]) + j, MB_CUR_MAX);
+	}
+	i++;
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(ioacc->IO_monthLimits) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(ioacc->IO_monthLimits) + 1; j++)
+	{
+		mbtowc(wtemps[i] + j, (ioacc->IO_monthLimits[i]) + j, MB_CUR_MAX);
+	}
+	wprintf(L"< 입출금 계좌 >/ %16s: %s/ 잔액: %s 이체한도 %s(일)/%s(월)\n",
+		wtemps[0], wtemps[1], wtemps[2], wtemps[4], wtemps[5]);
+
+	if (ioacc->autoNums > 0)
+	{
+		wautotemps = (wchar_t***)malloc(sizeof(char**) * ioacc->autoNums);
+		for (int j = 0; j < ioacc->autoNums; j++)
+		{
+			wautotemps[j] = (wchar_t**)malloc(sizeof(wchar_t*) * 4);
+			for (int u = 0; u < 4; u++)
+			{
+				wautotemps[j][u] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(ioacc->autoattributes[j][u]) + 1));
+				for (int j = 0; j < strlen(ioacc->autoattributes[j][u]) + 1; j++)
+				{
+					mbtowc(wautotemps[j][u] + j, (ioacc->autoattributes[j][u]) + j, MB_CUR_MAX);
+				}
+			}
+		}
+
+		for (int k = 0; k < ioacc->autoNums; i++)
+		{
+			wprintf(L"%d)<자동이체>/ %16s에 %s 원씩, 매월 %s일이 되면 보냅니다. 남은 기간 %s(월)\n",
+				k, wtemps[k][2], wtemps[k][1], wtemps[k][0], wtemps[k][3]);
+		}
+
+		for (int f1 = 0; f1 < ioacc->autoNums; f1++)
+		{
+			for (int f2 = 0; f2 < 4; f2++)
+			{
+				free(wautotemps[f1][f2]);
+				wautotemps[f1][f2] = NULL;
+			}
+			free(wautotemps[f1]);
+			wautotemps[f1] = NULL;
+		}
+		free(wautotemps);
+		wautotemps = NULL;
+	}
+	return;
+}
+void printFSatt(FSattributes_t* fsacc)
+{
+	assert(fsacc != NULL && "fascc is NULL pointer");
+	wchar_t* wtemps[6] = { NULL, 0 };
+	int i = 0;
+
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(fsacc->FS_name) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(fsacc->FS_name) + 1; j++)
+	{
+		mbtowc(wtemps[i] + j, fsacc->FS_name[i] + j, MB_CUR_MAX);
+	}
+	i++;
+
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(fsacc->FS_mynum) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(fsacc->FS_mynum) + 1; j++)
+	{
+		mbtowc(wtemps[i] + j, fsacc->FS_mynum[i] + j, MB_CUR_MAX);
+	}
+	i++;
+
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(fsacc->FS_received) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(fsacc->FS_received) + 1; j++)
+	{
+		mbtowc(wtemps[i] + j, fsacc->FS_received[i] + j, MB_CUR_MAX);
+	}
+	i++;
+
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(fsacc->FS_Passwords) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(fsacc->FS_Passwords) + 1; j++)
+	{
+		mbtowc(wtemps[i] + j, fsacc->FS_Passwords[i] + j, MB_CUR_MAX);
+	}
+	i++;
+
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(fsacc->FS_remainService) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(fsacc->FS_remainService) + 1; j++)
+	{
+		mbtowc(wtemps[i] + j, fsacc->FS_remainService[i] + j, MB_CUR_MAX);
+	}
+	i++;
+
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(fsacc->FS_interest) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(fsacc->FS_interest) + 1; j++)
+	{
+		mbtowc(wtemps[i] + j, fsacc->FS_interest[i] + j, MB_CUR_MAX);
+	}
+	i++;
+
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(fsacc->FS_balance) + 1));
+	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
+	for (int j = 0; j < strlen(fsacc->FS_balance) + 1; j++)
+	{
+		mbtowc(wtemps[i] + j, fsacc->FS_balance[i] + j, MB_CUR_MAX);
+	}
+	i++;
+
+	if (fsacc-> type== T2)
+	{
+		wprintf(L"< 예금 계좌 >/ %16s: %s/ 잔액: %s 남은 신청기간 %s(일) 이자율: %s 해지시 금액 %s\n",
+			wtemps[0], wtemps[1], wtemps[2], wtemps[4], wtemps[5], wtemps[6]);
+	}
+	else
+	{
+		wprintf(L"< 적금 계좌 >/ %16s: %s/ 잔액: %s 남은 신청기간 %s(일) 이자율: %s 해지시 금액 %s\n",
+			wtemps[0], wtemps[1], wtemps[2], wtemps[4], wtemps[5], wtemps[6]);
+	}
+	for (int f = 0; f < 7; f++)
+	{
+		free(wtemps[f]);
+		wtemps[f] = NULL;
+	}
+	return 1;
+}
+
 // 막만든 함수4
 int setError()
 {
@@ -583,13 +970,13 @@ int setError()
 		{
 			mbtowc(waccNums + i, g_allAccountsListAndName[0][f] + i, MB_CUR_MAX);
 		}
-		switch (g_allAccountsListAndName[0][f][2]) // 타입체크
+		switch (getAccType(g_allAccountsListAndName[0][f])) // 타입체크
 		{
-		case '1': // 입출금
+		case T1: // 입출금
 			type = T1;
 			swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\%s.txt", waccNums[1], waccNums);
 			f_setter = _wfopen(g_wpath, L"r+");
-			if (checkAcc(f_setter) == 1)
+			if (checkIO(f_setter) == 1)
 			{
 				fclose(f_setter);
 				f_setter = NULL;
@@ -599,7 +986,7 @@ int setError()
 			fclose(f_setter);
 			f_setter = NULL;
 			break;
-		case '2': // 예금
+		case T2: // 예금
 			type = T2;
 			swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\%c%c%c.txt", waccNums[1], waccNums[0], waccNums[1], waccNums[2]);
 			f_setter = _wfopen(g_wpath, L"r+");
@@ -613,7 +1000,7 @@ int setError()
 			fclose(f_setter);
 			f_setter = NULL;
 			break;
-		case'3': // 적금
+		case T3: // 적금
 			type = T3;
 			swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\%c%c%c.txt", waccNums[1], waccNums[0], waccNums[1], waccNums[2]);
 			f_setter = _wfopen(g_wpath, L"r+");
@@ -636,7 +1023,7 @@ NEEDTOCORRECTFILE:
 	return 1;
 }
 // 막만든 함수5
-int checkAcc(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋㅋ
+int checkIO(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋㅋ
 {
 	assert(f_target != NULL && "f_target is NULL");
 
@@ -1428,7 +1815,7 @@ int checkDupPW(const char* ID, const char* PW)
 	return 0;
 }
 // 아이디로 글로벌 뱅크 코드 세팅하고 그 줄 오프셋 반환 합니다....없으면 0반환
-int setBankByID(const char* ID) 
+int setBankByID(const char* ID)
 {
 	assert(ID != NULL && "ID is NULL");
 	long CurrentFileOffset = 0;
@@ -1664,7 +2051,7 @@ int setAccListOfAll_malloc()
 		{
 			tempnamelen++;
 		}
-		g_allAccountsListAndName[1][i] = (char*)malloc(sizeof(char) * (tempnamelen+1));
+		g_allAccountsListAndName[1][i] = (char*)malloc(sizeof(char) * (tempnamelen + 1));
 		assert(g_allAccountsListAndName[1][i] != NULL && "g_allAcountsListAndName allocation failed");
 
 		strncpy(g_allAccountsListAndName[1][i], pitertemp, tempnamelen);
@@ -1675,5 +2062,23 @@ int setAccListOfAll_malloc()
 		i++;
 	}
 	return g_allALANNums;
-	
+
+}
+// 계좌 타입 반환
+eAccType getAccType(const char* AccNum)
+{
+	switch (AccNum[2]) // 타입체크
+	{
+	case '1': // 입출금은 계좌마다
+		return T1;
+		break;
+	case '2': // 예금은 하나
+		return T2;
+		break;
+	case'3': // 적금도 일단 하나
+		return T3;
+		break;
+	default:
+		return 4;
+	}
 }
