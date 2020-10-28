@@ -788,25 +788,361 @@ ESCAPE:
 void atmMenu()
 {
 	system("cls");
-	PRINTCEN(L"입출금 메뉴");
+	PRINTCEN("atm menu");
 	DRAWLINE('-');
 
-	GET_G_INPUT;
-	Q_CHECK();
+	while (1) {
+		int atmsel;
+		printf("1. 입금\t 2. 출금\n");
+		scanf("%d", &atmsel);
+		if (atmsel == 1) {
+			// 입출금 계좌 목록 보여주기 구현해야함
+			FILE* inputFile = NULL;
+			inputFile = fopen("ioaccount.txt", "r");
+			int lineCount = 1;
+			if (inputFile != NULL) {
+				char buffer[256]; //나중에 수정해야함
+				while (!feof(inputFile)) {
+					fgets(buffer, sizeof(buffer), inputFile);
+					printf("%d)", lineCount++);
+					char* ptr = strtok(buffer, "\n");
+					while (ptr != NULL) {
+						printf("%s\n", ptr);
+						ptr = strtok(NULL, "\n");
+					}
+				}
+			}
+			fclose(inputFile);
 
-	wprintf(L"뒤로가기 커맨드 입력 안함.\n");
+			char input[100] = { "" };
+			char* tok[3] = { NULL, };
+
+			while (1) {
+				printf("입금할 계좌에 지정된 번호 / 계좌 비밀번호 / 입금할 금액을 입력하세요 (/로 구분)\n");
+				scanf("%s", &input);
+				char* ptr = strtok(input, "/");
+
+				int i = 0;
+				while (ptr != NULL) {
+					tok[i] = ptr;
+					i++;
+					ptr = strtok(NULL, "/");
+				}
+
+				//저장됐는지 체크, 지워야함
+				printf("번호: %s\n", tok[0]);
+				printf("비밀번호: %s\n", tok[1]);
+				printf("입금금액: %s\n", tok[2]);
+
+				if (!isdigit(*tok[0]) || !isdigit(*tok[1]) || !isdigit(*tok[2])) {
+					printf("숫자를 입력해주세요.\n"); // 12.1.1)
+				}
+				else if (atoi(tok[2]) <= 0) {
+					printf("입금할 금액은 1원 이상이어야 합니다.\n"); // 12.1.5)
+				}
+				else {
+					FILE* inputFile = NULL;
+					inputFile = fopen("ioaccount.txt", "a");
+					fprintf(inputFile, "\n%s|", tok[0]);
+					fclose(inputFile);
+					printf("계좌에 %s원을 입금하였습니다", tok[2]);
+					break;
+				}
+			}
+			break;
+		}
+		else if (atmsel == 2) {
+			// 입출금 계좌 목록 보여주기 구현해야함
+			FILE* inputFile = NULL;
+			inputFile = fopen("ioaccount.txt", "r");
+			int lineCount = 1;
+			if (inputFile != NULL) {
+				char buffer[256]; //나중에 수정해야함
+				while (!feof(inputFile)) {
+					fgets(buffer, sizeof(buffer), inputFile);
+					printf("%d)", lineCount++);
+					char* ptr = strtok(buffer, "\n");
+					while (ptr != NULL) {
+						printf("%s\n", ptr);
+						ptr = strtok(NULL, "\n");
+					}
+				}
+			}
+			fclose(inputFile);
+
+			char input2[100] = { "" };
+			char* tok2[3] = { NULL, };
+
+			while (1) {
+				printf("출금할 계좌에 지정된 번호 / 계좌 비밀번호 / 출금액을 입력하세요 (/로 구분)\n");
+				scanf("%s", &input2);
+				char* ptr = strtok(input2, "/");
+
+				int i = 0;
+				while (ptr != NULL) {
+					tok2[i] = ptr;
+					i++;
+					ptr = strtok(NULL, "/");
+				}
+
+				//저장됐는지 체크, 지워야함
+				printf("번호: %s\n", tok2[0]);
+				printf("비밀번호: %s\n", tok2[1]);
+				printf("입금금액: %s\n", tok2[2]);
+
+
+				if (!isdigit(*tok2[0]) || !isdigit(*tok2[1]) || !isdigit(*tok2[2])) {
+					printf("숫자를 입력해주세요.\n"); // 12.2.1)
+				}
+				else if (atoi(tok2[2]) <= 0) {
+					printf("출금할 금액은 1원 이상이어야 합니다.\n"); // 12.2.5)
+				}
+				else if (atoi(tok2[2]) >= 3000000) {
+					printf("출금액 한도를 초과하였습니다.\n"); // 12.2.7) , 월별한도 추가해야함
+				}
+				else {
+					FILE* inputFile = NULL;
+					inputFile = fopen("ioaccount.txt", "a");
+					fprintf(inputFile, "\n%s|", tok2[0]);
+					fclose(inputFile);
+					printf("계좌에서 %s원을 출금하였습니다\n", tok2[2]);
+
+
+					break;
+				}
+			}
+			break;
+		}
+		else {
+			getchar();
+			printf("다시 입력하세요\n");
+		}
+
+
+	}
+
+	GET_G_INPUT;
+	Q_CHECK;
+
+	printf("no :q\n");
 	system("pause");
 }
+
 void transferMenu()
 {
 	system("cls");
-	PRINTCEN(L"계좌 이체 메뉴");
+	PRINTCEN("Transfer menu");
 	DRAWLINE('-');
+	int flag = 0;
+	while (1) {
+		int transel;
+		printf("1. 계좌이체\t 2. 자동이체\n");
+		scanf("%d", &transel);
+
+		if (transel == 1) {
+			// 입출금 계좌 목록 보여주기 구현해야함
+			FILE* inputFile = NULL;
+			inputFile = fopen("ioaccount.txt", "r");
+			int lineCount = 1;
+			if (inputFile != NULL) {
+				char buffer[256]; //나중에 수정해야함
+				while (!feof(inputFile)) {
+					fgets(buffer, sizeof(buffer), inputFile);
+					printf("%d)", lineCount++);
+					char* ptr = strtok(buffer, "\n");
+					while (ptr != NULL) {
+						printf("%s\n", ptr);
+						ptr = strtok(NULL, "\n");
+					}
+				}
+			}
+			fclose(inputFile);
+			char input3[100] = { "" };
+			char* tok3[3] = { NULL, };
+
+			while (1) {
+				printf("출금계좌 비밀번호 / 계좌이체할 계좌번호 / 이체금액을 입력하세요 (/로 구분)\n");
+				scanf("%s", &input3);
+				char* ptr = strtok(input3, "/");
+
+				int i = 0;
+				while (ptr != NULL) {
+					tok3[i] = ptr;
+					i++;
+					ptr = strtok(NULL, "/");
+				}
+
+				//저장됐는지 체크, 지워야함
+				printf("출금계좌 비밀번호: %s\n", tok3[0]);
+				printf("계좌이체할 비밀번호: %s\n", tok3[1]);
+				printf("이체금액: %s\n", tok3[2]);
+
+				if (!isdigit(*tok3[0]) || !isdigit(*tok3[1]) || !isdigit(*tok3[2])) {
+					printf("숫자를 입력해주세요.\n"); //13.1.1)
+				}
+				else if (atoi(tok3[2]) <= 0) {
+					printf("이체할 금액은 1원 이상이어야 합니다.\n");
+				}
+				else if (atoi(tok3[2]) >= 3000000) {
+					printf("이체 금액 한도를 초과하였습니다.\n"); // 13.1.5) , 월별한도 추가해야함
+				}
+				else {
+					//맞게 입력했을 때
+					FILE* inputFile = NULL;
+					inputFile = fopen("ioaccount.txt", "a");
+					fprintf(inputFile, "\n%s|", tok3[1]);
+					fclose(inputFile);
+
+					printf("이체가 완료되었습니다.");
+					flag = 1;
+					break;
+				}
+			}
+			break;
+		}
+		else if (transel == 2) {
+			while (1) {
+				int autosel;
+				printf("1. 자동이체 신청\t 2. 자동이체 해지\n");
+				scanf("%d", &autosel);
+
+				if (autosel == 1) {
+					char input5[100] = { "" };
+					char* tok5[4] = { NULL, };
+
+					while (1) {
+						printf("출금계좌 비밀번호 / 자동이체할 계좌번호 / 자동이체금액 / 자동이체명을 입력하세요 (/로 구분해주세요)\n");
+						scanf("%s", &input5);
+						char* ptr = strtok(input5, "/");
+
+						int i = 0;
+						while (ptr != NULL) {
+							tok5[i] = ptr;
+							i++;
+							ptr = strtok(NULL, "/");
+						}
+
+						//저장됐는지 체크, 지워야함
+						printf("출금계좌 비밀번호: %s\n", tok5[0]);
+						printf("자동이체할 계좌번호: %s\n", tok5[1]);
+						printf("자동이체금액: %s\n", tok5[2]);
+						printf("자동이체명: %s\n", tok5[3]);
+
+						if (!isdigit(*tok5[0]) || !isdigit(*tok5[1]) || !isdigit(*tok5[2])) {
+							printf("올바른 형식으로 입력해주세요.\n"); //13.2.1)
+						}
+						else if (atoi(tok5[2]) <= 0) {
+							printf("자동이체할 금액은 1원 이상이어야 합니다.\n");
+						}
+						else if (atoi(tok5[2]) >= 3000000) {
+							printf("출금액 한도를 초과하였습니다.\n"); // 12.2.5) , 월별한도 추가해야함
+						}
+						else {
+							//맞게 입력했을 때
+							while (1) {
+								char input6[100] = { "" };
+								char* tok6[3] = { NULL, };
+								printf("자동이체 시작 년도와 달 / 종료 년도와 달 / 이체날짜를 입력하세요\n");
+								printf("(YYYYMM/YYYYMM/DD)\n");
+								scanf("%s", &input6);
+								char* ptr = strtok(input6, "/");
+
+								int i = 0;
+								while (ptr != NULL) {
+									tok6[i] = ptr;
+									i++;
+									ptr = strtok(NULL, "/");
+								}
+
+								//저장됐는지 체크, 지워야함
+								printf("자동이체 시작 년도와 달: %s\n", tok6[0]);
+								printf("종료 년도와 달: %s\n", tok6[1]);
+								printf("이체날짜: %s\n", tok6[2]);
+
+								if (!isdigit(*tok6[0]) || !isdigit(*tok6[1]) || !isdigit(*tok6[2])) {
+									printf("올바른 형식으로 입력해주세요.\n");
+								}
+								else {
+									//맞게 입력했을 때
+									FILE* inputFile = NULL;
+									inputFile = fopen("autoaccount.txt", "a");
+									fprintf(inputFile, "\n%s|%s|%s|%s|%s", tok5[3], tok5[1], tok6[1], tok5[1], tok5[1]);
+									fclose(inputFile);
+
+									printf("출금계좌 :\n");
+									printf("입금계좌 : %s\n", tok5[1]);
+									printf("이체금액 : %s\n", tok5[2]);
+									printf("이체 시작일 : %s\n", tok6[0]);
+									printf("이체 종료일 : %s\n", tok6[1]);
+									printf("이체주기 : 매월 %s일\n", tok6[2]);
+									printf("자동이체명 : %s\n", tok5[3]);
+									printf("자동이체 신청이 완료되었습니다.\n");
+									break;
+								}
+							}
+							flag = 1;
+							break;
+						}
+					}
+					break;
+				}
+				else if (autosel == 2) {
+					// 자동이체목록 출력
+					FILE* inputFile = NULL;
+					inputFile = fopen("autoaccount.txt", "r");
+					int lineCount = 1;
+					if (inputFile != NULL) {
+						char buffer[256]; //나중에 수정해야함
+						while (!feof(inputFile)) {
+							fgets(buffer, sizeof(buffer), inputFile);
+							printf("%d)", lineCount++);
+							char* ptr = strtok(buffer, "\n");
+							while (ptr != NULL) {
+								printf("%s\n", ptr);
+								ptr = strtok(NULL, "\n");
+							}
+						}
+					}
+					fclose(inputFile);
+					int autodep;
+					char yn;
+					printf("자동이체를 선택하세요>");
+					scanf("%d", &autodep);
+					while (1) {
+						getchar();
+						printf("자동이체를 해지하시겠습니까?(y/n)");
+						scanf("%c", &yn);
+						if (yn == 'y') {
+							printf("자동이체 해지가 완료되었습니다.\n");
+							break;
+						}
+						else if (yn == 'n') {
+							printf("취소하셨습니다.\n");
+							break;
+						}
+					}
+
+				}
+				else {
+					getchar();
+					printf("다시 입력하세요\n");
+				}
+			}
+
+		}
+		else {
+			getchar();
+			printf("다시 입력하세요\n");
+		}
+		if (flag = 1) {
+			break;
+		}
+	}
+
 	GET_G_INPUT;
+	Q_CHECK;
 
-	Q_CHECK();
-
-	wprintf(L"뒤로가기 커맨드 입력 안함.\n");
+	printf("no :q\n");
 	system("pause");
 }
 
