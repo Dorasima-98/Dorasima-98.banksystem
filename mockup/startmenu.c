@@ -269,7 +269,7 @@ int loginMenu() {
 		userInput = trim_malloc(userInput, g_buffer);
 		assert(userInput != NULL && "trim is Something wrong...");
 
-		PWresult = checkDupPW(userInput);
+		PWresult = checkDupPW(g_userID,userInput);
 
 		free(userInput);
 		userInput = NULL;

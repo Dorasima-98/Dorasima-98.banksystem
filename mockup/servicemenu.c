@@ -74,6 +74,10 @@ INVALIDINPUT:
 		}
 		g_userAccountsList = NULL;
 		g_userALNums = 0;
+		for (int j = 0; j < 17; j++)
+		{
+			g_userID[j] = 0;
+		}
 		break;
 	default:
 		goto INVALIDINPUT;
@@ -211,7 +215,7 @@ Invalidinput3:
 	toListfile = (char*)malloc(sizeof(char)*toLfnums);
 	toTargetfile = (char*)malloc(sizeof(char) * toTfnums);
 
-	sprintf(toListfile, "\n%s|%s|", ranNum, AccountName_malloc);
+	sprintf(toListfile, "%s|%s|\n", ranNum, AccountName_malloc);
 	sprintf(toTargetfile, "%s|%s|0|%s|300|5000|\n", AccountName_malloc, ranNum, PIN1);
 
 
@@ -245,7 +249,6 @@ Invalidinput3:
 	{
 		CurrentFileOffset++;
 		fseek(f_MemberFile, CurrentFileOffset, SEEK_SET);
-		printf("%c", fgetc(f_MemberFile));
 	}
 	fseek(f_MemberFile, CurrentFileOffset+1, SEEK_SET);
 	int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_MemberFile);
@@ -259,8 +262,9 @@ Invalidinput3:
 		g_userAccountsList[i] = NULL;
 	}
 	g_userAccountsList = NULL;
-	g_userALNums = 0;
+
 	setAccListByID_malloc(g_userID);
+	setAccListOfAll_malloc();
 	
 	// heap corruption은 free할 때 생깁니다. 중단점으로 못찾어 ㅅㄱ
 	free(AccountName_malloc);

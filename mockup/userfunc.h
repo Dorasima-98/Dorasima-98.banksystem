@@ -93,14 +93,15 @@ int strToInquiry(char* str, char* accNum,const eAccType type);
 int strToAccInfo(char* str, char* accNum, const eAccType type);
 int strToFSInfo(char* str, char* accNum, const eAccType type);
 
-int setError(FILE* f_accList);
+int setError();
 int checkAcc(FILE* f_target);
 int checkFix(FILE* f_target);
 int checkSav(FILE* f_setSav);
 int setInterest(FILE* f_target);
 
 int checkDupID(const char* ID);
-int checkDupPW(const char* PW);
+int checkDupPW(const char* ID,const char* PW);
 int setBankByID(const char* ID);
 int checkDupAN(const char* input);
 int setAccListByID_malloc(const char* ID);
+int setAccListOfAll_malloc();

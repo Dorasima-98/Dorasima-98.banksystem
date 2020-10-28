@@ -68,7 +68,7 @@ void setting()
 	assert(f_MemberFile != NULL && f_AccountList != NULL&&"\nfile opening is failed.");
 
 	//에러확인하는거긴한데...흠흠
-	if (setError(f_AccountList) == 1)
+	if (setError() == 1)
 	{
 		fclose(f_MemberFile);
 		fclose(f_AccountList);
