@@ -749,7 +749,7 @@ void inquiryAndCancel() //Cancel 만 하기~~~
 	system("pause");
 
 	system("cls");
-
+	//안녕
 	*/
 
 	PRINTCEN(L"예적금 해지");
