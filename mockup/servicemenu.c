@@ -230,27 +230,28 @@ Invalidinput3:
 	f_accFile = _wfopen(g_wpath, L"a+");
 	assert(f_accFile != NULL && "create new account file failed");
 
-	fseek(f_accFile, 0, SEEK_SET);
+	fseek(f_accFile, 0, SEEK_SET); //파일포인터를 처음위치로 이동시키기
 	fwrite(toTargetfile, sizeof(char), strlen(toTargetfile), f_accFile);
 
 	fclose(f_accFile);
 	f_accFile = NULL;
 
-	fseek(f_AccountList, 0, SEEK_END);	//계좌리스트 파일에 적기
+	fseek(f_AccountList, 0, SEEK_END);	//계좌리스트 파일에 적기 //파일포인터를 파일 제일 끝으로 이동시키기
 	fwrite(toListfile, sizeof(char), strlen(toListfile), f_AccountList); 
 	fflush(f_AccountList);
 
 
-	sprintf(toMemfile, "%s|", ranNum);
+	sprintf(toMemfile, "%s|", ranNum); //toMemfile에 계좌번호| 문자열 입력
 
 	CurrentFileOffset = setBankByID(g_userID);
-	fseek(f_MemberFile, CurrentFileOffset, SEEK_SET);
-	while (fgetc(f_MemberFile) != '\n') 
+	fseek(f_MemberFile, CurrentFileOffset, SEEK_SET); //(파일 시작점 + CurrentFileOffset) 위치로 파일포인터 이동함
+	while (fgetc(f_MemberFile) != '\n') //한줄씩 get할 거라는 의미
 	{
-		CurrentFileOffset++;
-		fseek(f_MemberFile, CurrentFileOffset, SEEK_SET);
+		CurrentFileOffset++; //한글자 한글자씩 읽기 위해
+		fseek(f_MemberFile, CurrentFileOffset, SEEK_SET); //(파일 시작점 + CurrentFileOffset) 위치로 파일포인터 이동함
 	}
 	fseek(f_MemberFile, CurrentFileOffset+1, SEEK_SET);
+
 	int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_MemberFile);
 	fseek(f_MemberFile, CurrentFileOffset+1, SEEK_SET);
 	fwrite(toMemfile, sizeof(char), strlen(toMemfile), f_MemberFile);
