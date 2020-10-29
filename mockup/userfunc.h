@@ -109,6 +109,7 @@ int startMenu();
 void registerMenu();
 int loginMenu();
 
+int checkDigit(const char* ap_string);
 int checkAlnum(const char* ap_string); 
 int checkID(const char* ap_string);
 int checkName(const char* ap_string); 
@@ -137,7 +138,7 @@ int strToIOatt_malloc(const char* str, IOattributes_malloc_t* ioacc);
 int strToFSatt(const char* str, FSattributes_t* fsacc, const char* accNum);
 
 /*요 4개는 쓰면 안됩니다.*/
-int printIOinquiry(const IOinqury_t* ioacc);
+void printIOinquiry(const IOinqury_t* ioacc);
 int printFSinquiry(const FSinqury_t* fsacc);
 void printIOatt(const IOattributes_malloc_t* ioacc);
 void printFSatt(FSattributes_t* fsacc);

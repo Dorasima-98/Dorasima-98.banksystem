@@ -58,7 +58,7 @@ void registerMenu() {
 	char* PW1_malloc = NULL;
 	char* PW2_malloc = NULL;
 
-	int memberInfoSize = 0;
+	size_t memberInfoSize = 0;
 	char* memberInfo = NULL;
 
 	char* piter = NULL;

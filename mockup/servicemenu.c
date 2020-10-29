@@ -111,8 +111,8 @@ void makeAccountMenu()
 
 	char ranNum[8] = { 0, };
 	char toMemfile[10] = { 0, };
-	int toLfnums = 0;
-	int toTfnums = 0;
+	size_t toLfnums = 0;
+	size_t toTfnums = 0;
 	int tempPass = 0;
 
 	long CurrentFileOffset = 0;
@@ -252,7 +252,7 @@ Invalidinput3:
 	}
 	fseek(f_MemberFile, CurrentFileOffset+1, SEEK_SET);
 
-	int numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_MemberFile);
+	size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_MemberFile);
 	fseek(f_MemberFile, CurrentFileOffset+1, SEEK_SET);
 	fwrite(toMemfile, sizeof(char), strlen(toMemfile), f_MemberFile);
 	fwrite(g_filebuff, sizeof(char), numOfWords, f_MemberFile);
@@ -935,12 +935,13 @@ INVALIDINPUT:
 				freeIOattriutes(ia);
 				free(ia);
 				ia = NULL;
+				accCounter++;
 			}
 			else // 두번쨰 줄은 계좌 내역
 			{
 				ii = (IOinqury_t*)malloc(sizeof(IOinqury_t));
 				strToIOiq(g_buffer, ii);
-				accCounter += printIOinquiry(ii);
+				printIOinquiry(ii);
 				free(ii);
 				ii = NULL;
 			}
