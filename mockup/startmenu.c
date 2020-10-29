@@ -13,7 +13,7 @@ REPRINT:
 	system("cls");
 	PRINTCEN(L"로그인 메뉴");
 	DRAWLINE('-');
-	PRINTLEFT(L"1) 로그인	2) 계정생성	3) 프로그램 종료");
+	PRINTLEFT(L"1) 로그인 (o)	2) 계정생성 (o) 3) 프로그램 종료 (o)");
 INVALIDINPUT:
 	PRINTLEFT(L"주어진 메뉴의 번호를 선택해주세요.");
 	GET_G_INPUT;
@@ -213,11 +213,12 @@ Invalidinput5:
 		goto Invalidinput5;
 	}
 
-	fseek(f_MemberFile, CurrentFileOffset-1, SEEK_END);
-	while (fgetc(f_MemberFile) != '|')
+	fseek(f_MemberFile, CurrentFileOffset, SEEK_END);
+	// 짜증나게 자꾸 앞에 공백하나가 생겨가지고....ㅡ.ㅡ
+	while (fgetc(f_MemberFile) != '\n')
 	{
 		CurrentFileOffset--;
-		fseek(f_MemberFile, CurrentFileOffset, SEEK_END);
+		fseek(f_MemberFile, CurrentFileOffset+1, SEEK_END);
 	}
 	fseek(f_MemberFile, CurrentFileOffset, SEEK_END);
 	memberInfoSize = strlen(Name_malloc) + strlen(ID_malloc) + strlen(PW1_malloc) + 8;
@@ -225,6 +226,7 @@ Invalidinput5:
 	assert(memberInfo != NULL && "memberInfo allcation failed");
 	sprintf(memberInfo,"%s|%s|%s|0%d|\n", Name_malloc, ID_malloc, PW1_malloc, bank);
 	fwrite(memberInfo, sizeof(char), memberInfoSize, f_MemberFile);
+	// 이제 잘 됩니다.
 
 	free(Name_malloc);
 	free(ID_malloc);
@@ -241,6 +243,7 @@ int loginMenu() {
 	int IDresult = 0;
 	int PWresult = 0;
 	int trial = 5;
+	int equalIDnPW = 0;
 
 	while (trial != 0)
 	{
@@ -253,8 +256,7 @@ int loginMenu() {
 
 		IDresult = checkDupID(userInput);
 
-
-		setAccListByID_malloc(userInput);
+		setAccListByID_malloc(userInput); // 아이디 비번 틀려서 다시 호출되면 내부적으로 free(g_userAccountList) 합니다.
 		strncpy(g_userID, userInput, strlen(userInput)+1);
 
 		free(userInput);
@@ -283,6 +285,7 @@ int loginMenu() {
 		else
 		{
 			PRINTRIGHT(L"둘 중 뭐가 틀렸는지도 안 알려줄겁니다.");
+
 			trial--;
 		}
 	}

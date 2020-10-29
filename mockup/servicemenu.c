@@ -14,8 +14,8 @@ int serviceMenu()
 	PRINTCEN(L"서비스 메뉴");
 	DRAWLINE('-');
 
-	PRINTLEFT(L"1) 계좌 생성 2) 예금과 적금 3) 입금과 출금");
-	PRINTLEFT(L"4) 계좌 이체 5) 계좌 내역 6) 로그아웃");
+	PRINTLEFT(L"1) 계좌 생성 (?) 2) 예금과 적금 (?) 3) 입금과 출금 (?)");
+	PRINTLEFT(L"4) 계좌 이체 (?) 5) 계좌 내역   (o) 6) 로그아웃    (o)");
 	DRAWLINE('-');
 	if (g_userALNums == 0)
 	{
@@ -818,6 +818,7 @@ void historyInquiry()
 	FILE* f_Account;
 	eAccType type;
 	int accCounter = 0;
+	int userHaveFlag = 0;
 
 	IOinqury_t* ii;
 	IOattributes_malloc_t* ia;
@@ -829,8 +830,7 @@ void historyInquiry()
 	DRAWLINE('-');
 
 #if TEST_ON 
-	PRINTRIGHT(L"조회하고자 하는 계좌번호를 입력해주세요");
-	printf("> ");
+	PRINTRIGHT(L"조회하고자 하는 계좌번호를 입력해주세요\n>");
 INVALIDINPUT:
 	GET_G_INPUT;
 	Q_CHECK();
@@ -857,11 +857,17 @@ INVALIDINPUT:
 	i_AccNum[7] = '\0';
 	if (j != 7 || (k != 2 && k != 0))
 	{
-		PRINTRIGHT(L"계좌번호가 올바른 양식이 아닙니다. 다시 입력해주세요.");
+		PRINTRIGHT(L"계좌번호가 올바른 양식이 아닙니다. 다시 입력해주세요.\n>");
 		goto INVALIDINPUT;
 	}
 
 	// 해당 파일찾아가기
+	if (tempwcp != NULL)
+	{
+		free(tempwcp);
+		tempwcp = NULL;
+	}
+
 	tempwcp = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(i_AccNum) + 1));
 	for (int i = 0; i < strlen(i_AccNum) + 1; i++)
 	{
@@ -877,24 +883,37 @@ INVALIDINPUT:
 		type = T2;
 		swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\%c%c%c.txt", tempwcp[1], tempwcp[0], tempwcp[1], tempwcp[2]);
 		break;
-	case T3: // 적금도 일단 하나
+	case T3: // 적금도 하나
 		type = T3;
 		swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\%c%c%c.txt", tempwcp[1], tempwcp[0], tempwcp[1], tempwcp[2]);
 		break;
 	default:
-		PRINTRIGHT(L"계좌번호가 올바르지 않습니다. 다시 입력해주세요.");
+		PRINTRIGHT(L"계좌번호가 올바르지 않습니다. 다시 입력해주세요.\n >");
 		goto INVALIDINPUT;
 	}
 	free(tempwcp);
 	tempwcp = NULL;
 
 	f_Account = _wfopen(g_wpath, L"r");
-	if (f_Account == NULL)
+	if (f_Account == NULL) // 파일 이름 없으면 다시
 	{
-		PRINTRIGHT(L"계좌번호를 찾을 수 없습니다. 다시 입력해주세요...");
+		PRINTRIGHT(L"계좌번호를 찾을 수 없습니다. 다시 입력해주세요...\n> " );
 		goto INVALIDINPUT;
 	}
 
+	for (int i = 0; i < g_userALNums; i++) //사용자 소유 계좌인지 확인
+	{
+		if (strncmp(i_AccNum, g_userAccountsList[i], 7) == 0)
+		{
+			userHaveFlag = 1;
+			break;
+		}
+	}
+	if (userHaveFlag == 0)
+	{
+		PRINTRIGHT(L"계좌번호를 찾을 수 없습니다. 혹시 다른 사람 계좌번호는 아닐까요?\n>");
+		goto INVALIDINPUT;
+	}
 	//출력 테스트
 	int i = 0;
 	while (1)
@@ -908,7 +927,7 @@ INVALIDINPUT:
 		switch (getAccType(i_AccNum))
 		{
 		case T1:
-			if (CurrentFileOffset == 0)
+			if (CurrentFileOffset == 0) // 첫줄은 계좌 속성
 			{
 				ia = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
 				strToIOatt_malloc(g_buffer, ia);
@@ -917,43 +936,51 @@ INVALIDINPUT:
 				free(ia);
 				ia = NULL;
 			}
-			else
+			else // 두번쨰 줄은 계좌 내역
 			{
 				ii = (IOinqury_t*)malloc(sizeof(IOinqury_t));
 				strToIOiq(g_buffer, ii);
-				//printIOinquiry(ii);
+				accCounter += printIOinquiry(ii);
 				free(ii);
 				ii = NULL;
 			}
 			break;
 		case T2:
 		case T3:
-			if (CurrentFileOffset == 0)
+			if (CurrentFileOffset == 0) // 첫줄은 계좌 속성
 			{
 				fsa = (FSattributes_t*)malloc(sizeof(FSattributes_t));
-				strToFSatt(g_buffer, fsa, i_AccNum);
-				//printFSatt(fsa);
+				if (strToFSatt(g_buffer, fsa, i_AccNum)== 1)  // 예적금 모음 파일 안에 해당 계좌가 있는지 확인
+				{
+					printFSatt(fsa);
+					accCounter++;
+				}				
 				free(fsa);
 				fsa = NULL;
 			}
-			else
+			else // 두번쨰 줄은 계좌 내역
 			{
-				fsi = (FSinqury_t*)malloc(sizeof(FSinqury_t));
-				strToFSiq(g_buffer, fsi, i_AccNum);
-				//printFSinquiry(fsi);
-				free(fsi);
-				fsi = NULL;
+				if (accCounter != 0)
+				{
+					fsi = (FSinqury_t*)malloc(sizeof(FSinqury_t));
+					if (strToFSiq(g_buffer, fsi, i_AccNum) == 1) // 예적금 모음 파일 안에 해당 계좌가 있는지 확인
+					{
+						printFSinquiry(fsi);
+					}
+					free(fsi);
+					fsi = NULL;
+				}
 			}
 			break;
 		default:
 			assert("you can be  here");
 		}
 
-		CurrentFileOffset = ftell(f_Account);
+		CurrentFileOffset = ftell(f_Account); //다음줄
 	}
 	if (accCounter == 0)
 	{
-		PRINTRIGHT(L"해당 계좌는 존재하지 않습니다. 다시 입력해주세요...");
+		PRINTRIGHT(L"해당 계좌는 존재하지 않습니다. 다시 입력해주세요...\n> ");
 		goto INVALIDINPUT;
 	}
 
