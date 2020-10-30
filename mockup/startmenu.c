@@ -214,19 +214,12 @@ Invalidinput5:
 		goto Invalidinput5;
 	}
 
-	fseek(f_MemberFile, CurrentFileOffset, SEEK_END);
-	// 짜증나게 자꾸 앞에 공백하나가 생겨가지고....ㅡ.ㅡ
-	while (fgetc(f_MemberFile) != '\n')
-	{
-		CurrentFileOffset--;
-		fseek(f_MemberFile, CurrentFileOffset-1, SEEK_END);
-	}
-	fseek(f_MemberFile, CurrentFileOffset, SEEK_END);
+	fseek(f_MemberFile, 0, SEEK_END);
 	memberInfoSize = strlen(Name_malloc) + strlen(ID_malloc) + strlen(PW1_malloc) + 8;
 	memberInfo = (char*)malloc(sizeof(char) * memberInfoSize);
 	assert(memberInfo != NULL && "memberInfo allcation failed");
 	sprintf(memberInfo,"%s|%s|%s|0%d|\n", Name_malloc, ID_malloc, PW1_malloc, bank);
-	fwrite(memberInfo, sizeof(char), memberInfoSize, f_MemberFile);
+	fwrite(memberInfo, sizeof(char), strlen(memberInfo), f_MemberFile);
 	// 이제 잘 됩니다.
 
 	free(Name_malloc);
