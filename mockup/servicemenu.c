@@ -17,7 +17,7 @@ int serviceMenu()
 	PRINTCEN(L"서비스 메뉴");
 	DRAWLINE('-');
 
-	PRINTLEFT(L"1) 계좌 생성 (?) 2) 예금과 적금 (?) 3) 입금과 출금 (?)");
+	PRINTLEFT(L"1) 계좌 생성 (o) 2) 예금과 적금 (?) 3) 입금과 출금 (?)");
 	PRINTLEFT(L"4) 계좌 이체 (?) 5) 계좌 내역   (o) 6) 로그아웃    (o)");
 	DRAWLINE('-');
 	if (g_userALNums == 0)
@@ -243,7 +243,6 @@ Invalidinput3:
 	fwrite(toListfile, sizeof(char), strlen(toListfile), f_AccountList); 
 	fflush(f_AccountList);
 
-
 	sprintf(toMemfile, "%s|", ranNum); //toMemfile에 계좌번호| 문자열 입력
 
 	CurrentFileOffset = setBankByID(g_userID);
@@ -251,12 +250,10 @@ Invalidinput3:
 	while (fgetc(f_MemberFile) != '\n') //한줄씩 get할 거라는 의미
 	{
 		CurrentFileOffset++; //한글자 한글자씩 읽기 위해
-		fseek(f_MemberFile, CurrentFileOffset, SEEK_SET); //(파일 시작점 + CurrentFileOffset) 위치로 파일포인터 이동함
 	}
-	fseek(f_MemberFile, CurrentFileOffset+1, SEEK_SET);
-
-	size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_MemberFile);
-	fseek(f_MemberFile, CurrentFileOffset+1, SEEK_SET);
+	fseek(f_MemberFile, CurrentFileOffset+1, SEEK_SET); //(파일 시작점 + CurrentFileOffset) 위치로 파일포인터 이동함
+	size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_MemberFile); 
+	fseek(f_MemberFile, CurrentFileOffset, SEEK_SET);
 	fwrite(toMemfile, sizeof(char), strlen(toMemfile), f_MemberFile);
 	fwrite(g_filebuff, sizeof(char), numOfWords, f_MemberFile);
 

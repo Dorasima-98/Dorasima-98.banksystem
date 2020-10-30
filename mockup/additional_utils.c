@@ -528,6 +528,7 @@ int strToFSatt(const char* str, FSattributes_t* fsacc, const char* accNum)
 	{
 		returnValue = piter;
 		pcounter = piter;
+		counter = 0;
 		while (*pcounter++ != '|')
 		{
 			counter++;
@@ -597,28 +598,16 @@ int strToFSatt(const char* str, FSattributes_t* fsacc, const char* accNum)
 
 		if (findflag == 1)
 		{
-			return (int)(str - returnValue);
+			return (int)(returnValue -str);
 		}
 		else
 		{
-			while (*pcounter != '\n')
+			pcounter = piter;
+			while (*pcounter != ' ')
 			{
-				if (*pcounter++ == ' ')
-				{
-					flag = 1;
-					piter = pcounter;
-					break;
-				}
-				else
-				{
-					flag = 0;
-				}
+				pcounter++;
 			}
-			if (flag == 0)
-			{
-				fsacc = NULL;
-				return -1;
-			}
+			piter = ++pcounter;
 		}
 	}
 	fprintf(stderr, "Eof with \\n\n");
@@ -978,7 +967,7 @@ int setError()
 				goto NEEDTOCORRECTFILE;
 			}
 			fclose(f_setter);
-			f_setter = NULL;
+			f_setter = NULL; 
 			break;
 		case T2: // 예금
 			type = T2;
@@ -1019,7 +1008,7 @@ NEEDTOCORRECTFILE:
 // 막만든 함수2
 int checkIO(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋㅋ
 {
-	assert(f_target != NULL && "f_target is NULL");
+	assert(f_target != NULL && "I can't find file by account.txt..target is NULL");
 
 	long CurrentFileOffset = 0;
 	int line = 0;
@@ -1868,6 +1857,7 @@ int setFSInterest(FILE* f_accfile, const char* AccNum)
 	long beforBal = 0;
 	long afterBal = 0;
 	int remainService = 0;
+	int flag = 0;
 	size_t numOfBefore = 0;
 
 	double interestRatio = 0;
@@ -1879,147 +1869,144 @@ int setFSInterest(FILE* f_accfile, const char* AccNum)
 
 	char check = 0;
 
+	char* pcp = NULL;
+	char* pgb = NULL;
 	char* temp =NULL;
+
 	size_t templen = 0;
+	size_t pcplen = 0;
 
-
-	FSattributes_t* targetAT = (FSattributes_t*)malloc(sizeof(FSattributes_t)); // 이자 적용 전 속성
+	// 버퍼
+	FSattributes_t* targetAT = (FSattributes_t*)malloc(sizeof(FSattributes_t)); 
 	FSinqury_t* targetIQ = (FSinqury_t*)malloc(sizeof(FSinqury_t));
 	assert(targetAT != NULL && targetIQ != NULL && "setSavInterest() allocation failed");
 
-	while (1)
+	pcplen = fread(g_tempbuff, sizeof(char), FILE_BUFF, f_accfile);
+	fflush(f_accfile);
+	g_tempbuff[pcplen] = '\0';
+	pcp = g_tempbuff;
+	pgb = g_buffer; 
+	while (*pcp != '\0')
 	{
-		
-		memset(g_buffer, '\0', BUFF_SIZE);
-		fseek(f_accfile, CurrentFileOffset, SEEK_SET);
-		fgets(g_buffer, BUFF_SIZE, f_accfile);
-		//fflush(f_accfile);
-		//system("cls");
-		printf("%s", g_buffer);
-
-		if (feof(f_AccountList))
+		if (*pcp != '\n')
 		{
-			remainService = atoi(targetAT->FS_remainService);
-			if (remainService == 0) // 남은 기간 0이면 없애기
-			{
-				free(targetAT);
-				free(targetIQ);
-				targetAT = NULL;
-				targetIQ = NULL;
-
-				fprintf(stdout, "%s no remain\n", AccNum);
-				return 0;
-			}
-			beforBal = atol(targetAT->FS_balance);
-			interestRatio = atof(targetAT->FS_interest);
-			afterBal = beforBal + (long)(beforBal * interestRatio / 100);
-
-			//속성 쓰기
-			CurrentFileOffset = AttOffset;
-
-			if (temp != NULL)
-			{
-				free(temp);
-				temp = NULL;
-			}
-			templen = sizeof(FSattributes_t) / sizeof(char) + 8;
-			temp = (char*)malloc(sizeof(char) * templen);
-			assert(temp != NULL && "setSavInterset allocation failed");
-
-			sprintf(temp, "%s|%s|%s|%s|%d|%.1f|%ld|",
-				targetAT->FS_name, targetAT->FS_mynum, targetAT->FS_money, targetAT->FS_Passwords, remainService - 1, interestRatio, afterBal);
-
-			/*
-			fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos", sizeof(char), 18, f_target);
-					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
-			*/
-
-			fseek(f_accfile, CurrentFileOffset, SEEK_SET);
-			//공백은 이전의 |을 안가져오고, \n은 그 이전 |을 가지고 오는걸까...
-			// \r\n이라서 그런건가??? 테스트 해보자.
-			while (fgetc(f_accfile) != ' ' && fgetc(f_accfile) != '\n')
-			{
-				CurrentFileOffset++;
-				numOfBefore++;
-				check = fgetc(f_accfile);
-				fseek(f_accfile, CurrentFileOffset, SEEK_SET);
-			}
-			fseek(f_accfile, 0, SEEK_SET);
-			if (AttOffset > 0)
-			{
-				numOfBefore = fread(g_filebuff2, sizeof(char), numOfBefore, f_accfile);
-			}
-			fseek(f_accfile, CurrentFileOffset, SEEK_SET);
-			size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_accfile);
-			//printf("g_filebuff:\n %s", g_filebuff);
-			f_accfile = _wfreopen(g_wpath, L"w+", f_accfile);
-			if (AttOffset > 0)
-			{
-				fwrite(g_filebuff2, sizeof(char), AttOffset, f_accfile);
-			}
-			fwrite(temp, sizeof(char), strlen(temp), f_accfile);
-			fwrite(g_filebuff, sizeof(char), numOfWords, f_accfile);
-
-			free(temp);
-			temp = NULL;
-
-			//이자 내역 쓰기
-			CurrentFileOffset = 0;
-			fseek(f_accfile, CurrentFileOffset, SEEK_END);
-			while (fgetc(f_accfile) != '\n')
-			{
-				CurrentFileOffset--;
-				fseek(f_accfile, CurrentFileOffset - 1, SEEK_END);
-			}
-			fseek(f_accfile, CurrentFileOffset, SEEK_END);
-
-			templen = sizeof(FSinqury_t) / sizeof(char) + 5;
-			temp = (char*)malloc(sizeof(char) * templen);
-			assert(temp != NULL && "setSavInterset allocation failed");
-
-			sprintf(temp, "%d-%d-%d|%s|%s|0|%ld|\n",
-				g_year, g_month, g_day, targetIQ->FS_name, AccNum, afterBal);
-
-			fwrite(temp, sizeof(char), strlen(temp), f_accfile);
-			fflush(f_accfile);
-
-			free(temp);
-			temp = NULL;
-
-			break;
-		}
-		if (CurrentFileOffset == 0)
-		{
-			AttOffset = strToFSatt(g_buffer, targetAT, AccNum);
+			*pgb++ = *pcp++;
 		}
 		else
 		{
-			strToFSiq(g_buffer, targetIQ, AccNum);
-			inputYear = atoi(&(targetIQ->FS_date[0]));
-			inputMonth = atoi(&(targetIQ->FS_date[5]));
-			inputDay = atoi(&(targetIQ->FS_date[8]));
-			//printf("%c\n", *(targetIQ->FS_income));
-			if (inputYear == g_year && inputMonth == g_month && inputDay == g_day && *(targetIQ->FS_income) == '0')
+			*pgb = '\0';
+			//printf("%s\n", g_buffer);
+			if (flag == 0)
 			{
-				free(targetAT);
-				free(targetIQ);
-				targetAT = NULL;
-				targetIQ = NULL;
-
-				fprintf(stdout, "%s good\n", AccNum);
-				return 1;
+				AttOffset = strToFSatt(g_buffer, targetAT, AccNum);
+				flag = 1;
 			}
-		}
-		CurrentFileOffset = ftell(f_accfile);
-	}
-	free(targetAT);
-	free(targetIQ);
-	targetAT = NULL;
-	targetIQ = NULL;
+			else
+			{
+				strToFSiq(g_buffer, targetIQ, AccNum);
+				inputYear = atoi(&(targetIQ->FS_date[0]));
+				inputMonth = atoi(&(targetIQ->FS_date[5]));
+				inputDay = atoi(&(targetIQ->FS_date[8]));
+				if (inputYear == g_year && inputMonth == g_month && 
+					inputDay == g_day && *(targetIQ->FS_income) == '0'&& 
+					(strcmp(AccNum, targetIQ->FS_mynum) == 0))
+				{ // 이자 잘 붙어있으면 나가기
+					free(targetAT);
+					free(targetIQ);
+					targetAT = NULL;
+					targetIQ = NULL;
 
+					fprintf(stdout, "%s good\n", AccNum);
+					return 1; 
+				}
+			}
+			pcp++;
+			pgb = g_buffer;
+			memset(g_buffer, '\0', BUFF_SIZE); // 아니면 다음칸.
+		}
+	} // 다 찾아봐도 없으면
+	remainService = atoi(targetAT->FS_remainService);
+	if (remainService == 0) // 남은 기간 0이면 없애기
+	{
+		free(targetAT);
+		free(targetIQ);
+		targetAT = NULL;
+		targetIQ = NULL;
+
+		fprintf(stdout, "%s no remain\n", AccNum);
+		return 0;
+	}//이자 계산
+	beforBal = atol(targetAT->FS_balance);
+	interestRatio = atof(targetAT->FS_interest);
+	afterBal = beforBal + (long)(beforBal * interestRatio / 100);
+	
+	
+	
+	if (temp != NULL)
+	{
+		free(temp);
+		temp = NULL;
+	}//속성 쓰기
+	templen = sizeof(FSattributes_t) / sizeof(char) + 8;
+	temp = (char*)malloc(sizeof(char) * templen);
+	assert(temp != NULL && "setSavInterset allocation failed");
+
+	sprintf(temp, "%s|%s|%s|%s|%d|%.1f|%ld|",
+		targetAT->FS_name, targetAT->FS_mynum, targetAT->FS_money,
+		targetAT->FS_Passwords, remainService - 1, interestRatio, afterBal);
+	printf("%s\n", temp);
+
+	//파일에 쓰기
+	CurrentFileOffset = AttOffset;
+	fseek(f_accfile, CurrentFileOffset, SEEK_SET);
+
+	while (check != ' ' && check != '\n')
+	{
+		check = fgetc(f_accfile);
+		CurrentFileOffset++;
+	}
+	CurrentFileOffset--;
+
+	if (AttOffset > 0) // 중간에 껴야할 때
+	{
+		fseek(f_accfile, 0, SEEK_SET); //앞에것
+		numOfBefore = fread(g_filebuff2, sizeof(char), AttOffset, f_accfile);
+	}
+	fseek(f_accfile, CurrentFileOffset, SEEK_SET);// 뒤에것
+	size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_accfile);
+	//printf("g_filebuff:\n %s", g_filebuff);
+	f_accfile = _wfreopen(g_wpath, L"w+", f_accfile);
+	if (AttOffset > 0)
+	{
+		fwrite(g_filebuff2, sizeof(char), numOfBefore, f_accfile);
+	}
+	fwrite(temp, sizeof(char), strlen(temp), f_accfile);
+	fflush(f_accfile);
+	fwrite(g_filebuff, sizeof(char), numOfWords, f_accfile);
+	fflush(f_accfile);
+
+	free(temp);
+	temp = NULL;
+
+	//이자 내역 쓰기
+	CurrentFileOffset = 0;
+	fseek(f_accfile, CurrentFileOffset, SEEK_END);
+
+	templen = sizeof(FSinqury_t) / sizeof(char) + 5;
+	temp = (char*)malloc(sizeof(char) * templen);
+	assert(temp != NULL && "setSavInterset allocation failed");
+
+	sprintf(temp, "%d-%d-%d|%s|%s|0|%ld|\n",
+		g_year, g_month, g_day, targetAT->FS_name, AccNum, afterBal);
+
+	printf("%s\n", temp);
+
+	fwrite(temp, sizeof(char), strlen(temp), f_accfile);
+	fflush(f_accfile);
+
+	free(temp);
+	temp = NULL;
+	
 	fprintf(stdout, "%s bad\n", AccNum);
 	return 0;
 }
@@ -2038,15 +2025,14 @@ int checkDupID(const char* ID)
 	{
 		fseek(f_MemberFile, CurrentFileOffset, SEEK_SET);
 		fgets(g_buffer, BUFF_SIZE, f_MemberFile);
-		if (feof(f_MemberFile))
-		{
-			break;
-		}
 		IDs = (char*)malloc(sizeof(char) * 17);
 		assert(IDs != NULL && "IDs memory allocation is error");
 		pbuf = g_buffer;
 		pID = IDs;
-
+		if (feof(f_MemberFile))
+		{
+			break;
+		}
 		while (*pbuf++ != '|');
 		while (*pbuf != '|')
 		{
@@ -2084,10 +2070,7 @@ int checkDupPW(const char* ID, const char* PW)
 	CurrentFileOffset = setBankByID(ID);
 	fseek(f_MemberFile, CurrentFileOffset, SEEK_SET);
 	fgets(g_buffer, BUFF_SIZE, f_MemberFile);
-	if (feof(f_MemberFile))
-	{
-		return 0;
-	}
+
 	PWs = (char*)malloc(sizeof(char) * 33);
 	assert(PWs != NULL && "PWs memory allocation is error");
 	pbuf = g_buffer;

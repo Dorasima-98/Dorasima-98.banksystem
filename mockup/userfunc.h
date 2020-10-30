@@ -95,6 +95,7 @@ typedef struct
 char g_buffer[BUFF_SIZE]; // 글로벌 입력 버퍼
 char g_filebuff[FILE_BUFF]; // 끼워쓰기용
 char g_filebuff2[FILE_BUFF];
+char g_tempbuff[FILE_BUFF];
 char g_userID[17];
 wchar_t g_wpath[MAX_PATH]; // 글로벌 경로 입력 버퍼
 wchar_t* tempwcp; // 혹시 나중에 쓸지 몰라서 포인터로 만들었습니다.
