@@ -2,9 +2,12 @@
 
 #include "userfunc.h"
 int Bank;
-int g_userBank;
-int g_userALNums;
-int g_allALANNums;
+
+int g_year;
+int g_month;
+int g_day;
+time_t g_time;
+
 FILE* f_MemberFile; // 회원정보 파일스트림
 FILE* f_AccountList; // 계좌리스트 파일스트림
 
@@ -48,9 +51,21 @@ void setting()
 	system("mode con: cols=150 lines=30");
 	setlocale(LC_ALL, "korean");
 	_wsetlocale(LC_ALL, L"korean");
-	
-	//윈도우 제공 함수
 
+	//시간 입력
+	struct tm* pTS;
+	g_time = time(NULL);
+	pTS = localtime(&g_time);
+
+	g_year = (pTS->tm_year) + 1900;
+	g_month = (pTS->tm_mon) + 1;
+	g_day = 31;
+	//g_day = pTS->tm_mday;
+
+	//printf("%d / %d / %d\n", g_year, g_month, g_day);
+	//system("pause");
+
+	//윈도우 제공 함수
 	//폴더만들기...(아래 은행별로 나눈것은 필요할지 모르겠습니다.)
 	CreateDirectory(L"C:\\banksystemlog", NULL); 
 
@@ -84,5 +99,31 @@ void setting()
 	//글로벌 변수 초기화
 	g_userBank = 0;
 	g_userAccountsList = NULL;
+
+	// 이자 붙일지 정하기
+	time_t tempTime;
+	int tempmonth;
+	struct tm* tempTS;
+
+	if (g_day == 31)
+	{
+		setInterest();
+	}
+	else if ((g_month == 2 && (g_day == 28 || g_day == 29)))
+	{
+		setInterest();
+	}
+	else if (g_day == 30)
+	{
+		tempTime = g_time + 86400; // 하루지나면
+		//printf("%lld and %lld\n", g_time, tempTime);
+		tempTS = localtime(&tempTime); 
+
+		tempmonth = (tempTS->tm_mon)+1;
+		if (tempmonth != g_month) // 달이변하는지 확인
+		{
+			setInterest();
+		}
+	}
 }
 
