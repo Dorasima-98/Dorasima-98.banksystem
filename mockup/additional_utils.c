@@ -231,7 +231,7 @@ int strToIOiq(const char* str, IOinqury_t* ioacc)
 	assert(str != NULL && ioacc != NULL && "str or ioacc is NULL");
 
 	const char* piter = str;
-	char* pcounter;
+	const char* pcounter;
 	wchar_t* wtemps[6] = { NULL, 0 };
 	int i = 0;
 	int counter = 0;
@@ -242,8 +242,8 @@ int strToIOiq(const char* str, IOinqury_t* ioacc)
 	{
 		counter++;
 	}
-	strncpy(ioacc->IO_day, piter, counter);
-	ioacc->IO_day[counter] = '\0';
+	strncpy(ioacc->IO_date, piter, counter);
+	ioacc->IO_date[counter] = '\0';
 
 	piter = pcounter;
 	counter = 0;
@@ -307,7 +307,7 @@ int strToFSiq(const char* str, FSinqury_t* fsacc, const char* accNum)
 	assert(str != NULL && fsacc != NULL && accNum != NULL && "str or fsacc or accNum is NULL");
 
 	const char* piter = str;
-	char* pcounter;
+	const char* pcounter;
 	int counter = 0;
 	int findflag = 0;
 
@@ -317,8 +317,8 @@ int strToFSiq(const char* str, FSinqury_t* fsacc, const char* accNum)
 	{
 		counter++;
 	}
-	strncpy(fsacc->FS_day, piter, counter);
-	fsacc->FS_day[counter] = '\0';
+	strncpy(fsacc->FS_date, piter, counter);
+	fsacc->FS_date[counter] = '\0';
 
 	piter = pcounter;
 	counter = 0;
@@ -351,8 +351,8 @@ int strToFSiq(const char* str, FSinqury_t* fsacc, const char* accNum)
 	{
 		counter++;
 	}
-	strncpy(fsacc->FS_money, piter, counter);
-	fsacc->FS_money[counter] = '\0';
+	strncpy(fsacc->FS_income, piter, counter);
+	fsacc->FS_income[counter] = '\0';
 
 	piter = pcounter;
 	counter = 0;
@@ -425,8 +425,8 @@ int strToIOatt_malloc(const char* str, IOattributes_malloc_t* ioacc)
 		}
 		counter++;
 	}
-	strncpy(ioacc->IO_dayLimits, piter, counter);
-	ioacc->IO_dayLimits[counter] = '\0';
+	strncpy(ioacc->IO_dateLimits, piter, counter);
+	ioacc->IO_dateLimits[counter] = '\0';
 
 	piter = pcounter;
 	counter = 0;
@@ -507,24 +507,26 @@ int strToIOatt_malloc(const char* str, IOattributes_malloc_t* ioacc)
 
 	return 1;
 }
-// 예적금 계좌파일 속성 한줄을 FSattritubes_t에 넣어줍니다. 3번째 인자로 넣어준 계좌번호만 출력. 성공하면 1, 실패하면 0 반환
+// 예적금 계좌파일 속성 한줄을 FSattritubes_t에 넣어줍니다. 3번째 인자로 넣어준 계좌번호만 출력. 성공하면 시작위치 정수, 실패하면 -1 반환
 int strToFSatt(const char* str, FSattributes_t* fsacc, const char* accNum)
 {
 	assert(str != NULL && fsacc != NULL && accNum != NULL && "str or ioacc or accNum is NULL");
 
 	const char* piter = str;
-	char* pcounter;
+	const char* returnValue;
+	const char* pcounter;
 	wchar_t* wtemps[6] = { NULL, 0 };
 	int i = 0;
 	int counter = 0;
 	int flag = 1;
 	int findflag = 0;
 
+
 	//계좌 내역 뽑기
 
 	while (flag == 1 && *piter != '\n')
 	{
-
+		returnValue = piter;
 		pcounter = piter;
 		while (*pcounter++ != '|')
 		{
@@ -553,8 +555,8 @@ int strToFSatt(const char* str, FSattributes_t* fsacc, const char* accNum)
 		{
 			counter++;
 		}
-		strncpy(fsacc->FS_received, piter, counter);
-		fsacc->FS_received[counter] = '\0';
+		strncpy(fsacc->FS_money, piter, counter);
+		fsacc->FS_money[counter] = '\0';
 
 
 		piter = pcounter;
@@ -595,7 +597,7 @@ int strToFSatt(const char* str, FSattributes_t* fsacc, const char* accNum)
 
 		if (findflag == 1)
 		{
-			return 1;
+			return (int)(str - returnValue);
 		}
 		else
 		{
@@ -615,12 +617,12 @@ int strToFSatt(const char* str, FSattributes_t* fsacc, const char* accNum)
 			if (flag == 0)
 			{
 				fsacc = NULL;
-				return 0;
+				return -1;
 			}
 		}
 	}
 	fprintf(stderr, "Eof with \\n\n");
-	return 0;
+	return -1;
 }
 // 다쓴 IOattributes_malloc_t 해제
 void freeIOattriutes(IOattributes_malloc_t* ioacc)
@@ -647,11 +649,11 @@ void printIOinquiry(const IOinqury_t* ioacc)
 	wchar_t* wtemps[6] = { NULL, 0 };
 	int i = 0;
 
-	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(ioacc->IO_day) + 1));
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(ioacc->IO_date) + 1));
 	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
-	for (int j = 0; j < strlen(ioacc->IO_day) + 1; j++)
+	for (int j = 0; j < strlen(ioacc->IO_date) + 1; j++)
 	{
-		mbtowc(wtemps[i] + j, ioacc->IO_day + j, MB_CUR_MAX);
+		mbtowc(wtemps[i] + j, ioacc->IO_date + j, MB_CUR_MAX);
 	}
 	i++;
 	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(ioacc->IO_name) + 1));
@@ -716,11 +718,11 @@ int printFSinquiry(const FSinqury_t* fsacc)
 	wchar_t* wtemps[5] = { NULL, 0 };
 	int i = 0;
 
-	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(fsacc->FS_day) + 1));
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(fsacc->FS_date) + 1));
 	assert(wtemps[i] != NULL && "wtemps[i] allocatFSn failed");
-	for (int j = 0; j < strlen(fsacc->FS_day) + 1; j++)
+	for (int j = 0; j < strlen(fsacc->FS_date) + 1; j++)
 	{
-		mbtowc(wtemps[i] + j, fsacc->FS_day + j, MB_CUR_MAX);
+		mbtowc(wtemps[i] + j, fsacc->FS_date + j, MB_CUR_MAX);
 	}
 	i++;
 	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(fsacc->FS_name) + 1));
@@ -737,11 +739,11 @@ int printFSinquiry(const FSinqury_t* fsacc)
 		mbtowc(wtemps[i] + j, fsacc->FS_mynum + j, MB_CUR_MAX);
 	}
 	i++;
-	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(fsacc->FS_money) + 1));
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(fsacc->FS_income) + 1));
 	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
-	for (int j = 0; j < strlen(fsacc->FS_money) + 1; j++)
+	for (int j = 0; j < strlen(fsacc->FS_income) + 1; j++)
 	{
-		mbtowc(wtemps[i] + j, fsacc->FS_money + j, MB_CUR_MAX);
+		mbtowc(wtemps[i] + j, fsacc->FS_income + j, MB_CUR_MAX);
 	}
 	i++;
 	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(fsacc->FS_balance) + 1));
@@ -754,11 +756,11 @@ int printFSinquiry(const FSinqury_t* fsacc)
 	switch (fsacc->FS_type)
 	{
 	case T2:
-		wprintf(L"< %s >/ %16s: %s/ 만기해지시 금액: %s / 현재 금액: %s\n",
+		wprintf(L"< %s >/ %16s: %s/ 입금액: %s / 현재 금액: %s\n",
 			wtemps[0], wtemps[1], wtemps[2], wtemps[3], wtemps[4]);
 		break;
 	case T3:
-		wprintf(L"< %s >/ %16s: %s/ 최대 월 납입액: %s/ 현재 금액: %s\n",
+		wprintf(L"< %s >/ %16s: %s/ 입금액: %s/ 현재 금액: %s\n",
 			wtemps[0], wtemps[1], wtemps[2], wtemps[3], wtemps[4]);
 		break;
 	default:
@@ -808,11 +810,11 @@ void printIOatt(const IOattributes_malloc_t* ioacc)
 		mbtowc(wtemps[i] + j, (ioacc->IO_Passwords) + j, MB_CUR_MAX);
 	}
 	i++;
-	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(ioacc->IO_dayLimits) + 1));
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(ioacc->IO_dateLimits) + 1));
 	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
-	for (int j = 0; j < strlen(ioacc->IO_dayLimits) + 1; j++)
+	for (int j = 0; j < strlen(ioacc->IO_dateLimits) + 1; j++)
 	{
-		mbtowc(wtemps[i] + j, (ioacc->IO_dayLimits) + j, MB_CUR_MAX);
+		mbtowc(wtemps[i] + j, (ioacc->IO_dateLimits) + j, MB_CUR_MAX);
 	}
 	i++;
 	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(ioacc->IO_monthLimits) + 1));
@@ -843,7 +845,7 @@ void printIOatt(const IOattributes_malloc_t* ioacc)
 		for (int k = 0; k < ioacc->autoNums; k++)
 		{
 			wprintf(L"%d)<자동이체>/ %.16s에 %s 원씩, 매월 %s일이 되면 보냅니다. 남은 기간 %s(월)\n",
-				k+1, wautotemps[k][2], wautotemps[k][1], wautotemps[k][0], wautotemps[k][3]);
+				k + 1, wautotemps[k][2], wautotemps[k][1], wautotemps[k][0], wautotemps[k][3]);
 		}
 
 		for (int f1 = 0; f1 < ioacc->autoNums; f1++)
@@ -859,7 +861,7 @@ void printIOatt(const IOattributes_malloc_t* ioacc)
 		free(wautotemps);
 		wautotemps = NULL;
 	}
-	for (int h = 0; h < 6; h++) 
+	for (int h = 0; h < 6; h++)
 	{
 		free(wtemps[h]);
 		wtemps[h] = NULL;
@@ -868,7 +870,7 @@ void printIOatt(const IOattributes_malloc_t* ioacc)
 	return;
 }
 // FSattributes_t 포인터 받아서 내역 출력합니다.
-void printFSatt(FSattributes_t* fsacc)
+void printFSatt(const FSattributes_t* fsacc)
 {
 	assert(fsacc != NULL && "fascc is NULL pointer");
 	wchar_t* wtemps[7] = { NULL, 0 };
@@ -890,11 +892,11 @@ void printFSatt(FSattributes_t* fsacc)
 	}
 	i++;
 
-	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(fsacc->FS_received) + 1));
+	wtemps[i] = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(fsacc->FS_money) + 1));
 	assert(wtemps[i] != NULL && "wtemps[i] allocation failed");
-	for (int j = 0; j < strlen(fsacc->FS_received) + 1; j++)
+	for (int j = 0; j < strlen(fsacc->FS_money) + 1; j++)
 	{
-		mbtowc(wtemps[i] + j, fsacc->FS_received + j, MB_CUR_MAX);
+		mbtowc(wtemps[i] + j, fsacc->FS_money + j, MB_CUR_MAX);
 	}
 	i++;
 
@@ -929,7 +931,7 @@ void printFSatt(FSattributes_t* fsacc)
 		mbtowc(wtemps[i] + j, fsacc->FS_balance + j, MB_CUR_MAX);
 	}
 
-	if (fsacc-> type== T2)
+	if (fsacc->type == T2)
 	{
 		wprintf(L"< 예금 계좌 >/ %16s: %s/ 잔액: %s 남은 신청기간 %s(일) 이자율: %s 해지시 금액 %s\n",
 			wtemps[0], wtemps[1], wtemps[2], wtemps[4], wtemps[5], wtemps[6]);
@@ -1024,6 +1026,7 @@ int checkIO(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋㅋ
 	int delNume = 6;
 	char* piter = NULL;
 	char* pFileOffset = NULL;
+	size_t numOfBefore = 0;
 	while (1)
 	{
 		fseek(f_target, CurrentFileOffset, SEEK_SET);
@@ -1040,14 +1043,18 @@ int checkIO(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋㅋ
 			{
 				if (isalnum(*piter) == 0)
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1058,14 +1065,18 @@ int checkIO(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋㅋ
 			{
 				if (isdigit(*piter) == 0 && (*piter) != '|')
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1078,14 +1089,18 @@ int checkIO(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋㅋ
 			{
 				if (isdigit(*piter) == 0 && *piter != '-')
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1096,14 +1111,18 @@ int checkIO(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋㅋ
 			{
 				if (isalnum(*piter) == 0)
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1114,14 +1133,18 @@ int checkIO(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋㅋ
 			{
 				if (isdigit(*piter) == 0)//계좌번호
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1132,14 +1155,18 @@ int checkIO(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋㅋ
 			{
 				if (isdigit(*piter) == 0)//돈
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1150,14 +1177,18 @@ int checkIO(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋㅋ
 			{
 				if ((*piter) != 'o' && (*piter) != 'i') // i or o
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1168,14 +1199,18 @@ int checkIO(FILE* f_target) // 읽으려고...이해하려고 시도하지마세요 ㅋㅋㅋㅋㅋㅋ
 			{
 				if (isdigit(*piter) == 0)//잔액
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1201,6 +1236,7 @@ int checkFix(FILE* f_target)
 	int delNume = 6;
 	char* piter = NULL;
 	char* pFileOffset = NULL;
+	size_t numOfBefore = 0;
 	while (1)
 	{
 		fseek(f_target, CurrentFileOffset, SEEK_SET);
@@ -1218,14 +1254,18 @@ int checkFix(FILE* f_target)
 			{
 				if (isalnum(*piter) == 0)
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1236,14 +1276,18 @@ int checkFix(FILE* f_target)
 			{
 				if (isdigit(*piter) == 0)//계좌번호
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1254,14 +1298,18 @@ int checkFix(FILE* f_target)
 			{
 				if (isdigit(*piter) == 0 && (*piter) != '.') //현재금액
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1272,14 +1320,18 @@ int checkFix(FILE* f_target)
 			{
 				if (isdigit(*piter) == 0)//비밀번호
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1290,14 +1342,18 @@ int checkFix(FILE* f_target)
 			{
 				if (isdigit(*piter) == 0)// 남은 기간
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1308,14 +1364,18 @@ int checkFix(FILE* f_target)
 			{
 				if (isdigit(*piter) == 0 && (*piter) != '.')// 이자율
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1326,14 +1386,18 @@ int checkFix(FILE* f_target)
 			{
 				if (isdigit(*piter) == 0 && (*piter) != '.')// 해지시 금액
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1351,14 +1415,18 @@ int checkFix(FILE* f_target)
 			{
 				if (isdigit(*piter) == 0 && *piter != '-')
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1369,14 +1437,18 @@ int checkFix(FILE* f_target)
 			{
 				if (isalnum(*piter) == 0)
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1387,14 +1459,18 @@ int checkFix(FILE* f_target)
 			{
 				if (isdigit(*piter) == 0)//계좌번호
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1405,14 +1481,18 @@ int checkFix(FILE* f_target)
 			{
 				if (isdigit(*piter) == 0 && (*piter) != '.')//만기시 해지 금액
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1423,14 +1503,18 @@ int checkFix(FILE* f_target)
 			{
 				if (isdigit(*piter) == 0 && (*piter) != '.')//잔액
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1454,6 +1538,7 @@ int checkSav(FILE* f_target)
 	int delNume = 6;
 	char* piter = NULL;
 	char* pFileOffset = NULL;
+	size_t numOfBefore = 0;
 	while (1)
 	{
 		fseek(f_target, CurrentFileOffset, SEEK_SET);
@@ -1472,14 +1557,18 @@ int checkSav(FILE* f_target)
 			{
 				if (isalnum(*piter) == 0)
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1490,14 +1579,18 @@ int checkSav(FILE* f_target)
 			{
 				if (isdigit(*piter) == 0)//계좌번호
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1508,14 +1601,18 @@ int checkSav(FILE* f_target)
 			{
 				if (isdigit(*piter) == 0 && (*piter) != '.') //현재금액
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1526,14 +1623,18 @@ int checkSav(FILE* f_target)
 			{
 				if (isdigit(*piter) == 0)//비밀번호
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1544,14 +1645,18 @@ int checkSav(FILE* f_target)
 			{
 				if (isdigit(*piter) == 0)// 남은 기간
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1562,14 +1667,18 @@ int checkSav(FILE* f_target)
 			{
 				if (isdigit(*piter) == 0 && (*piter) != '.')// 이자율
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1580,14 +1689,18 @@ int checkSav(FILE* f_target)
 			{
 				if (isdigit(*piter) == 0 && (*piter) != '.')// 해지시 금액
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1605,14 +1718,18 @@ int checkSav(FILE* f_target)
 			{
 				if (isdigit(*piter) == 0 && *piter != '-')
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1623,14 +1740,18 @@ int checkSav(FILE* f_target)
 			{
 				if (isalnum(*piter) == 0)
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1641,14 +1762,18 @@ int checkSav(FILE* f_target)
 			{
 				if (isdigit(*piter) == 0)//계좌번호
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1659,14 +1784,18 @@ int checkSav(FILE* f_target)
 			{
 				if (isdigit(*piter) == 0 && (*piter) != '.')//만기시 해지 금액
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1677,14 +1806,18 @@ int checkSav(FILE* f_target)
 			{
 				if (isdigit(*piter) == 0)//잔액
 				{
-					while (*(++pFileOffset) != '\n')
+					fseek(f_target, CurrentFileOffset, SEEK_SET);
+					while (*(pFileOffset++) != '\n')
 					{
 						CurrentFileOffset++;
+						numOfBefore++;
 					}
+					fread(g_filebuff2, sizeof(char), numOfBefore, f_target);
 					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
 					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
-					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
-					fwrite("<-- correct typos\n", sizeof(char), 19, f_target);
+					f_target = _wfreopen(g_wpath, L"w+", f_target);
+					fwrite(g_filebuff2, sizeof(char), numOfBefore, f_target);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
 					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
 					return 1;
 				}
@@ -1697,23 +1830,197 @@ int checkSav(FILE* f_target)
 	}
 	return 0;
 }
-// 아직 안만듦
-int setInterest(FILE* f_target)
+// 이자 적용
+void setInterest()
 {
+	FILE* f_checker;
+	wchar_t waccNums[8];
 
-	time_t curTime;
-	struct tm* pTS;
-	curTime = time(NULL);
-	pTS = localtime(&curTime);
+	for (int f = 0; f < g_allALANNums; f++) //루프돌면서
+	{
+		// 해당 파일찾아가기
+		switch (getAccType(g_allAccountsListAndName[0][f])) // 타입체크
+		{
+		case T1: // 입출금 패스
+			break;
+		case T2: // 예금
+		case T3: // 적금
+			for (int i = 0; i < 8; i++)
+			{
+				mbtowc(waccNums + i, g_allAccountsListAndName[0][f] + i, MB_CUR_MAX);
+			}
+			swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\%c%c%c.txt", waccNums[1], waccNums[0], waccNums[1], waccNums[2]);
+			f_checker = _wfopen(g_wpath, L"r+");
+			setFSInterest(f_checker, g_allAccountsListAndName[0][f]);
+			fclose(f_checker);
+			f_checker = NULL;
+			break;
+		default:
+			assert("Critical + fatal + horrendous error.... function: \"setInterset()\"" && 0);
+		}
+	}
+}
+// 예적금 이자 적용
+int setFSInterest(FILE* f_accfile, const char* AccNum)
+{
+	long CurrentFileOffset = 0;
+	long AttOffset = 0;
+	long beforBal = 0;
+	long afterBal = 0;
+	int remainService = 0;
+	size_t numOfBefore = 0;
 
-	int year;
-	int month;
-	int day;
+	double interestRatio = 0;
 
-	year = pTS->tm_year + 1900;
-	month = pTS->tm_mon + 1;
-	day = pTS->tm_mday;
+	int line = 0;
+	int inputMonth = 0;
+	int inputDay = 0;
+	int inputYear = 0;
 
+	char check = 0;
+
+	char* temp =NULL;
+	size_t templen = 0;
+
+
+	FSattributes_t* targetAT = (FSattributes_t*)malloc(sizeof(FSattributes_t)); // 이자 적용 전 속성
+	FSinqury_t* targetIQ = (FSinqury_t*)malloc(sizeof(FSinqury_t));
+	assert(targetAT != NULL && targetIQ != NULL && "setSavInterest() allocation failed");
+
+	while (1)
+	{
+		
+		memset(g_buffer, '\0', BUFF_SIZE);
+		fseek(f_accfile, CurrentFileOffset, SEEK_SET);
+		fgets(g_buffer, BUFF_SIZE, f_accfile);
+		//fflush(f_accfile);
+		//system("cls");
+		printf("%s", g_buffer);
+
+		if (feof(f_AccountList))
+		{
+			remainService = atoi(targetAT->FS_remainService);
+			if (remainService == 0) // 남은 기간 0이면 없애기
+			{
+				free(targetAT);
+				free(targetIQ);
+				targetAT = NULL;
+				targetIQ = NULL;
+
+				fprintf(stdout, "%s no remain\n", AccNum);
+				return 0;
+			}
+			beforBal = atol(targetAT->FS_balance);
+			interestRatio = atof(targetAT->FS_interest);
+			afterBal = beforBal + (long)(beforBal * interestRatio / 100);
+
+			//속성 쓰기
+			CurrentFileOffset = AttOffset;
+
+			if (temp != NULL)
+			{
+				free(temp);
+				temp = NULL;
+			}
+			templen = sizeof(FSattributes_t) / sizeof(char) + 8;
+			temp = (char*)malloc(sizeof(char) * templen);
+			assert(temp != NULL && "setSavInterset allocation failed");
+
+			sprintf(temp, "%s|%s|%s|%s|%d|%.1f|%ld|",
+				targetAT->FS_name, targetAT->FS_mynum, targetAT->FS_money, targetAT->FS_Passwords, remainService - 1, interestRatio, afterBal);
+
+			/*
+			fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
+					size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_target);
+					fseek(f_target, CurrentFileOffset + 1, SEEK_SET);
+					fwrite("<-- correct typos", sizeof(char), 18, f_target);
+					fwrite(g_filebuff, sizeof(char), numOfWords, f_target);
+			*/
+
+			fseek(f_accfile, CurrentFileOffset, SEEK_SET);
+			//공백은 이전의 |을 안가져오고, \n은 그 이전 |을 가지고 오는걸까...
+			// \r\n이라서 그런건가??? 테스트 해보자.
+			while (fgetc(f_accfile) != ' ' && fgetc(f_accfile) != '\n')
+			{
+				CurrentFileOffset++;
+				numOfBefore++;
+				check = fgetc(f_accfile);
+				fseek(f_accfile, CurrentFileOffset, SEEK_SET);
+			}
+			fseek(f_accfile, 0, SEEK_SET);
+			if (AttOffset > 0)
+			{
+				numOfBefore = fread(g_filebuff2, sizeof(char), numOfBefore, f_accfile);
+			}
+			fseek(f_accfile, CurrentFileOffset, SEEK_SET);
+			size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_accfile);
+			//printf("g_filebuff:\n %s", g_filebuff);
+			f_accfile = _wfreopen(g_wpath, L"w+", f_accfile);
+			if (AttOffset > 0)
+			{
+				fwrite(g_filebuff2, sizeof(char), AttOffset, f_accfile);
+			}
+			fwrite(temp, sizeof(char), strlen(temp), f_accfile);
+			fwrite(g_filebuff, sizeof(char), numOfWords, f_accfile);
+
+			free(temp);
+			temp = NULL;
+
+			//이자 내역 쓰기
+			CurrentFileOffset = 0;
+			fseek(f_accfile, CurrentFileOffset, SEEK_END);
+			while (fgetc(f_accfile) != '\n')
+			{
+				CurrentFileOffset--;
+				fseek(f_accfile, CurrentFileOffset - 1, SEEK_END);
+			}
+			fseek(f_accfile, CurrentFileOffset, SEEK_END);
+
+			templen = sizeof(FSinqury_t) / sizeof(char) + 5;
+			temp = (char*)malloc(sizeof(char) * templen);
+			assert(temp != NULL && "setSavInterset allocation failed");
+
+			sprintf(temp, "%d-%d-%d|%s|%s|0|%ld|\n",
+				g_year, g_month, g_day, targetIQ->FS_name, AccNum, afterBal);
+
+			fwrite(temp, sizeof(char), strlen(temp), f_accfile);
+			fflush(f_accfile);
+
+			free(temp);
+			temp = NULL;
+
+			break;
+		}
+		if (CurrentFileOffset == 0)
+		{
+			AttOffset = strToFSatt(g_buffer, targetAT, AccNum);
+		}
+		else
+		{
+			strToFSiq(g_buffer, targetIQ, AccNum);
+			inputYear = atoi(&(targetIQ->FS_date[0]));
+			inputMonth = atoi(&(targetIQ->FS_date[5]));
+			inputDay = atoi(&(targetIQ->FS_date[8]));
+			//printf("%c\n", *(targetIQ->FS_income));
+			if (inputYear == g_year && inputMonth == g_month && inputDay == g_day && *(targetIQ->FS_income) == '0')
+			{
+				free(targetAT);
+				free(targetIQ);
+				targetAT = NULL;
+				targetIQ = NULL;
+
+				fprintf(stdout, "%s good\n", AccNum);
+				return 1;
+			}
+		}
+		CurrentFileOffset = ftell(f_accfile);
+	}
+	free(targetAT);
+	free(targetIQ);
+	targetAT = NULL;
+	targetIQ = NULL;
+
+	fprintf(stdout, "%s bad\n", AccNum);
 	return 0;
 }
 // 아이디 중복되는지 확인합니다.
@@ -1934,15 +2241,11 @@ int setAccListByID_malloc(const char* ID)
 
 	if (g_userAccountsList != NULL)
 	{
-		for (int k = 0; k < 2; k++)
+
+		for (int h = 0; h < g_userALNums; h++)
 		{
-			for (int h = 0; h < g_userALNums; h++)
-			{
-				free(g_userAccountsList[k][h]);
-				g_userAccountsList[k][h] = NULL;
-			}
-			free(g_userAccountsList[k]);
-			g_userAccountsList[k] = NULL;
+			free(g_userAccountsList[h]);
+			g_userAccountsList[h] = NULL;
 		}
 		free(g_userAccountsList);
 		g_userAccountsList = NULL;
@@ -1984,6 +2287,7 @@ int setAccListOfAll_malloc()
 	{
 		fseek(f_AccountList, CurrentFileOffset, SEEK_SET);
 		fgets(g_buffer, BUFF_SIZE, f_AccountList);
+		//printf("%s", g_buffer);
 		if (feof(f_AccountList))
 		{
 			break;
@@ -2008,7 +2312,7 @@ int setAccListOfAll_malloc()
 		g_allAccountsListAndName = NULL;
 	}
 	g_allALANNums = AccountNums;
-	printf("%d", g_allALANNums);
+	//printf("%d\n", g_allALANNums);
 
 	g_allAccountsListAndName = (char***)malloc(sizeof(char**) * 2);
 	assert(g_allAccountsListAndName != NULL && "g_allAcountsListAndName allocation failed");
@@ -2037,7 +2341,7 @@ int setAccListOfAll_malloc()
 		piter = g_buffer;
 		strncpy(g_allAccountsListAndName[0][i], g_buffer, 7);
 		g_allAccountsListAndName[0][i][7] = '\0';
-		printf("%s | ", g_allAccountsListAndName[0][i]);
+		//printf("%s\n", g_allAccountsListAndName[0][i]);
 
 		while (*piter++ != '|');
 		pitertemp = piter;

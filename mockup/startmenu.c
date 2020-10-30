@@ -4,6 +4,7 @@
 //#define MAX_STR_LEN 4000
 static int con_flag = 1;
 extern int Bank;
+int g_allALANNums;
 
 int startMenu()
 {
@@ -218,7 +219,7 @@ Invalidinput5:
 	while (fgetc(f_MemberFile) != '\n')
 	{
 		CurrentFileOffset--;
-		fseek(f_MemberFile, CurrentFileOffset+1, SEEK_END);
+		fseek(f_MemberFile, CurrentFileOffset-1, SEEK_END);
 	}
 	fseek(f_MemberFile, CurrentFileOffset, SEEK_END);
 	memberInfoSize = strlen(Name_malloc) + strlen(ID_malloc) + strlen(PW1_malloc) + 8;

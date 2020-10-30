@@ -5,6 +5,9 @@
 static int con_flag = 1;
 extern int Bank;
 
+int g_userBank;
+int g_userALNums;
+
 
 int serviceMenu()
 {
@@ -1002,7 +1005,7 @@ INVALIDINPUT:
 		switch (getAccType(i_AccNum))
 		{
 		case T1:
-			if (CurrentFileOffset == 0) // 첫줄은 계좌 속성
+			if (CurrentFileOffset != -1) // 첫줄은 계좌 속성
 			{
 				ia = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
 				strToIOatt_malloc(g_buffer, ia);
