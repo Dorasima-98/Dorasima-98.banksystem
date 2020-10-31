@@ -365,7 +365,7 @@ void fixedDeposit()
 	char* inputcheck = NULL;	
 
 	char toListfile[27];
-	char toTargetfile[32];
+	char* toTargetfile;
 	char toMemfile[10];
 
 	FILE* f_IO =NULL;
@@ -376,6 +376,8 @@ void fixedDeposit()
 	Fixatt = (FSattributes_t*)malloc(sizeof(FSattributes_t));
 	IOatt = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
 	temp = (char**)malloc(sizeof(char*) * g_userALNums);
+
+	toTargetfile = (char*)malloc(sizeof(FSattributes_t));
 	
 	PRINTCEN(L"돈을 출금할 입출금 계좌를 선택해주세요.");
 	for (int i = 0; i < g_userALNums; i++)
@@ -559,10 +561,10 @@ Invalidinput4:
 	{
 		sprintf(toTargetfile, "%s|%s|0|%s|0|0.0|0| ", Fixatt->FS_name, Fixatt->FS_mynum, Fixatt->FS_Passwords);
 		fseek(f_fixFile, 0, SEEK_SET);
-		fread(g_filebuff, sizeof(char), FILE_BUFF, f_fixFile);
+		size_t numOfread =fread(g_filebuff, sizeof(char), FILE_BUFF, f_fixFile);
 		fseek(f_fixFile, 0, SEEK_SET);
 		fwrite(toTargetfile, sizeof(char), strlen(toTargetfile), f_fixFile);
-		fwrite(g_filebuff, sizeof(char), FILE_BUFF, f_fixFile);
+		fwrite(g_filebuff, sizeof(char), numOfread, f_fixFile);
 	}
 	else
 	{
@@ -666,12 +668,13 @@ INVALIDINPUT6:
 	}
 
 	moneyOutIO(IOatt->IO_mynum,Fixatt->FS_mynum,money*10000,1); //flag를 1로 넘겨주면 이체한도 무시
-	moneyInFS(Fixatt->FS_mynum, money * 10000, selection);
-	
+	moneyInFS(Fixatt->FS_mynum, money * 10000, selection);	
 	
 	freeIOattriutes(IOatt);
 	free(IOatt);
 	free(Fixatt);
+	free(toTargetfile);
+	toTargetfile = NULL;
 	IOatt = NULL; 
 	Fixatt = NULL;
 	fclose(f_IO);

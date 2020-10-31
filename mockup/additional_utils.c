@@ -495,14 +495,14 @@ int moneyInFS(const char* accNum, long inmoney, int service)
 		assert("int moneyInFS() function error. you should put right type of account number");
 	}
 
-	balance += money;
+	balance += inmoney;
 
 	//쓸준비
 	toATline = (char*)malloc(sizeof(FSattributes_t));
 	sprintf(toATline, "%s|%s|%ld|%s|%d|%.1f|%ld|", FSatt->FS_name,FSatt->FS_mynum,money, FSatt->FS_Passwords, period, interestrate, balance);
 	toIQline = (char*)malloc(sizeof(FSinqury_t));
 	getAccountName(accNum, accName);
-	sprintf(toIQline, "%d-%d-%d|%s|%s|%ld|%ld|\n", g_year, g_month, g_day, accName, accNum, money, balance);
+	sprintf(toIQline, "%d-%d-%d|%s|%s|%ld|%ld|\n", g_year, g_month, g_day, accName, accNum, inmoney, balance);
 
 	//일단 내역 먼저쓰고
 	fseek(f_FS, 0, SEEK_END);
