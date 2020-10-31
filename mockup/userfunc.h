@@ -66,7 +66,6 @@ typedef struct
 	char IO_balance[13];
 	char IO_Passwords[5];
 	char IO_dateLimits[7];
-	char IO_monthLimits[8];
 
 	char*** autoattributes;
 	int autoNums;
@@ -98,7 +97,7 @@ char g_filebuff2[FILE_BUFF];
 char g_tempbuff[FILE_BUFF];
 char g_userID[17];
 wchar_t g_wpath[MAX_PATH]; // 글로벌 경로 입력 버퍼
-wchar_t* tempwcp; // 혹시 나중에 쓸지 몰라서 포인터로 만들었습니다.
+wchar_t* g_tempwcp; // 혹시 나중에 쓸지 몰라서 포인터로 만들었습니다.
 
 
 extern int g_userBank; // 로그인한 사용자 은행코드 입니다.
@@ -122,17 +121,21 @@ int startMenu();
 void registerMenu();
 int loginMenu();
 
+/* 규칙 체크*/
 int checkDigit(const char* ap_string);
 int checkAlnum(const char* ap_string); 
 int checkID(const char* ap_string);
 int checkName(const char* ap_string); 
 int checkPW(const char* ap_string); 
 int checkSpace(const char* ap_string); // 문자열 중간 공백 체크 (있으면 1 반환, 없으면 0 반환)
+
+/* 기타 기능 */
 void EraseSpace(char* ap_string); 
 char* trim_malloc(char* des, const char* src); // 문자열 좌우 공백 모두 삭제 함수
 char* ltrim_malloc(char* des, const  char* src); // 문자열 좌측 공백 제거 함수
 char* rtrim_malloc(char* des, const  char* src); // 문자열 우측 공백 제거 함수
 
+/* 메인 기능 */
 int serviceMenu();
 void makeAccountMenu();
 void fixedDepositAndSavingsMenu();
@@ -143,18 +146,24 @@ void transferMenu();
 void atmMenu();
 void historyInquiry();
 
+/* 하위 기능 */
+int moneyInIO(const char* desNum, const char* srcNum, long money);
+int moneyOutIO(const char* desNum, const char* srcNum, long money);
+int moneyInFS(const char* accNum, long money, int service);
 
-/*사용 가능합니다. (happy path 만)*/
+
+/*데이터 가공*/
 int strToIOiq(const char* str, IOinqury_t* ioacc);
 int strToFSiq(const char* str, FSinqury_t* fsacc, const char* accNum);
 int strToIOatt_malloc(const char* str, IOattributes_malloc_t* ioacc); 
 int strToFSatt(const char* str, FSattributes_t* fsacc, const char* accNum);
+void freeIOattriutes(IOattributes_malloc_t* ioacc);
 
+/* 내역 출력 */
 void printIOinquiry(const IOinqury_t* ioacc);
 int printFSinquiry(const FSinqury_t* fsacc);
 void printIOatt(const IOattributes_malloc_t* ioacc);
 void printFSatt(const FSattributes_t* fsacc);
-void freeIOattriutes(IOattributes_malloc_t* ioacc);
 
 /*문법 체크*/
 int setError();
@@ -169,6 +178,9 @@ int checkDupID(const char* ID);
 int checkDupPW(const char* ID,const char* PW); 
 int setBankByID(const char* ID);
 int checkDupAN(const char* input);
+
+/*기타*/
+char* getAccountName(const char* AccNum, char* AccName);
 
 /*버퍼 만들기*/
 int setAccListByID_malloc(const char* ID);

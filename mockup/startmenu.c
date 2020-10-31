@@ -98,9 +98,9 @@ Invalidinput1:
 
 	//은행
 Invalidinput2:
-	//DRAWLINE('-');
+	DRAWLINE('-');
 	PRINTLEFT(L"건은행-1  국은행-2  대은행-3  학은행-4  교은행-5\n");
-	//DRAWLINE('-');
+	DRAWLINE('-');
 	PRINTLEFT(L"은행을 선택해주세요.. \n> ");
 	if (scanf("%d", &bank) != 1)  //이렇게하면 스페이스바만 처리할수있음
 	{

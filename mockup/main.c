@@ -59,8 +59,8 @@ void setting()
 
 	g_year = (pTS->tm_year) + 1900;
 	g_month = (pTS->tm_mon) + 1;
-	g_day = 31;
-	//g_day = pTS->tm_mday;
+	g_day = pTS->tm_mday;
+	//g_day = 31;
 
 	//printf("%d / %d / %d\n", g_year, g_month, g_day);
 	//system("pause");
@@ -79,7 +79,7 @@ void setting()
 	
 	// 회원정보랑 계좌리스트는 그냥 열어두는걸로...
 	f_MemberFile = _wfopen(L"C:\\banksystemlog\\members.txt", L"r+");
-	f_AccountList = _wfopen(L"C:\\banksystemlog\\accounts.txt", L"r+");
+	f_AccountList = _wfopen(L"C:\\banksystemlog\\accounts.txt", L"a");
 	assert(f_MemberFile != NULL && f_AccountList != NULL&&"\nfile opening is failed.");
 
 	//에러확인하는거긴한데...흠흠
