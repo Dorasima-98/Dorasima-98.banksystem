@@ -172,6 +172,14 @@ Invalidinput2:
 	PIN1 = trim_malloc(PIN1, g_buffer);
 	assert(PIN1 != NULL && "trim is Something wrong...");
 
+	if (strlen(PIN1) > 4 || strlen(PIN1) < 1)
+	{
+		PRINTRIGHT(L"계좌번호의 길이는 4자 입니다. 다시 입력해주세요.\n> ");
+		free(PIN1);
+		PIN1 = NULL;
+		goto Invalidinput2;
+	}
+
 	if (checkDigit(PIN1) == 1)
 	{
 		PRINTRIGHT(L"계좌 비밀번호는 4자리 \"정수\"입니다..\n >");
@@ -219,7 +227,7 @@ Invalidinput3:
 	toTargetfile = (char*)malloc(sizeof(char) * toTfnums);
 
 	sprintf(toListfile, "%s|%s|\n", ranNum, AccountName_malloc);
-	sprintf(toTargetfile, "%s|%s|0|%s|300|5000|\n", AccountName_malloc, ranNum, PIN1);
+	sprintf(toTargetfile, "%s|%s|0|%s|3000000|\n", AccountName_malloc, ranNum, PIN1);
 
 
 
@@ -353,11 +361,12 @@ void fixedDeposit()
 	long expectedmoney = 0;
 
 	char** temp = NULL;
+	char tempname[17];
 	char* inputcheck = NULL;	
 
-	char toListfile[26];
-	char toTargetfile[30];
-	char toMemfile[8];
+	char toListfile[27];
+	char toTargetfile[32];
+	char toMemfile[10];
 
 	FILE* f_IO =NULL;
 	FILE* f_fixFile = NULL;
@@ -374,12 +383,13 @@ void fixedDeposit()
 		if (getAccType(g_userAccountsList[i]) == T1)
 		{
 			uIONums++;
-			getAccountName(g_userAccountsList[i], IOatt->IO_name);
+			getAccountName(g_userAccountsList[i], tempname);
 			temp[uIONums] = g_userAccountsList[i];
-			printf("%d) %s/%s", i + 1, IOatt->IO_name, g_userAccountsList[i]);
+			printf("%d) %s/%s\n", i + 1, tempname, g_userAccountsList[i]);
 			memset(IOatt->IO_name, '\0', 17);
 		}
 	}
+	printf("> ");
 INVALIDINPUT1:
 	if (scanf("%d", &selection) != 1)  //이렇게하면 스페이스바만 처리할수있음
 	{
@@ -486,7 +496,7 @@ INVALIDINPUT2:
 		system("cls");
 	}
 	printf("예금 계좌명이 %s로 설정되었습니다\n", Fixatt->FS_name);
-	system("pause");
+	
 
 	PRINTLEFT(L"계좌 비밀번호를 입력해주세요. 4자리 정수입니다.\n> ");
 INVALIDINPUT3:
@@ -495,6 +505,14 @@ INVALIDINPUT3:
 	inputcheck = trim_malloc(inputcheck, g_buffer);
 	assert(inputcheck != NULL && "trim is Something wrong...");
 
+	
+	if (strlen(inputcheck) > 4 || strlen(inputcheck) < 1)
+	{
+		PRINTRIGHT(L"계좌번호의 길이는 4자 입니다. 다시 입력해주세요.\n> ");
+		free(inputcheck);
+		inputcheck = NULL;
+		goto INVALIDINPUT3;
+	}
 	if (checkDigit(inputcheck) == 1)
 	{
 		PRINTRIGHT(L"계좌 비밀번호는 4자리 \"정수\"입니다..\n >");
@@ -529,17 +547,28 @@ Invalidinput4:
 
 	//일단 파일에 적어두기
 	sprintf(toListfile, "%s|%s|\n", Fixatt->FS_mynum,Fixatt->FS_name);
-	sprintf(toTargetfile, "%s|%s|0|%s|0|0|0| ", Fixatt->FS_name, Fixatt->FS_mynum, Fixatt->FS_Passwords);
+	
 
-	swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%d\\%d%d%d.txt", g_userBank, Fixatt->FS_mynum[0],Fixatt->FS_mynum[1],Fixatt->FS_mynum[2]);
+	swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%d\\0%d2.txt", g_userBank,g_userBank);
 
 	f_fixFile = _wfopen(g_wpath, L"r+");
 	assert(f_fixFile != NULL && "\nfile opening is failed.");
 
 	fseek(f_fixFile, 0, SEEK_SET);
-	fread(g_filebuff, sizeof(char), FILE_BUFF, f_fixFile);
-	fwrite(toTargetfile, sizeof(char), strlen(toTargetfile), f_fixFile);
-	fwrite(g_filebuff, sizeof(char), FILE_BUFF, f_fixFile);
+	if (fgetc(f_fixFile) != EOF)
+	{
+		sprintf(toTargetfile, "%s|%s|0|%s|0|0.0|0| ", Fixatt->FS_name, Fixatt->FS_mynum, Fixatt->FS_Passwords);
+		fseek(f_fixFile, 0, SEEK_SET);
+		fread(g_filebuff, sizeof(char), FILE_BUFF, f_fixFile);
+		fseek(f_fixFile, 0, SEEK_SET);
+		fwrite(toTargetfile, sizeof(char), strlen(toTargetfile), f_fixFile);
+		fwrite(g_filebuff, sizeof(char), FILE_BUFF, f_fixFile);
+	}
+	else
+	{
+		sprintf(toTargetfile, "%s|%s|0|%s|0|0.0|0|\n", Fixatt->FS_name, Fixatt->FS_mynum, Fixatt->FS_Passwords);
+		fwrite(toTargetfile, sizeof(char), strlen(toTargetfile), f_fixFile);
+	}
 
 	fclose(f_fixFile);
 	f_fixFile = NULL;
@@ -611,7 +640,7 @@ INVALIDINPUT5:
 	PRINTLEFT(L"예금 : 예치금 한도의 경우 선택 입출금계좌 잔액입니다.");
 	PRINTLEFT(L"(단위 : 1만원)");
 	limit = atol(IOatt->IO_balance);
-	PRINTLEFT(L"현재 출금 가능금액: %ld (원)", limit);
+	wprintf(L"현재 출금 가능금액: %ld (원)", limit);
 INVALIDINPUT6:
 	wprintf(L"> ");
 
@@ -636,7 +665,7 @@ INVALIDINPUT6:
 		goto INVALIDINPUT6;
 	}
 
-	moneyOutIO(Fixatt->FS_mynum, IOatt->IO_mynum,money*10000);
+	moneyOutIO(IOatt->IO_mynum,Fixatt->FS_mynum,money*10000,1); //flag를 1로 넘겨주면 이체한도 무시
 	moneyInFS(Fixatt->FS_mynum, money * 10000, selection);
 	
 	
@@ -1306,7 +1335,7 @@ INVALIDINPUT:
 		switch (getAccType(i_AccNum))
 		{
 		case T1:
-			if (CurrentFileOffset != -1) // 첫줄은 계좌 속성
+			if (CurrentFileOffset == 0) // 첫줄은 계좌 속성
 			{
 				ia = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
 				strToIOatt_malloc(g_buffer, ia);

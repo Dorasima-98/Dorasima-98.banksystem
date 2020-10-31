@@ -234,10 +234,10 @@ char* trim_malloc(char* des, const char* src)
 
 	return des;
 }
-int moneyInIO(const char* desNum,const char* srcNum, long money)
+int moneyInIO(const char* desNum, const char* srcNum, long money)
 {
 	assert(desNum != NULL && "desNum is NULL moneyInIO() function");
-	
+
 	FILE* f_IO;
 	IOattributes_malloc_t* IOatt = NULL;
 	long CurrentFileOffset = 0;
@@ -245,7 +245,7 @@ int moneyInIO(const char* desNum,const char* srcNum, long money)
 	char toATline[7];
 	char srcName[17];
 	char* toIQline = NULL;
-	size_t toIQlen = 0; 
+	size_t toIQlen = 0;
 
 	if (g_tempwcp != NULL)
 	{
@@ -275,7 +275,7 @@ int moneyInIO(const char* desNum,const char* srcNum, long money)
 	toIQline = (char*)malloc(sizeof(char) * toIQlen);
 	if (srcNum == NULL)
 	{
-		sprintf(toIQline, "%d-%d-%d|atm|0%d00000|%ld|i|%ld|\n", g_year, g_month, g_day, g_userBank,money, balance);
+		sprintf(toIQline, "%d-%d-%d|atm|0%d00000|%ld|i|%ld|\n", g_year, g_month, g_day, g_userBank, money, balance);
 	}
 	else
 	{
@@ -287,18 +287,19 @@ int moneyInIO(const char* desNum,const char* srcNum, long money)
 	fwrite(toIQline, sizeof(char), strlen(toIQline), f_IO);
 	//복사하고
 	fseek(f_IO, 0, SEEK_SET);
-	size_t numofWords2=fread(g_filebuff2, sizeof(char),strlen(IOatt->IO_name) + strlen(IOatt->IO_mynum) + 2, f_IO);
+	size_t numofWords2 = fread(g_filebuff2, sizeof(char), strlen(IOatt->IO_name) + strlen(IOatt->IO_mynum) + 2, f_IO);
 	CurrentFileOffset = ftell(f_IO);
 
-	fseek(f_IO, CurrentFileOffset+strlen(toATline), SEEK_SET);
+	fseek(f_IO, CurrentFileOffset + strlen(toATline), SEEK_SET);
 	size_t numofWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_IO);
 	//쓰기모드로 다시열어서 쓰기
 	f_IO = _wfreopen(g_wpath, L"w+", f_IO);
 
 	fseek(f_IO, 0, SEEK_SET);
 	fwrite(g_filebuff2, sizeof(char), numofWords2, f_IO);
-	fwrite(toATline, sizeof(char),strlen(toATline), f_IO);
+	fwrite(toATline, sizeof(char), strlen(toATline), f_IO);
 	fwrite(g_filebuff, sizeof(char), numofWords, f_IO);
+	
 
 	freeIOattriutes(IOatt);
 	free(IOatt);
@@ -309,8 +310,8 @@ int moneyInIO(const char* desNum,const char* srcNum, long money)
 
 	return 1;
 }
-// 이체한도 넘으면 0 반환, 성공하면 1 반환
-int moneyOutIO(const char* srcNum, const char* desNum, long money)
+// 이체한도 넘으면 0 반환, 성공하면 1 반환 ,flag를 1로 넘겨주면 이체한도 무시
+int moneyOutIO(const char* srcNum, const char* desNum, long money,int flag)
 {
 	assert(srcNum != NULL && "src is NULL moneyOutIO() function");
 
@@ -351,18 +352,18 @@ int moneyOutIO(const char* srcNum, const char* desNum, long money)
 	balance -= money;
 	datelimit = atol(IOatt->IO_dateLimits);
 	datelimit -= money;
-	if (datelimit < 0)
+	if (datelimit < 0 && flag != 1)
 	{
 		freeIOattriutes(IOatt);
 		free(IOatt);
 		IOatt = NULL;
 		fclose(f_IO);
-		
+
 		return 0;
 	}
 
 	//쓸준비
-	sprintf(toATline, "%ld|%s|ld", balance,IOatt->IO_Passwords,datelimit);
+	sprintf(toATline, "%ld|%s|%ld", balance, IOatt->IO_Passwords, datelimit);
 	toIQlen = sizeof(IOinqury_t); // 대충 넉넉하게 길이 잡음
 	toIQline = (char*)malloc(sizeof(char) * toIQlen);
 
@@ -405,24 +406,27 @@ int moneyOutIO(const char* srcNum, const char* desNum, long money)
 	return 1;
 }
 // 적금계좌의 경우 월 납임액 한도 넘으면 0반완, 성공하면 1반환
-int moneyInFS(const char* accNum, long inmoney,int service)
+int moneyInFS(const char* accNum, long inmoney, int service)
 {
-	FILE* f_IO;
+	FILE* f_FS;
 	FSattributes_t* FSatt = NULL;
 
 	long CurrentFileOffset = 0;
+	long AttOffset = 0;
 	long balance = 0;
 	long money = 0;
 	long CurrentFileOffet = 0;
-	size_t toIQlen = 0;
 	int period = 0;
 	float interestrate = 0.0f;
+	size_t numofWords2 = 0;
 
-	char toATline[7];
+	char* toATline =NULL;
 	char accName[17];
 	char* toIQline = NULL;
-	
-	
+
+	char check = 0;
+
+
 
 	if (g_tempwcp != NULL)
 	{
@@ -440,13 +444,13 @@ int moneyInFS(const char* accNum, long inmoney,int service)
 	g_tempwcp = NULL;
 
 	//뽑아서
-	f_IO = _wfopen(g_wpath, L"r+");
+	f_FS = _wfopen(g_wpath, L"r+");
 	FSatt = (FSattributes_t*)malloc(sizeof(FSattributes_t));
-	fseek(f_IO, 0, SEEK_SET);
-	fgets(g_buffer, BUFF_SIZE, f_IO);
-	CurrentFileOffet = strToFSatt(g_buffer, FSatt,accNum);
+	fseek(f_FS, 0, SEEK_SET);
+	fgets(g_buffer, BUFF_SIZE, f_FS);
+	AttOffset = strToFSatt(g_buffer, FSatt, accNum);
 
-	
+
 	balance = atol(FSatt->FS_balance);
 	money = atol(FSatt->FS_money);
 
@@ -466,22 +470,23 @@ int moneyInFS(const char* accNum, long inmoney,int service)
 		interestrate = 2.0f;
 		break;
 	}
+	money += inmoney;
 	//계좌 구분
-	if (getAccType(accNum) == T1)
+	if (getAccType(accNum) == T2)
 	{
 		for (int i = 0; i < period; i++)
 		{
-			money = (money * (long)(100.0f + interestrate))/100;
+			money = (money * (long)(100.0f + interestrate)) / 100;
 		}
 	}
-	else if(getAccType(accNum)==T2)
+	else if (getAccType(accNum) == T3)
 	{
 		money -= inmoney;
 		if (money < 0)
 		{
 			free(FSatt);
 			FSatt = NULL;
-			fclose(f_IO);
+			fclose(f_FS);
 			return 0;
 		}
 	}
@@ -493,36 +498,51 @@ int moneyInFS(const char* accNum, long inmoney,int service)
 	balance += money;
 
 	//쓸준비
-	sprintf(toATline, "%ld|%s|%d|%.1f|%ld|", money,FSatt,period,interestrate,balance);
-	toIQlen = sizeof(FSinqury_t); // 대충 넉넉하게 길이 잡음
-	toIQline = (char*)malloc(sizeof(char) * toIQlen);
+	toATline = (char*)malloc(sizeof(FSattributes_t));
+	sprintf(toATline, "%s|%s|%ld|%s|%d|%.1f|%ld|", FSatt->FS_name,FSatt->FS_mynum,money, FSatt->FS_Passwords, period, interestrate, balance);
+	toIQline = (char*)malloc(sizeof(FSinqury_t));
 	getAccountName(accNum, accName);
 	sprintf(toIQline, "%d-%d-%d|%s|%s|%ld|%ld|\n", g_year, g_month, g_day, accName, accNum, money, balance);
 
 	//일단 내역 먼저쓰고
-	fseek(f_IO, 0, SEEK_END);
-	fwrite(toIQline, sizeof(char), strlen(toIQline), f_IO);
+	fseek(f_FS, 0, SEEK_END);
+	fwrite(toIQline, sizeof(char), strlen(toIQline), f_FS);
 
 	//복사하고
-	fseek(f_IO, 0, SEEK_SET);
-	size_t numofWords2 = fread(g_filebuff2, sizeof(char), CurrentFileOffet, f_IO);
-	CurrentFileOffset = ftell(f_IO);
+	CurrentFileOffet = AttOffset;
+	fseek(f_FS, CurrentFileOffet, SEEK_SET);
 
-	fseek(f_IO, CurrentFileOffset + strlen(toATline), SEEK_SET);
-	size_t numofWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_IO);
+	while (check != ' ' && check != '\n')
+	{
+		check = fgetc(f_FS);
+		CurrentFileOffset++;
+	}
+	CurrentFileOffset--;
+
+	if (AttOffset > 0)
+	{
+		fseek(f_FS, 0, SEEK_SET);
+		numofWords2 = fread(g_filebuff2, sizeof(char), AttOffset, f_FS);
+	}
+
+	fseek(f_FS, CurrentFileOffset, SEEK_SET);
+	size_t numofWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_FS);
 	//쓰기모드로 다시열어서 쓰기
-	f_IO = _wfreopen(g_wpath, L"w+", f_IO);
+	f_FS = _wfreopen(g_wpath, L"w+", f_FS);
 
-	fseek(f_IO, 0, SEEK_SET);
-	fwrite(g_filebuff2, sizeof(char), numofWords2, f_IO);
-	fwrite(toATline, sizeof(char),strlen(toATline), f_IO);
-	fwrite(g_filebuff, sizeof(char), numofWords, f_IO);
+	if (AttOffset > 0)
+	{
+		fseek(f_FS, 0, SEEK_SET);
+		fwrite(g_filebuff2, sizeof(char), numofWords2, f_FS);
+	}	
+	fwrite(toATline, sizeof(char), strlen(toATline), f_FS);
+	fwrite(g_filebuff, sizeof(char), numofWords, f_FS);
 
 	free(FSatt);
 	free(toIQline);
 	FSatt = NULL;
 	toIQline = NULL;
-	fclose(f_IO);
+	fclose(f_FS);
 
 	return 1;
 }
@@ -720,10 +740,6 @@ int strToIOatt_malloc(const char* str, IOattributes_malloc_t* ioacc)
 	counter = 0;
 	while (*pcounter++ != '|')
 	{
-		if (counter > 2)
-		{
-			return 0;
-		}
 		counter++;
 	}
 	strncpy(ioacc->IO_dateLimits, piter, counter);
@@ -731,16 +747,12 @@ int strToIOatt_malloc(const char* str, IOattributes_malloc_t* ioacc)
 
 	piter = pcounter;
 	counter = 0;
-	while (*pcounter++ != '|')
+	if (*pcounter++ == '\n')
 	{
-		if (*pcounter == '\n')
-		{
-			ioacc->autoattributes = NULL;
-			ioacc->autoNums = 0;
-			return 1;
-		}
+		ioacc->autoattributes = NULL;
+		ioacc->autoNums = 0;
+		return 1;
 	}
-	pcounter = piter;
 	while (*pcounter != '\n')
 	{
 		for (int i = 0; i < 4; i++)
@@ -886,7 +898,7 @@ int strToFSatt(const char* str, FSattributes_t* fsacc, const char* accNum)
 
 		if (findflag == 1)
 		{
-			return (int)(returnValue -str);
+			return (int)(returnValue - str);
 		}
 		else
 		{
@@ -1094,7 +1106,7 @@ void printIOatt(const IOattributes_malloc_t* ioacc)
 		mbtowc(wtemps[i] + j, (ioacc->IO_dateLimits) + j, MB_CUR_MAX);
 	}
 
-	wprintf(L"< 입출금 계좌 >/ %s: %s/ 잔액: %s 이체한도 %s(일)\n",
+	wprintf(L"< 입출금 계좌 >/ %s: %s/ 잔액: %s 이체한도 %s(원/일)\n",
 		wtemps[0], wtemps[1], wtemps[2], wtemps[4]);
 
 	if (ioacc->autoNums > 0)
@@ -1132,7 +1144,7 @@ void printIOatt(const IOattributes_malloc_t* ioacc)
 		free(wautotemps);
 		wautotemps = NULL;
 	}
-	for (int h = 0; h < 6; h++)
+	for (int h = 0; h < 5; h++)
 	{
 		free(wtemps[h]);
 		wtemps[h] = NULL;
@@ -1249,7 +1261,7 @@ int setError()
 				goto NEEDTOCORRECTFILE;
 			}
 			fclose(f_setter);
-			f_setter = NULL; 
+			f_setter = NULL;
 			break;
 		case T2: // 예금
 			type = T2;
@@ -1280,7 +1292,7 @@ int setError()
 			f_setter = NULL;
 			break;
 		default:
-			assert("Critical + fatal + horrendous error.... function: \"setInterset()\"" && 0);
+			assert("Account Lists file is something wrong.... function: \"setInterset()\"" && 0);
 		}
 	}
 	return 0;
@@ -2127,7 +2139,7 @@ void setInterest()
 			f_checker = NULL;
 			break;
 		default:
-			assert("Critical + fatal + horrendous error.... function: \"setInterset()\"" && 0);
+			assert("Account Lists file is something wrong.... function: \"setInterset()\"");
 		}
 	}
 }
@@ -2153,13 +2165,13 @@ int setFSInterest(FILE* f_accfile, const char* AccNum)
 
 	char* pcp = NULL;
 	char* pgb = NULL;
-	char* temp =NULL;
+	char* temp = NULL;
 
 	size_t templen = 0;
 	size_t pcplen = 0;
 
 	// 버퍼
-	FSattributes_t* targetAT = (FSattributes_t*)malloc(sizeof(FSattributes_t)); 
+	FSattributes_t* targetAT = (FSattributes_t*)malloc(sizeof(FSattributes_t));
 	FSinqury_t* targetIQ = (FSinqury_t*)malloc(sizeof(FSinqury_t));
 	assert(targetAT != NULL && targetIQ != NULL && "setSavInterest() allocation failed");
 
@@ -2167,7 +2179,7 @@ int setFSInterest(FILE* f_accfile, const char* AccNum)
 	fflush(f_accfile);
 	g_tempbuff[pcplen] = '\0';
 	pcp = g_tempbuff;
-	pgb = g_buffer; 
+	pgb = g_buffer;
 	while (*pcp != '\0')
 	{
 		if (*pcp != '\n')
@@ -2189,8 +2201,8 @@ int setFSInterest(FILE* f_accfile, const char* AccNum)
 				inputYear = atoi(&(targetIQ->FS_date[0]));
 				inputMonth = atoi(&(targetIQ->FS_date[5]));
 				inputDay = atoi(&(targetIQ->FS_date[8]));
-				if (inputYear == g_year && inputMonth == g_month && 
-					inputDay == g_day && *(targetIQ->FS_income) == '0'&& 
+				if (inputYear == g_year && inputMonth == g_month &&
+					inputDay == g_day && *(targetIQ->FS_income) == '0' &&
 					(strcmp(AccNum, targetIQ->FS_mynum) == 0))
 				{ // 이자 잘 붙어있으면 나가기
 					free(targetAT);
@@ -2199,7 +2211,7 @@ int setFSInterest(FILE* f_accfile, const char* AccNum)
 					targetIQ = NULL;
 
 					fprintf(stdout, "%s good\n", AccNum);
-					return 1; 
+					return 1;
 				}
 			}
 			pcp++;
@@ -2221,9 +2233,9 @@ int setFSInterest(FILE* f_accfile, const char* AccNum)
 	beforBal = atol(targetAT->FS_balance);
 	interestRatio = atof(targetAT->FS_interest);
 	afterBal = beforBal + (long)(beforBal * interestRatio / 100);
-	
-	
-	
+
+
+
 	if (temp != NULL)
 	{
 		free(temp);
@@ -2288,7 +2300,7 @@ int setFSInterest(FILE* f_accfile, const char* AccNum)
 
 	free(temp);
 	temp = NULL;
-	
+
 	fprintf(stdout, "%s bad\n", AccNum);
 	return 0;
 }
@@ -2463,9 +2475,9 @@ char* getAccountName(const char* AccNum, char* AccName)
 	{
 		for (int j = 0; j < g_userALNums; j++)
 		{
-			if (strcmp(g_allAccountsListAndName[0][i], g_userAccountsList[j]) == 0)
+			if (strcmp(g_allAccountsListAndName[0][i], AccNum) == 0)
 			{
-				strncpy(AccName, g_allAccountsListAndName[1][i], 8);
+				strncpy(AccName, g_allAccountsListAndName[1][i], strlen(g_allAccountsListAndName[1][i])+1);
 				return AccName;
 			}
 		}
@@ -2587,7 +2599,7 @@ int setAccListOfAll_malloc()
 		g_allAccountsListAndName = NULL;
 	}
 	g_allALANNums = AccountNums;
-	//printf("%d\n", g_allALANNums);
+	//printf("%d", g_allALANNums);
 
 	g_allAccountsListAndName = (char***)malloc(sizeof(char**) * 2);
 	assert(g_allAccountsListAndName != NULL && "g_allAcountsListAndName allocation failed");
@@ -2616,7 +2628,7 @@ int setAccListOfAll_malloc()
 		piter = g_buffer;
 		strncpy(g_allAccountsListAndName[0][i], g_buffer, 7);
 		g_allAccountsListAndName[0][i][7] = '\0';
-		//printf("%s\n", g_allAccountsListAndName[0][i]);
+		//printf("%s |", g_allAccountsListAndName[0][i]);
 
 		while (*piter++ != '|');
 		pitertemp = piter;
@@ -2634,6 +2646,7 @@ int setAccListOfAll_malloc()
 		CurrentFileOffset = ftell(f_AccountList);
 		i++;
 	}
+	//system("pause");
 	return g_allALANNums;
 
 }

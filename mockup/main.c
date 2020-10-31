@@ -79,7 +79,7 @@ void setting()
 	
 	// 회원정보랑 계좌리스트는 그냥 열어두는걸로...
 	f_MemberFile = _wfopen(L"C:\\banksystemlog\\members.txt", L"r+");
-	f_AccountList = _wfopen(L"C:\\banksystemlog\\accounts.txt", L"a");
+	f_AccountList = _wfopen(L"C:\\banksystemlog\\accounts.txt", L"r+");
 	assert(f_MemberFile != NULL && f_AccountList != NULL&&"\nfile opening is failed.");
 
 	//에러확인하는거긴한데...흠흠

@@ -121,7 +121,7 @@ int startMenu();
 void registerMenu();
 int loginMenu();
 
-/* 규칙 체크*/
+/* 규칙 체크 */
 int checkDigit(const char* ap_string);
 int checkAlnum(const char* ap_string); 
 int checkID(const char* ap_string);
@@ -148,7 +148,7 @@ void historyInquiry();
 
 /* 하위 기능 */
 int moneyInIO(const char* desNum, const char* srcNum, long money);
-int moneyOutIO(const char* desNum, const char* srcNum, long money);
+int moneyOutIO(const char* desNum, const char* srcNum, long money,int flag);
 int moneyInFS(const char* accNum, long money, int service);
 
 
