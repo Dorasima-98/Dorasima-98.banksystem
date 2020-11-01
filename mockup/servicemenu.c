@@ -922,7 +922,7 @@ void atmMenu()
 	}
 
 	GET_G_INPUT;
-	Q_CHECK;
+	Q_CHECK();
 
 	printf("no :q\n");
 	system("pause");
@@ -1140,7 +1140,7 @@ void transferMenu()
 	}
 
 	GET_G_INPUT;
-	Q_CHECK;
+	Q_CHECK();
 
 	printf("no :q\n");
 	system("pause");
