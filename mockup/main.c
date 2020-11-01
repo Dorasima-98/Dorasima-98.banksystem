@@ -15,7 +15,6 @@ void setting();
 
 int main(void)
 {
-	
 	setting();
 	//while (startMenu())
 	{
