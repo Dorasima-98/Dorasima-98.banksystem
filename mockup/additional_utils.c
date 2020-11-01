@@ -219,7 +219,7 @@ char* trim_malloc(char* des, const char* src)
 	char* tdes = des;
 	const char* tsrc = src;
 
-	while (*tsrc != '\0')
+	while (*tsrc != '\n')
 	{
 		if (*tsrc == ' ' && startFlags == 0)
 		{
@@ -231,14 +231,16 @@ char* trim_malloc(char* des, const char* src)
 			*tdes++ = *tsrc++;
 		}
 	}
-	while (*tsrc == ' ')
+	*tdes = '\0';
+	if (*(tsrc - 1) == ' ')
 	{
-		tsrc--;
-		tdes--;
+		while (*tsrc != ' ')
+		{
+			tsrc--;
+			tdes--;
+		}
+		*tdes = '\0';
 	}
-	*--tdes = '\0';
-
-
 	return des;
 }
 int moneyInIO(const char* desNum, const char* srcNum, long money)
