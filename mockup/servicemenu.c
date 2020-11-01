@@ -130,7 +130,6 @@ void makeAccountMenu()
 	PRINTLEFT(L"계좌 명을 입력해주세요.\n> ");
 Invalidinput1:
 	GET_G_INPUT;
-	//Q_CHECK();
 
 	AccountName_malloc = trim_malloc(AccountName_malloc, g_buffer);
 	assert(AccountName_malloc != NULL && "trim is Something wrong...");
@@ -142,13 +141,6 @@ Invalidinput1:
 		AccountName_malloc = NULL;
 		goto Invalidinput1;
 	}
-	/* else if (strlen(AccountName_malloc) == 1 && isdigit(*AccountName_malloc) == 1)
-	{
-		PRINTRIGHT(L"한 글자로 지정하시려면 알파벳으로 입력 해주세요...\n> ");
-		free(AccountName_malloc);
-		AccountName_malloc = NULL;
-		goto Invalidinput1;
-	} */
 	else if (checkAlnum(AccountName_malloc) == 1)
 	{
 		PRINTRIGHT(L"계좌명은 알파벳과 숫자로 입력 해주세요..\n> ");
@@ -298,7 +290,7 @@ Invalidinput3:
 	printf("생성완료되었습니다.\n");
 	printf("> %c%c-%c-%s", ranNum[0], ranNum[1], ranNum[2], &ranNum[3]);
 
-	wprintf(L"뒤로가기 커맨드 입력 안함.\n");	system("pause");
+	system("pause");
 
 	return;
 }
@@ -327,14 +319,7 @@ INVALIDINPUT:
 			system("cls");
 			PRINTLEFT(L"1) 예금	2) 적금");
 			GET_G_INPUT;
-			if (*g_buffer == ':')
-			{
-				if (*(g_buffer + 1) == 'q')
-				{
-					wprintf(L"뒤로가기 입력함 :q\n"); system("pause");
-					goto ESCAPE;
-				}
-			}
+			
 			if (atoi(g_buffer) == 1 || atoi(g_buffer) == 2)
 			{
 				fixedDepositAndSavings(atoi(g_buffer));
