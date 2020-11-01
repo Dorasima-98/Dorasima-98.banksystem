@@ -38,7 +38,7 @@ INVALIDINPUT:
 	case 2:
 		if (g_userALNums == 0)
 		{
-			PRINTRIGHT(L"입출금이 없는데 뭔 예적금입니까?");
+			PRINTRIGHT(L"입출금 계좌를 먼저 만들어 주세요");
 			goto INVALIDINPUT;
 		}
 		fixedDepositAndSavingsMenu();
@@ -46,7 +46,7 @@ INVALIDINPUT:
 	case 3:
 		if (g_userALNums == 0)
 		{
-			PRINTRIGHT(L"돈은 있으세요? 입출금 계좌 먼저 만드세요.");
+			PRINTRIGHT(L"입출금 계좌를 먼저 만들어 주세요");
 			goto INVALIDINPUT;
 		}
 		atmMenu();
@@ -55,7 +55,7 @@ INVALIDINPUT:
 	case 4:
 		if (g_userALNums == 0)
 		{
-			PRINTRIGHT(L"좋은 말로할때 1번 메뉴 선택하세요.");
+			PRINTRIGHT(L"입출금 계좌를 먼저 만들어 주세요");
 			goto INVALIDINPUT;
 		}
 		transferMenu();
@@ -63,7 +63,7 @@ INVALIDINPUT:
 	case 5:
 		if (g_userALNums == 0)
 		{
-			PRINTRIGHT(L"볼게 없습니다. 1번 메뉴로 가셔서 입출금 계좌먼저 만드세요.");
+			PRINTRIGHT(L"입출금 계좌를 먼저 만들어 주세요");
 			goto INVALIDINPUT;
 		}
 		historyInquiry();
