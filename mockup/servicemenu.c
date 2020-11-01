@@ -1325,10 +1325,6 @@ void atmMenu()
 	}
 
 
-	//GET_G_INPUT;
-	//Q_CHECK;
-
-	//printf("no :q\n");
 	system("pause");
 }
 void transferMenu()
