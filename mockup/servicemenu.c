@@ -18,7 +18,7 @@ int serviceMenu()
 	DRAWLINE('-');
 
 	PRINTLEFT(L"1) 계좌 생성  2) 예금과 적금  3) 입금과 출금 ");
-	PRINTLEFT(L"4) 계좌 이체  5) 계좌 내역    6) 로그아웃    ");
+	PRINTLEFT(L"4) 계좌 이체  5) 계좌 내역    6) 로그아웃    7)종료 ");
 	DRAWLINE('-');
 	if (g_userALNums == 0)
 	{
@@ -82,6 +82,10 @@ INVALIDINPUT:
 		{
 			g_userID[j] = 0;
 		}
+		break;
+
+	case 7:
+		con_flag = 0;
 		break;
 	default:
 		goto INVALIDINPUT;
