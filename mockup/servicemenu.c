@@ -307,7 +307,6 @@ INVALIDINPUT:
 	wprintf(L"> ");
 
 	GET_G_INPUT;
-	//Q_CHECK();
 
 	selection = atoi(g_buffer);
 
@@ -445,7 +444,6 @@ INVALIDINPUT1:
 	wprintf(L"> ");
 INVALIDINPUT2:
 	GET_G_INPUT;
-	//Q_CHECK();
 
 	inputcheck = trim_malloc(inputcheck, g_buffer);
 	assert(inputcheck != NULL && "trim is Something wrong...");
