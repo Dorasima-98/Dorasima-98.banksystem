@@ -37,7 +37,7 @@
 // 계좌번호로 글로벌 경로버퍼 설정
 //#define SET_G_PATH(input) 
 
-// 뒤로가기 체크
+/* 뒤로가기 체크
 #define Q_CHECK(returnvalue) if (*g_buffer == ':')\
 {	if (*(g_buffer + 1) == 'q')\
 	{	wprintf(L"뒤로가기 :q\n");\
@@ -45,6 +45,8 @@
 		return returnvalue;	\
 	}\
 }\
+
+*/
 
 #define TEST_ON (1)
 #define TEST_OFF (0)

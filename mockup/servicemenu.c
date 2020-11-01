@@ -130,7 +130,6 @@ void makeAccountMenu()
 	PRINTLEFT(L"계좌 명을 입력해주세요.\n> ");
 Invalidinput1:
 	GET_G_INPUT;
-	//Q_CHECK();
 
 	AccountName_malloc = trim_malloc(AccountName_malloc, g_buffer);
 	assert(AccountName_malloc != NULL && "trim is Something wrong...");
@@ -142,13 +141,6 @@ Invalidinput1:
 		AccountName_malloc = NULL;
 		goto Invalidinput1;
 	}
-	/* else if (strlen(AccountName_malloc) == 1 && isdigit(*AccountName_malloc) == 1)
-	{
-		PRINTRIGHT(L"한 글자로 지정하시려면 알파벳으로 입력 해주세요...\n> ");
-		free(AccountName_malloc);
-		AccountName_malloc = NULL;
-		goto Invalidinput1;
-	} */
 	else if (checkAlnum(AccountName_malloc) == 1)
 	{
 		PRINTRIGHT(L"계좌명은 알파벳과 숫자로 입력 해주세요..\n> ");
@@ -298,7 +290,7 @@ Invalidinput3:
 	printf("생성완료되었습니다.\n");
 	printf("> %c%c-%c-%s", ranNum[0], ranNum[1], ranNum[2], &ranNum[3]);
 
-	wprintf(L"뒤로가기 커맨드 입력 안함.\n");	system("pause");
+	system("pause");
 
 	return;
 }
@@ -315,7 +307,6 @@ INVALIDINPUT:
 	wprintf(L"> ");
 
 	GET_G_INPUT;
-	//Q_CHECK();
 
 	selection = atoi(g_buffer);
 
@@ -327,14 +318,7 @@ INVALIDINPUT:
 			system("cls");
 			PRINTLEFT(L"1) 예금	2) 적금");
 			GET_G_INPUT;
-			if (*g_buffer == ':')
-			{
-				if (*(g_buffer + 1) == 'q')
-				{
-					wprintf(L"뒤로가기 입력함 :q\n"); system("pause");
-					goto ESCAPE;
-				}
-			}
+			
 			if (atoi(g_buffer) == 1 || atoi(g_buffer) == 2)
 			{
 				fixedDepositAndSavings(atoi(g_buffer));
@@ -460,7 +444,6 @@ INVALIDINPUT1:
 	wprintf(L"> ");
 INVALIDINPUT2:
 	GET_G_INPUT;
-	//Q_CHECK();
 
 	inputcheck = trim_malloc(inputcheck, g_buffer);
 	assert(inputcheck != NULL && "trim is Something wrong...");
@@ -1087,6 +1070,7 @@ void atmMenu()
 	{
 		int atmsel;
 		wprintf(L"1. 입금\t 2. 출금\n");
+		wprintf(L"> ");
 	INVALIDINPUT0:
 		if (scanf("%d", &atmsel) != 1)  //이렇게하면 스페이스바만 처리할수있음
 		{
@@ -1341,10 +1325,6 @@ void atmMenu()
 	}
 
 
-	//GET_G_INPUT;
-	//Q_CHECK;
-
-	//printf("no :q\n");
 	system("pause");
 }
 void transferMenu()
@@ -1859,7 +1839,7 @@ void historyInquiry()
 	PRINTRIGHT(L"조회하고자 하는 계좌번호를 입력해주세요\n>");
 INVALIDINPUT:
 	GET_G_INPUT;
-	//Q_CHECK();
+
 
 	//계좌번호 분석
 	int j = 0;
@@ -2014,7 +1994,6 @@ INVALIDINPUT:
 	fclose(f_Account);
 	f_Account = NULL;
 #endif
-	wprintf(L"뒤로가기 커맨드 입력 안함. \n");
 	system("pause");
 
 	return;
