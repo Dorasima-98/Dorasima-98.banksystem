@@ -431,7 +431,10 @@ INVALIDINPUT1:
 	g_tempwcp = NULL;
 
 	f_IO = _wfopen(g_wpath, L"r+");
-	IOatt = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
+	if (IOatt == NULL)
+	{
+		IOatt = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
+	}
 	fgets(g_buffer, BUFF_SIZE, f_IO);
 	strToIOatt_malloc(g_buffer, IOatt);
 
@@ -728,244 +731,189 @@ INVALIDINPUT6:
 	Fixatt = NULL;
 	fclose(f_IO);
 	f_IO = NULL;
-#if TEST_OFF
-	FILE* inputFile = NULL;
-
-	int lineCount = 1;
-	float rate = 0.0; //이자율
-	int duration; //예금 기간(6개월이면 6, 1년이면 1, 2년이면 2)
-	float fixedDepositMoney = 0.0; //예치금(납입액)
-	float finalFixedDepositMoney = 0.0; //만기해지금
-	char accountName[10]; //예금계좌명
-
-	wchar_t* temppath = NULL;
-	FILE* f_accFile = NULL;
-	char* toListfile = NULL;
-	char* toTargetfile = NULL;
-	size_t toLfnums = 0;
-	size_t toTfnums = 0;
-
-	system("cls");
-	PRINTCEN(L"출금할 계좌 선택");
-	DRAWLINE('-');
-	PRINTCEN(L"=== 만기 금액 수령이 가능한 입출금 계좌 목록 ===");
-
-	// 해당 파일찾아가기
-	if (tempwcp != NULL)
-	{
-		free(tempwcp);
-		tempwcp = NULL;
-	}
-
-	tempwcp = (wchar_t*)malloc(sizeof(wchar_t) * 8); //8맞낭..
-	swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\%s.txt", tempwcp[1], tempwcp);
-
-	inputFile = _wfopen(g_wpath, L"r");
-
-	int accountSelection = 0;
-
-	if (inputFile != NULL)
-	{
-		char buffer[1024]; //나중에 수정해야함
-		while (!feof(inputFile))
-		{
-			fgets(buffer, sizeof(buffer), inputFile);
-			printf("%d)", lineCount++);
-			char* ptr = strtok(buffer, "\n");
-			printf("%s\n", ptr);
-			while (ptr != NULL)
-			{
-				ptr = strtok(NULL, "\n");
-			}
-		}
-	}
-
-	scanf("%d", &accountSelection); //입출금계좌 선택하기
-	//선택해서 그 입출금계좌 정보 가져와야 함 - 구현해야함
-
-	fclose(inputFile);
-
-	//은행에 맞게 계좌번호 생성하기
-	char ranNum[8] = { 0, };
-
-	srand(time(NULL));
-	ranNum[0] = '0';
-	ranNum[1] = g_userBank + '0';
-	ranNum[2] = '1';
-	for (int k = 3; k < 7; k++)
-	{
-		ranNum[k] = rand() % 10 + 48;
-	}
-	ranNum[7] = '\0';
-
-	toLfnums = 50; //일단 잘 몰라서 대충,,,
-	toTfnums = 80; //이거두
-
-	toListfile = (char*)malloc(sizeof(char) * toLfnums);
-	toTargetfile = (char*)malloc(sizeof(char) * toTfnums);
-
-	PRINTCEN(L"계좌명 입력");
-	DRAWLINE('-');
-	printf("예금 계좌명을 입력해주세요.\n");
-	wprintf(L"> ");
-	scanf("%s", &accountName);
-	printf("예금 계좌명이 %s로 설정되었습니다\n", accountName);
-	system("pause");
-
-	system("cls");
-	PRINTCEN(L"만기일 선택");
-	DRAWLINE('-');
-	PRINTCEN(L"===선택한 서비스의 만기일을 선택해주세요===");
-	PRINTLEFT(L"만기일  1) 6개월(1.0%)   2) 1년(1.5%)   3) 2년(2.0%)");
-	wprintf(L"> ");
-
-	int selection = 0;
-
-	scanf_s("%d", &selection, 1);
-
-	//printf는 그냥 확인용이라 다 빼야함. rate는 나중에 예금파일 첫 줄에 적어야 함
-	switch (selection)
-	{
-	case 1:
-		rate = 1.0;
-		duration = 6;
-		//printf("6개월 선택완료\n");
-		break;
-
-	case 2:
-		rate = 1.5;
-		duration = 1;
-		//printf("1년 선택완료\n");
-		break;
-
-	case 3:
-		rate = 2.0;
-		duration = 2;
-		//printf("2년 선택완료\n");
-		break;
-	}
-
-	system("pause");
-	system("cls");
-	PRINTCEN(L"납입액 입력");
-	DRAWLINE('-');
-
-	PRINTCEN(L"===선택한 서비스의 납입액(예치금)을 입력해주세요===");
-	PRINTLEFT(L"**확인사항**");
-	PRINTLEFT(L"적금 : 월 납입액 한도의 경우 50만원으로 제한이 됩니다.");
-	PRINTLEFT(L"예금 : 예치금 한도의 경우 선택 입출금계좌 잔액입니다.");
-	PRINTLEFT(L"(단위 : 1만원)");
-	wprintf(L"> ");
-
-	scanf("%f", &fixedDepositMoney);
-
-	//여기 아까 선택한 입출금계좌 잔액보다 적은지 많은지, 1원 이상인지 if문 있어야 함!!
-
-	//만기수령액 계산하기
-	switch (selection)
-	{
-	case 1:
-		finalFixedDepositMoney = fixedDepositMoney + fixedDepositMoney * 0.01 * 0.5;
-		//printf("만기수령액은 %.5f만원 입니다.\n", finalFixedDepositMoney);
-		break;
-
-	case 2:
-		finalFixedDepositMoney = fixedDepositMoney + fixedDepositMoney * 0.015;
-		//printf("만기수령액은 %.5f만원 입니다.\n", finalFixedDepositMoney);
-		break;
-
-	case 3:
-		finalFixedDepositMoney = fixedDepositMoney + fixedDepositMoney * 0.02 * 2;
-		//printf("만기수령액은 %.5f만원 입니다.\n", finalFixedDepositMoney);
-		break;
-	}
-
-	int accountPassword = 1234; //입출금계좌에서 받아오기 - 구현해야함.
-
-	system("pause");
-
-	//여기부터 복붙
-	temppath = (wchar_t*)malloc(sizeof(wchar_t) * ((strlen(ranNum)) + 1)); // 계좌파일 만들기
-	for (int j = 0; j < (strlen(ranNum)) + 1; j++)
-	{
-		mbtowc(temppath + j, ranNum + j, MB_CUR_MAX);
-	}
-	swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%d\\%s.txt", g_userBank, temppath);
-
-	f_accFile = _wfopen(g_wpath, L"a+");
-	assert(f_accFile != NULL && "create new account file failed");
-
-	fseek(f_accFile, 0, SEEK_SET); //파일포인터를 처음위치로 이동시키기
-	fwrite(toTargetfile, sizeof(char), strlen(toTargetfile), f_accFile);
-
-	fclose(f_accFile);
-	f_accFile = NULL;
-
-	fseek(f_AccountList, 0, SEEK_END);	//계좌리스트 파일에 적기 //파일포인터를 파일 제일 끝으로 이동시키기
-	fwrite(toListfile, sizeof(char), strlen(toListfile), f_AccountList);
-	fflush(f_AccountList);
-
-	sprintf(toMemfile, "%s|", ranNum); //toMemfile에 계좌번호| 문자열 입력
-
-	CurrentFileOffset = setBankByID(g_userID);
-	fseek(f_MemberFile, CurrentFileOffset, SEEK_SET); //(파일 시작점 + CurrentFileOffset) 위치로 파일포인터 이동함
-	while (fgetc(f_MemberFile) != '\n') //한줄씩 get할 거라는 의미
-	{
-		CurrentFileOffset++; //한글자 한글자씩 읽기 위해
-		fseek(f_MemberFile, CurrentFileOffset, SEEK_SET); //(파일 시작점 + CurrentFileOffset) 위치로 파일포인터 이동함
-	}
-	fseek(f_MemberFile, CurrentFileOffset + 1, SEEK_SET);
-
-	size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_MemberFile);
-	fseek(f_MemberFile, CurrentFileOffset + 1, SEEK_SET);
-	fwrite(toMemfile, sizeof(char), strlen(toMemfile), f_MemberFile);
-	fwrite(g_filebuff, sizeof(char), numOfWords, f_MemberFile);
-
-	for (int i = 0; i < g_userALNums; i++)
-	{
-		free(g_userAccountsList[i]);
-		g_userAccountsList[i] = NULL;
-	}
-	g_userAccountsList = NULL;
-
-	setAccListByID_malloc(g_userID);
-	setAccListOfAll_malloc();
-
-	free(AccountName_malloc);
-	AccountName_malloc = NULL;
-	free(PIN1);
-	PIN1 = NULL;
-	free(PIN2);
-	PIN2 = NULL;
-	free(toListfile);
-	toListfile = NULL;
-	free(toTargetfile);
-	toTargetfile = NULL;
-	free(temppath);
-	temppath = NULL;
-
-	//여기까지 복붙한 거. 수정해야 함
-
-
-	//마지막 줄에는 "추가된 계좌정보" 들어감 
-	inputFile = fopen("fixed.txt", "a");
-	fprintf(inputFile, "%s|%s|%f|%f\n", accountName, ranNum, finalFixedDepositMoney, fixedDepositMoney);
-	fclose(inputFile);
-
-	//첫 줄에는 "계좌명, 계좌번호, new![만기시 수령액], 계좌 비밀번호, 서비스 신청기간, 이자율, 해지 시 수령액의 조합"이 들어감!
-	//해당 계좌 잔액, 계좌 비밀번호는 지금 구현 못해서 그거 빼고 나머지는 첫 줄에 씀
-	inputFile = fopen("fixed_shortcut.txt", "a");
-	fprintf(inputFile, "%s|%s|%f|%d|%d|%f|%f ", accountName, finalFixedDepositMoney, fixedDepositMoney, accountPassword, duration, rate, fixedDepositMoney);
-	fclose(inputFile);
-
-	//Q_CHECK();
-	//wprintf(L"뒤로가기 커맨드 입력 안함.\n");
-	//system("pause");
-#endif
 }
 void inquiryAndCancel() //Cancel 만 하기~~~
 {
-	FILE* inputFile = NULL;
+	size_t uIONums = 0;
+	char** temp = NULL;
+	FILE* f_IO = NULL;
+	FILE* f_FS = NULL;
+	IOattributes_malloc_t* IOatt = NULL;
+	FSattributes_t* FSatt = NULL;
+
+	FSatt = (FSattributes_t*)malloc(sizeof(FSattributes_t));
+	IOatt = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
+
+	char tempname[17];
+	int selection = 0;
+	long CurrentFileOffset = 0;
+
+	temp = (char**)malloc(sizeof(char*) * g_userALNums);
+	PRINTCEN(L"서비스를 해지할 예적금 계좌를 선택해주세요.");
+	for (int i = 0; i < g_userALNums; i++)
+	{
+		if (getAccType(g_userAccountsList[i]) == T2||getAccType(g_userAccountsList[i]))
+		{
+			uIONums++;
+			getAccountName(g_userAccountsList[i], tempname);
+			temp[uIONums] = g_userAccountsList[i];
+			printf("%d) %s/%s\n", i + 1, tempname, g_userAccountsList[i]);
+			//memset(IOatt->IO_name, '\0', 17);
+		}
+	}
+	printf("> ");
+INVALIDINPUT1:
+	if (scanf("%d", &selection) != 1)  //이렇게하면 스페이스바만 처리할수있음
+	{
+		while (getchar() != '\n');
+		PRINTRIGHT(L"계좌를 다시 선택해주세요.\n");
+		goto INVALIDINPUT1;
+
+	}
+	if (1 <= selection && selection <= uIONums)
+	{
+		PRINTLEFT(L"계좌가 선택되었습니다\n");
+		while (getchar() != '\n');
+		Sleep(1000);
+		system("cls");
+	}
+	else
+	{
+		PRINTRIGHT(L"계좌를 다시 선택해주세요.\n");
+		while (getchar() != '\n');
+		goto INVALIDINPUT1;
+	}
+	strncpy(FSatt->FS_mynum, temp[selection], 8);
+	free(temp);
+	temp = NULL;
+
+	if (g_tempwcp != NULL)
+	{
+		free(g_tempwcp);
+		g_tempwcp = NULL;
+	}
+
+	g_tempwcp = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(FSatt->FS_mynum) + 1));
+	for (int i = 0; i < strlen(FSatt->FS_mynum) + 1; i++)
+	{
+		mbtowc(g_tempwcp + i, FSatt->FS_mynum + i, MB_CUR_MAX);
+	}
+	swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\0%c%c.txt", g_tempwcp[1], g_tempwcp[1],g_tempwcp[2]);
+	free(g_tempwcp);
+	g_tempwcp = NULL;
+
+	f_FS = _wfopen(g_wpath, L"r+");
+	fgets(g_buffer, BUFF_SIZE, f_IO);
+	CurrentFileOffset = strToFSatt(g_buffer, FSatt, FSatt->FS_mynum);
+
+	fseek(f_FS, CurrentFileOffset, SEEK_SET);
+
+	size_t numofread = 0;
+	size_t numofread2 = 00;
+	char check = fgetc(f_FS);
+	while (check != ' ' && check != '\n')
+	{
+		check = fgetc(f_FS);
+	}
+	if (CurrentFileOffset == 0 && check == ' ')
+	{
+		//fseek(f_FS, 0, SEEK_SET);
+		numofread = fread(g_filebuff, sizeof(char),FILE_BUFF,f_FS);
+
+		f_FS = _wfreopen(g_wpath, "w+", f_FS);
+		fwrite(g_filebuff,sizeof(char), numofread, f_FS);
+	}
+	else if (check == ' '&&CurrentFileOffset!=0)
+	{
+		numofread2 = CurrentFileOffset;
+		CurrentFileOffset = ftell(f_FS);
+		fseek(f_FS, 0, SEEK_SET);
+		numofread2 = fread(g_filebuff2, sizeof(char), numofread2, f_FS);
+		fseek(f_FS, CurrentFileOffset, SEEK_SET);
+		numofread = fread(g_filebuff, sizeof(char), FILE_BUFF, f_FS);
+
+		f_FS = _wfreopen(g_wpath, "w+", f_FS);
+		fwrite(g_filebuff2, sizeof(char), numofread2, f_FS);
+		fwrite(g_filebuff, sizeof(char), numofread, f_FS);
+	}
+	else if (check == '\n' && CurrentFileOffset != 0)
+	{
+		numofread2 = CurrentFileOffset-1;
+		CurrentFileOffset = ftell(f_FS)-2;
+		fseek(f_FS, 0, SEEK_SET);
+		numofread2 = fread(g_filebuff2, sizeof(char), numofread2, f_FS);
+		fseek(f_FS, CurrentFileOffset, SEEK_SET);
+		numofread = fread(g_filebuff, sizeof(char), FILE_BUFF, f_FS);
+
+		f_FS = _wfreopen(g_wpath, "w+", f_FS);
+		fwrite(g_filebuff2, sizeof(char), numofread2, f_FS);
+		fwrite(g_filebuff, sizeof(char), numofread, f_FS);
+	}
+	else if (check == '\n' && CurrentFileOffset == 0) // 일단 다 지우는 거로
+	{
+		//CurrentFileOffset = ftell(f_FS) - 2;
+		//numofread = fread(g_filebuff, sizeof(char), FILE_BUFF, f_FS);
+
+		f_FS = _wfreopen(g_wpath, "w+", f_FS);
+		//fwrite(g_filebuff, sizeof(char), numofread, f_FS);
+	}
+
+	fclose(f_FS);
+
+	char toEraselist[30];
+	char toErasemem[10];
+
+	
+	
+
+	//
+	if (temp != NULL)
+	{
+		free(temp);
+		temp = NULL;
+	}
+	temp = (char**)malloc(sizeof(char*) * g_userALNums);
+	PRINTCEN(L"돈을 입금할 입출금 계좌를 선택해주세요.");
+	for (int i = 0; i < g_userALNums; i++)
+	{
+		if (getAccType(g_userAccountsList[i]) == T1)
+		{
+			uIONums++;
+			getAccountName(g_userAccountsList[i], tempname);
+			temp[uIONums] = g_userAccountsList[i];
+			printf("%d) %s/%s\n", i + 1, tempname, g_userAccountsList[i]);
+			memset(IOatt->IO_name, '\0', 17);
+		}
+	}
+	printf("> ");
+INVALIDINPUT2:
+	if (scanf("%d", &selection) != 1)  //이렇게하면 스페이스바만 처리할수있음
+	{
+		while (getchar() != '\n');
+		PRINTRIGHT(L"계좌를 다시 선택해주세요.\n");
+		goto INVALIDINPUT2;
+
+	}
+	if (1 <= selection && selection <= uIONums)
+	{
+		PRINTLEFT(L"계좌가 선택되었습니다\n");
+		while (getchar() != '\n');
+		Sleep(1000);
+		system("cls");
+	}
+	else
+	{
+		PRINTRIGHT(L"계좌를 다시 선택해주세요.\n");
+		while (getchar() != '\n');
+		goto INVALIDINPUT2;
+	}
+	strncpy(IOatt->IO_mynum, temp[selection], 8);
+	free(temp);
+	temp = NULL;
+	
+	moneyInIO(IOatt->IO_mynum, FSatt->FS_mynum, atol(FSatt->FS_balance));
+
+
 
 	/*
 	char accountName[6];
@@ -1043,6 +991,7 @@ void inquiryAndCancel() //Cancel 만 하기~~~
 	DRAWLINE('-');
 	PRINTLEFT(L"예적금을 해지하시겠습니까?(y/n)");
 	wprintf(L"> ");
+INVALIDINPUT:
 	GET_G_INPUT;
 
 	if (*g_buffer == 'y' || *g_buffer == 'Y')
@@ -1061,10 +1010,15 @@ void inquiryAndCancel() //Cancel 만 하기~~~
 		goto INVALIDINPUT;
 	}
 
-INVALIDINPUT:
-	return; //해야함
-//ESCAPE:
-	return; //해야함
+	freeIOattriutes(IOatt);
+	free(IOatt);
+	free(FSatt);
+	free(toErase);
+	IOatt = NULL;
+	FSatt = NULL;
+	toErase = NULL;
+	fclose(f_IO);
+	f_IO = NULL;
 
 }
 void atmMenu()
