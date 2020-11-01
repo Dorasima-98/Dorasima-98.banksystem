@@ -1070,6 +1070,7 @@ void atmMenu()
 	{
 		int atmsel;
 		wprintf(L"1. 입금\t 2. 출금\n");
+		wprintf(L"> ");
 	INVALIDINPUT0:
 		if (scanf("%d", &atmsel) != 1)  //이렇게하면 스페이스바만 처리할수있음
 		{
