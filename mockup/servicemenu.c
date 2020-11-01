@@ -147,7 +147,7 @@ Invalidinput1:
 	} */
 	else if (checkAlnum(AccountName_malloc) == 1)
 	{
-		PRINTRIGHT(L"계좌명은 알파벳 기본, 숫자 선택으로 입력 해주세요..\n> ");
+		PRINTRIGHT(L"계좌명은 알파벳과 숫자로 입력 해주세요..\n> ");
 		free(AccountName_malloc);
 		AccountName_malloc = NULL;
 		goto Invalidinput1;
