@@ -4,6 +4,7 @@
 // 숫자 아니면 1반환, 공백(?)이면 2 반환, 숫자면 0반환
 int checkDigit(const char* ap_string)
 {
+	assert(ap_string != NULL && "ap_string is NULL");
 	const char* p_dest = ap_string;
 	while (*p_dest != '\0')
 	{
@@ -22,6 +23,7 @@ int checkDigit(const char* ap_string)
 //숫자 or 영문자 아니면 1반환
 int checkAlnum(const char* ap_string)
 {
+	assert(ap_string != NULL && "ap_string is NULL");
 	const char* p_dest = ap_string;
 	while (*p_dest != '\0')
 	{
@@ -36,6 +38,7 @@ int checkAlnum(const char* ap_string)
 // 숫자 + 영문자가 아니면 1반환
 int checkID(const char* ap_string)
 {
+	assert(ap_string != NULL && "ap_string is NULL");
 	const char* p_dest = ap_string;
 	int IDcon[2] = { 0, };
 
@@ -64,6 +67,7 @@ int checkID(const char* ap_string)
 // 영문자 혹은 공백이 아니면 1반환
 int checkName(const char* ap_string)
 {
+	assert(ap_string != NULL && "ap_string is NULL");
 	const char* p_dest = ap_string;
 
 	while (*p_dest != '\0')
@@ -79,6 +83,7 @@ int checkName(const char* ap_string)
 // 영어, 숫자, 특문 하나 씩 있어야함. 이상한거 들어오거나, 없으면 1반환
 int checkPW(const char* ap_string)
 {
+	assert(ap_string != NULL && "ap_string is NULL");
 	const char* p_dest = ap_string;
 	char SC[10] = { '!','@','#','$','%','^','&','*','(',')' };
 	int PWcon[3] = { 0, };
@@ -116,6 +121,7 @@ int checkPW(const char* ap_string)
 //중간 공백 체크하기
 int checkSpace(const char* ap_string)
 {
+	assert(ap_string != NULL && "ap_string is NULL");
 	const char* p_dest = ap_string;
 
 	while (*p_dest != '\0')
@@ -130,6 +136,7 @@ int checkSpace(const char* ap_string)
 //중간 공백 지우기
 void EraseSpace(char* ap_string)
 {
+	assert(ap_string != NULL && "ap_string is NULL");
 	char* p_dest = ap_string;
 
 	while (*ap_string != 0)
@@ -242,7 +249,7 @@ int moneyInIO(const char* desNum, const char* srcNum, long money)
 	IOattributes_malloc_t* IOatt = NULL;
 	long CurrentFileOffset = 0;
 	long balance = 0;
-	char toATline[7];
+	char toATline[15];
 	char srcName[17];
 	char* toIQline = NULL;
 	size_t toIQlen = 0;
@@ -290,7 +297,7 @@ int moneyInIO(const char* desNum, const char* srcNum, long money)
 	size_t numofWords2 = fread(g_filebuff2, sizeof(char), strlen(IOatt->IO_name) + strlen(IOatt->IO_mynum) + 2, f_IO);
 	CurrentFileOffset = ftell(f_IO);
 
-	fseek(f_IO, CurrentFileOffset + strlen(toATline), SEEK_SET);
+	fseek(f_IO, CurrentFileOffset + (long)strlen(toATline), SEEK_SET);
 	size_t numofWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_IO);
 	//쓰기모드로 다시열어서 쓰기
 	f_IO = _wfreopen(g_wpath, L"w+", f_IO);
@@ -299,7 +306,7 @@ int moneyInIO(const char* desNum, const char* srcNum, long money)
 	fwrite(g_filebuff2, sizeof(char), numofWords2, f_IO);
 	fwrite(toATline, sizeof(char), strlen(toATline), f_IO);
 	fwrite(g_filebuff, sizeof(char), numofWords, f_IO);
-	
+
 
 	freeIOattriutes(IOatt);
 	free(IOatt);
@@ -311,7 +318,7 @@ int moneyInIO(const char* desNum, const char* srcNum, long money)
 	return 1;
 }
 // 이체한도 넘으면 0 반환, 성공하면 1 반환 ,flag를 1로 넘겨주면 이체한도 무시
-int moneyOutIO(const char* srcNum, const char* desNum, long money,int flag)
+int moneyOutIO(const char* srcNum, const char* desNum, long money, int flag)
 {
 	assert(srcNum != NULL && "src is NULL moneyOutIO() function");
 
@@ -320,7 +327,7 @@ int moneyOutIO(const char* srcNum, const char* desNum, long money,int flag)
 	long CurrentFileOffset = 0;
 	long balance = 0;
 	long datelimit = 0;
-	char toATline[25]; // 대충 넉넉
+	char toATline[30]; // 대충 넉넉
 	char desName[17];
 	char* toIQline = NULL;
 	size_t toIQlen = 0;
@@ -386,7 +393,7 @@ int moneyOutIO(const char* srcNum, const char* desNum, long money,int flag)
 	size_t numofWords2 = fread(g_filebuff2, sizeof(char), strlen(IOatt->IO_name) + strlen(IOatt->IO_mynum) + 2, f_IO);
 	CurrentFileOffset = ftell(f_IO);
 
-	fseek(f_IO, CurrentFileOffset + strlen(toATline), SEEK_SET);
+	fseek(f_IO, CurrentFileOffset + (long)strlen(toATline), SEEK_SET);
 	size_t numofWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_IO);
 
 	//쓰기모드로 연다음에 다시 쓰기
@@ -420,7 +427,7 @@ int moneyInFS(const char* accNum, long inmoney, int service)
 	float interestrate = 0.0f;
 	size_t numofWords2 = 0;
 
-	char* toATline =NULL;
+	char* toATline = NULL;
 	char accName[17];
 	char* toIQline = NULL;
 
@@ -439,7 +446,7 @@ int moneyInFS(const char* accNum, long inmoney, int service)
 	{
 		mbtowc(g_tempwcp + i, accNum + i, MB_CUR_MAX);
 	}
-	swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\%c%c%c.txt", g_tempwcp[1], g_tempwcp[0], g_tempwcp[1], g_tempwcp[2]);
+	swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\0%c%c.txt", g_tempwcp[1], g_tempwcp[1], g_tempwcp[2]);
 	free(g_tempwcp);
 	g_tempwcp = NULL;
 
@@ -499,7 +506,7 @@ int moneyInFS(const char* accNum, long inmoney, int service)
 
 	//쓸준비
 	toATline = (char*)malloc(sizeof(FSattributes_t));
-	sprintf(toATline, "%s|%s|%ld|%s|%d|%.1f|%ld|", FSatt->FS_name,FSatt->FS_mynum,money, FSatt->FS_Passwords, period, interestrate, balance);
+	sprintf(toATline, "%s|%s|%ld|%s|%d|%.1f|%ld|", FSatt->FS_name, FSatt->FS_mynum, money, FSatt->FS_Passwords, period, interestrate, balance);
 	toIQline = (char*)malloc(sizeof(FSinqury_t));
 	getAccountName(accNum, accName);
 	sprintf(toIQline, "%d-%d-%d|%s|%s|%ld|%ld|\n", g_year, g_month, g_day, accName, accNum, inmoney, balance);
@@ -534,7 +541,7 @@ int moneyInFS(const char* accNum, long inmoney, int service)
 	{
 		fseek(f_FS, 0, SEEK_SET);
 		fwrite(g_filebuff2, sizeof(char), numofWords2, f_FS);
-	}	
+	}
 	fwrite(toATline, sizeof(char), strlen(toATline), f_FS);
 	fwrite(g_filebuff, sizeof(char), numofWords, f_FS);
 
@@ -621,6 +628,83 @@ int strToIOiq(const char* str, IOinqury_t* ioacc)
 	strncpy(ioacc->IO_balance, piter, counter);
 	ioacc->IO_balance[counter] = '\0';
 	return 1;
+}
+// 데이터파일이랑 똑같이 해줘가지고 넘겨줘야, 삭제를 하거나 횟수를 줄여줍니다. 삭제 실패하면 0 성공하면 1
+int eraseAuto(const char* accNum, const char* toerase, int num)
+{
+	assert(accNum != NULL && toerase != NULL && "src is NULL moneyOutIO() function");
+
+	FILE* f_IO;
+	long CurrentFileOffset = 0;
+	char* gp = NULL;
+	IOattributes_malloc_t* IOatt = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
+
+	if (g_tempwcp != NULL)
+	{
+		free(g_tempwcp);
+		g_tempwcp = NULL;
+	}
+	// 파일 찾아가기
+	g_tempwcp = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(accNum) + 1));
+	for (int i = 0; i < strlen(accNum) + 1; i++)
+	{
+		mbtowc(g_tempwcp + i, accNum + i, MB_CUR_MAX);
+	}
+	swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\%s.txt", g_tempwcp[1], g_tempwcp);
+	free(g_tempwcp);
+	g_tempwcp = NULL;
+
+	f_IO = _wfopen(g_wpath, L"r+");
+	fseek(f_IO, 0, SEEK_SET);
+	fgets(g_buffer, BUFF_SIZE, f_IO);
+	strToIOatt_malloc(g_buffer, IOatt);
+	int j = 0;
+
+	gp = g_buffer;
+	for (int i = 0; i < 5; i++)
+	{
+		while (*gp++ != '|');
+	}
+	while (*gp != '\n')
+	{
+		if (strncmp(toerase, gp, strlen(toerase)) == 0)
+		{
+			int remain = atoi(IOatt->autoattributes[j][3]);
+			char temp[30];
+			if (remain - num > 0)
+			{
+				sprintf(temp, "%s|%s|%s|%d|", IOatt->autoattributes[j][0], IOatt->autoattributes[j][1], IOatt->autoattributes[j][2], remain - num);
+			}
+
+			CurrentFileOffset = gp - g_buffer;
+			fseek(f_IO, 0, SEEK_SET);
+			size_t num2 = fread(g_filebuff2, sizeof(char), CurrentFileOffset, f_IO);
+			fseek(f_IO, CurrentFileOffset + strlen(toerase), SEEK_SET);
+			size_t num1 = fread(g_filebuff, sizeof(char), FILE_BUFF, f_IO);
+
+			f_IO = _wfreopen(g_wpath, L"w+", f_IO);
+			fseek(f_IO, 0, SEEK_SET);
+			fwrite(g_filebuff2, sizeof(char), num2, f_IO);
+			if (remain - num > 0)
+			{
+				fwrite(temp, sizeof(char), strlen(temp), f_IO);
+			}
+			fwrite(g_filebuff, sizeof(char), num1, f_IO);
+			fflush(f_IO);
+			fclose(f_IO);
+
+			return 1;
+		}
+		else
+		{
+			j++;
+			for (int i = 0; i < 4; i++)
+			{
+				while (*gp++ != '|');
+			}
+		}
+	}
+	return 0;
 }
 // 예적금 계좌파일 내역 한줄을 IOinqury에 내역 넣어줍니다. 3번째 인자로 넣어준 계좌번호만 출력. 성공하면 1 실패하면 0반환 
 int strToFSiq(const char* str, FSinqury_t* fsacc, const char* accNum)
@@ -2304,6 +2388,120 @@ int setFSInterest(FILE* f_accfile, const char* AccNum)
 	fprintf(stdout, "%s bad\n", AccNum);
 	return 0;
 }
+// 자동이체 적용
+int setAutoTransfer()
+{
+	int tempnamelen = 0;
+	eAccType type;
+	FILE* f_setter;
+	IOattributes_malloc_t* ISatt =NULL;
+	
+	setAccListOfAll_malloc();
+
+	for (int f = 0; f < g_allALANNums; f++) //루프돌면서
+	{
+		// 해당 파일찾아가기
+		ISatt = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
+		assert(ISatt != NULL && "ISatt allocation failed \"setAutoTransfer()\"");
+		wchar_t waccNums[8];
+		for (int i = 0; i < 8; i++)
+		{
+			mbtowc(waccNums + i, g_allAccountsListAndName[0][f] + i, MB_CUR_MAX);
+		}
+		switch (getAccType(g_allAccountsListAndName[0][f])) // 타입체크
+		{
+		case T1: // 입출금
+			type = T1;
+			swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\%s.txt", waccNums[1], waccNums);
+			f_setter = _wfopen(g_wpath, L"r+");
+			fgets(g_buffer, BUFF_SIZE, f_setter);
+			strToIOatt_malloc(g_buffer, ISatt);
+			if (ISatt->autoNums > 0)
+			{
+				setAutoIOTransfer(f_setter);
+				freeIOattriutes(ISatt);
+				free(ISatt);
+				ISatt = NULL;
+			}
+			else
+			{
+				freeIOattriutes(ISatt);
+				free(ISatt);
+				ISatt = NULL;
+			}
+			fclose(f_setter);
+			f_setter = NULL;
+			break;
+		case T2: // 예금
+		case T3: // 적금
+			break;
+		default:
+			assert("Account Lists file is something wrong.... function: \"setInterset()\"" && 0);
+		}
+	}
+	free(ISatt);
+	ISatt = NULL;
+	return 0;
+}
+// 입출금 자동이체 적용
+int setAutoIOTransfer(FILE* f_io)
+{
+	assert(f_io != NULL && "setAutoIOTransfer() f_io is NULL");
+	IOattributes_malloc_t* IOatt = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
+	IOinqury_t* IOiq = (IOinqury_t*)malloc(sizeof(IOinqury_t));
+
+	FILE* f_temp = f_io;
+
+	fseek(f_temp, 0, SEEK_SET);
+	fgets(g_buffer, BUFF_SIZE, f_temp);
+	strToIOatt_malloc(g_buffer, IOatt);
+	char toerase[30];
+	for (int i = 0; i < IOatt->autoNums; i++)
+	{
+		ESCAPE:
+		if (g_day == atoi(IOatt->autoattributes[i][0]))
+		{
+			while (1)
+			{
+				fgets(g_buffer, BUFF_SIZE, f_temp);
+				if (feof(f_temp))
+				{
+					break;
+				}
+				strToIOiq(g_buffer, IOiq);
+				if (g_year == atoi(IOiq->IO_date) && g_month == atoi(&(IOiq->IO_date[5])) && g_day == atoi(&(IOiq->IO_date[8])) &&
+					(strncmp(IOatt->autoattributes[i][2], IOiq->IO_othernum, 7) == 0) &&
+					(IOatt->autoattributes[i][1], IOiq->IO_money, strlen(IOiq->IO_money) == 0))
+				{
+					goto ESCAPE;
+				}
+			}
+			moneyOutIO(IOatt->IO_mynum, IOatt->autoattributes[i][2], atol(IOatt->autoattributes[i][1]), 0);
+			switch (getAccType(IOatt->autoattributes[i][2]))
+			{
+			case T1:
+				moneyInIO(IOatt->autoattributes[i][2], IOatt->IO_mynum, atol(IOatt->autoattributes[i][1]));
+				sprintf(toerase, "%s|%s|%s|%s|", IOatt->autoattributes[i][0], IOatt->autoattributes[i][1], IOatt->autoattributes[i][2], IOatt->autoattributes[i][3]);
+				eraseAuto(IOatt->IO_mynum, toerase, 1);
+				PRINTLEFT(L"이체 되었습니다.");
+				break;
+			case T3:
+				if (moneyInFS(IOatt->autoattributes[i][2], atol(IOatt->autoattributes[i][1]), 0) == 1)
+				{
+					sprintf(toerase, "%s|%s|%s|%s|", IOatt->autoattributes[i][0], IOatt->autoattributes[i][1], IOatt->autoattributes[i][2], IOatt->autoattributes[i][3]);
+					eraseAuto(IOatt->IO_mynum, toerase, 1);
+					PRINTLEFT(L"이체 되었습니다.");
+				}
+				break;
+			default:
+				break;
+			}
+		}
+		
+	}
+
+	return 0;
+}
 // 아이디 중복되는지 확인합니다.
 int checkDupID(const char* ID)
 {
@@ -2473,13 +2671,10 @@ char* getAccountName(const char* AccNum, char* AccName)
 	assert(AccNum != NULL && "AccNum is NULL, \"getAccountName()\"");
 	for (int i = 0; i < g_allALANNums; i++)
 	{
-		for (int j = 0; j < g_userALNums; j++)
+		if (strncmp(g_allAccountsListAndName[0][i], AccNum, 7) == 0)
 		{
-			if (strcmp(g_allAccountsListAndName[0][i], AccNum) == 0)
-			{
-				strncpy(AccName, g_allAccountsListAndName[1][i], strlen(g_allAccountsListAndName[1][i])+1);
-				return AccName;
-			}
+			strncpy(AccName, g_allAccountsListAndName[1][i], strlen(g_allAccountsListAndName[1][i]) + 1);
+			return AccName;
 		}
 	}
 	return NULL;
