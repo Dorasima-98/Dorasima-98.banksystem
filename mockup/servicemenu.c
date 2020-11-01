@@ -1,4 +1,4 @@
-//아직 한참 덜 함ㅜㅜ
+
 
 #include "userfunc.h"
 
@@ -1205,7 +1205,7 @@ void atmMenu()
 
 	GET_G_INPUT;
 	Q_CHECK();
-
+	
 	wprintf(L"뒤로가기 커맨드 입력 안함.\n");
 	system("pause");
 }
