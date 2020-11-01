@@ -757,7 +757,7 @@ void inquiryAndCancel() //Cancel 만 하기~~~
 			uIONums++;
 			getAccountName(g_userAccountsList[i], tempname);
 			temp[uIONums] = g_userAccountsList[i];
-			printf("%d) %s/%s\n", i + 1, tempname, g_userAccountsList[i]);
+			printf("%d) %s/%s\n", uIONums, tempname, g_userAccountsList[i]);
 			//memset(IOatt->IO_name, '\0', 17);
 		}
 	}
@@ -783,7 +783,21 @@ INVALIDINPUT1:
 		while (getchar() != '\n');
 		goto INVALIDINPUT1;
 	}
-	strncpy(FSatt->FS_mynum, temp[selection], 8);
+	g_tempwcp = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(temp[selection]) + 1));
+	for (int i = 0; i < strlen(temp[selection]) + 1; i++)
+	{
+		mbtowc(g_tempwcp + i, temp[selection] + i, MB_CUR_MAX);
+	}
+	swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\0%c%c.txt", g_tempwcp[1], g_tempwcp[1],g_tempwcp[2]);
+	free(g_tempwcp);
+	g_tempwcp = NULL;
+
+	f_FS = _wfopen(g_wpath, L"r+");
+	fgets(g_buffer, BUFF_SIZE, f_FS);
+	CurrentFileOffset = strToFSatt(g_buffer, FSatt, temp[selection]);
+
+	wprintf(L"수령 금액은: %ld (원)입니다.", atol(FSatt->FS_balance));
+
 	free(temp);
 	temp = NULL;
 
@@ -792,19 +806,6 @@ INVALIDINPUT1:
 		free(g_tempwcp);
 		g_tempwcp = NULL;
 	}
-
-	g_tempwcp = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(FSatt->FS_mynum) + 1));
-	for (int i = 0; i < strlen(FSatt->FS_mynum) + 1; i++)
-	{
-		mbtowc(g_tempwcp + i, FSatt->FS_mynum + i, MB_CUR_MAX);
-	}
-	swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\0%c%c.txt", g_tempwcp[1], g_tempwcp[1],g_tempwcp[2]);
-	free(g_tempwcp);
-	g_tempwcp = NULL;
-
-	f_FS = _wfopen(g_wpath, L"r+");
-	fgets(g_buffer, BUFF_SIZE, f_IO);
-	CurrentFileOffset = strToFSatt(g_buffer, FSatt, FSatt->FS_mynum);
 
 	fseek(f_FS, CurrentFileOffset, SEEK_SET);
 
@@ -818,9 +819,10 @@ INVALIDINPUT1:
 	if (CurrentFileOffset == 0 && check == ' ')
 	{
 		//fseek(f_FS, 0, SEEK_SET);
-		numofread = fread(g_filebuff, sizeof(char),FILE_BUFF,f_FS);
+		numofread = fread(g_filebuff, sizeof(char), FILE_BUFF,f_FS);
 
-		f_FS = _wfreopen(g_wpath, "w+", f_FS);
+		f_FS = _wfreopen(g_wpath, L"w+", f_FS);
+		fseek(f_FS, 0, SEEK_SET);
 		fwrite(g_filebuff,sizeof(char), numofread, f_FS);
 	}
 	else if (check == ' '&&CurrentFileOffset!=0)
@@ -832,7 +834,7 @@ INVALIDINPUT1:
 		fseek(f_FS, CurrentFileOffset, SEEK_SET);
 		numofread = fread(g_filebuff, sizeof(char), FILE_BUFF, f_FS);
 
-		f_FS = _wfreopen(g_wpath, "w+", f_FS);
+		f_FS = _wfreopen(g_wpath, L"w+", f_FS);
 		fwrite(g_filebuff2, sizeof(char), numofread2, f_FS);
 		fwrite(g_filebuff, sizeof(char), numofread, f_FS);
 	}
@@ -845,7 +847,7 @@ INVALIDINPUT1:
 		fseek(f_FS, CurrentFileOffset, SEEK_SET);
 		numofread = fread(g_filebuff, sizeof(char), FILE_BUFF, f_FS);
 
-		f_FS = _wfreopen(g_wpath, "w+", f_FS);
+		f_FS = _wfreopen(g_wpath, L"w+", f_FS);
 		fwrite(g_filebuff2, sizeof(char), numofread2, f_FS);
 		fwrite(g_filebuff, sizeof(char), numofread, f_FS);
 	}
@@ -854,7 +856,7 @@ INVALIDINPUT1:
 		//CurrentFileOffset = ftell(f_FS) - 2;
 		//numofread = fread(g_filebuff, sizeof(char), FILE_BUFF, f_FS);
 
-		f_FS = _wfreopen(g_wpath, "w+", f_FS);
+		f_FS = _wfreopen(g_wpath, L"w+", f_FS);
 		//fwrite(g_filebuff, sizeof(char), numofread, f_FS);
 	}
 
@@ -871,7 +873,9 @@ INVALIDINPUT1:
 	{
 		free(temp);
 		temp = NULL;
+
 	}
+	uIONums = 0;
 	temp = (char**)malloc(sizeof(char*) * g_userALNums);
 	PRINTCEN(L"돈을 입금할 입출금 계좌를 선택해주세요.");
 	for (int i = 0; i < g_userALNums; i++)
@@ -881,7 +885,7 @@ INVALIDINPUT1:
 			uIONums++;
 			getAccountName(g_userAccountsList[i], tempname);
 			temp[uIONums] = g_userAccountsList[i];
-			printf("%d) %s/%s\n", i + 1, tempname, g_userAccountsList[i]);
+			printf("%d) %s/%s\n", uIONums+1, tempname, g_userAccountsList[i]);
 			memset(IOatt->IO_name, '\0', 17);
 		}
 	}
@@ -985,7 +989,7 @@ INVALIDINPUT2:
 
 	system("cls");
 	//안녕
-	*/
+	
 
 	PRINTCEN(L"예적금 해지");
 	DRAWLINE('-');
@@ -1009,16 +1013,17 @@ INVALIDINPUT:
 	{
 		goto INVALIDINPUT;
 	}
+	*/
+
+	PRINTCEN(L"예적금 해지 되었습니다.");
 
 	freeIOattriutes(IOatt);
 	free(IOatt);
 	free(FSatt);
-	free(toErase);
 	IOatt = NULL;
 	FSatt = NULL;
-	toErase = NULL;
-	fclose(f_IO);
-	f_IO = NULL;
+	//fclose(f_IO);
+	//f_IO = NULL;
 
 }
 void atmMenu()
@@ -1130,6 +1135,30 @@ void atmMenu()
 				printf("pw: %s\n", tok[1]);
 				printf("inmoney: %s\n", tok[2]);
 
+				strncpy(IOatt->IO_mynum, temp[atoi(tok[0])], 8);
+				free(temp);
+				temp = NULL;
+
+				if (g_tempwcp != NULL)
+				{
+					free(g_tempwcp);
+					g_tempwcp = NULL;
+				}
+
+				g_tempwcp = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(IOatt->IO_mynum) + 1));
+				for (int i = 0; i < strlen(IOatt->IO_mynum) + 1; i++)
+				{
+					mbtowc(g_tempwcp + i, IOatt->IO_mynum + i, MB_CUR_MAX);
+				}
+				swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%d\\%s.txt", g_userBank, g_tempwcp);
+				free(g_tempwcp);
+				g_tempwcp = NULL;
+
+				f_IO = _wfopen(g_wpath, L"r+");
+				IOatt = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
+				fgets(g_buffer, BUFF_SIZE, f_IO);
+				strToIOatt_malloc(g_buffer, IOatt);
+
 				if (checkDigit(tok[0]) != 0 && checkDigit(tok[1]) != 0 && checkDigit(tok[2]) != 0)
 				{
 					wprintf(L"숫자를 입력해주세요.\n"); // 12.1.1)
@@ -1144,30 +1173,6 @@ void atmMenu()
 				}
 				else
 				{
-					strncpy(IOatt->IO_mynum, temp[atoi(tok[0])], 8);
-					free(temp);
-					temp = NULL;
-
-					if (g_tempwcp != NULL)
-					{
-						free(g_tempwcp);
-						g_tempwcp = NULL;
-					}
-
-					g_tempwcp = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(IOatt->IO_mynum) + 1));
-					for (int i = 0; i < strlen(IOatt->IO_mynum) + 1; i++)
-					{
-						mbtowc(g_tempwcp + i, IOatt->IO_mynum + i, MB_CUR_MAX);
-					}
-					swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%d\\%s.txt", g_userBank, g_tempwcp);
-					free(g_tempwcp);
-					g_tempwcp = NULL;
-
-					f_IO = _wfopen(g_wpath, L"r+");
-					IOatt = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
-					fgets(g_buffer, BUFF_SIZE, f_IO);
-					strToIOatt_malloc(g_buffer, IOatt);
-
 					moneyInIO(IOatt->IO_mynum, NULL, (atol(tok[2])));
 					wprintf(L"계좌에 %s원을 입금하였습니다", tok[2]);
 					break;
@@ -1224,6 +1229,31 @@ void atmMenu()
 				printf("pw: %s\n", tok2[1]);
 				printf("outmoney: %s\n", tok2[2]);
 
+
+				strncpy(IOatt->IO_mynum, temp[atoi(tok2[0])], 8);
+				free(temp);
+				temp = NULL;
+
+				if (g_tempwcp != NULL)
+				{
+					free(g_tempwcp);
+					g_tempwcp = NULL;
+				}
+
+				g_tempwcp = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(IOatt->IO_mynum) + 1));
+				for (int i = 0; i < strlen(IOatt->IO_mynum) + 1; i++)
+				{
+					mbtowc(g_tempwcp + i, IOatt->IO_mynum + i, MB_CUR_MAX);
+				}
+				swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%d\\%s.txt", g_userBank, g_tempwcp);
+				free(g_tempwcp);
+				g_tempwcp = NULL;
+
+				f_IO = _wfopen(g_wpath, L"r+");
+				IOatt = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
+				fgets(g_buffer, BUFF_SIZE, f_IO);
+				strToIOatt_malloc(g_buffer, IOatt);
+
 				if (checkDigit(tok2[0]) != 0 && checkDigit(tok2[1]) != 0 && checkDigit(tok2[2]) != 0)
 				{
 					wprintf(L"숫자를 입력해주세요.\n"); // 12.2.1)
@@ -1242,31 +1272,6 @@ void atmMenu()
 				}
 				else
 				{
-					strncpy(IOatt->IO_mynum, temp[atoi(tok2[0])], 8);
-					free(temp);
-					temp = NULL;
-
-					if (g_tempwcp != NULL)
-					{
-						free(g_tempwcp);
-						g_tempwcp = NULL;
-					}
-
-					g_tempwcp = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(IOatt->IO_mynum) + 1));
-					for (int i = 0; i < strlen(IOatt->IO_mynum) + 1; i++)
-					{
-						mbtowc(g_tempwcp + i, IOatt->IO_mynum + i, MB_CUR_MAX);
-					}
-					swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%d\\%s.txt", g_userBank, g_tempwcp);
-					free(g_tempwcp);
-					g_tempwcp = NULL;
-
-					f_IO = _wfopen(g_wpath, L"r+");
-					IOatt = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
-					fgets(g_buffer, BUFF_SIZE, f_IO);
-					strToIOatt_malloc(g_buffer, IOatt);
-
-
 
 					if (moneyOutIO(IOatt->IO_mynum, NULL, (atol(tok2[2])), 0) == 0)
 					{
