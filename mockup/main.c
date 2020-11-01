@@ -58,7 +58,7 @@ void setting()
 	pTS = localtime(&g_time);
 
 	g_year = (pTS->tm_year) + 1900;
-	g_month = (pTS->tm_mon) + 1;
+	g_month = (pTS->tm_mon);
 	g_day = pTS->tm_mday;
 	//g_day = 31;
 
@@ -125,5 +125,7 @@ void setting()
 			setInterest();
 		}
 	}
+
+	setAutoTransfer();
 }
 

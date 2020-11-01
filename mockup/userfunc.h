@@ -2,6 +2,7 @@
 #pragma warning(disable:4996)
 #pragma warning(disable:6328)
 #pragma warning(disable:4477)
+#pragma warning(disable:6031)
 // warning 많으면 나중에 큰일날 수도 있으니까 있어도 상관없는 warning 꺼놨습니다.
 
 #include <stdio.h>
@@ -134,13 +135,14 @@ void EraseSpace(char* ap_string);
 char* trim_malloc(char* des, const char* src); // 문자열 좌우 공백 모두 삭제 함수
 char* ltrim_malloc(char* des, const  char* src); // 문자열 좌측 공백 제거 함수
 char* rtrim_malloc(char* des, const  char* src); // 문자열 우측 공백 제거 함수
+int eraseAuto(const char* accNum, const char* toerase, int num);
+char* getAccountName(const char* AccNum, char* AccName);
 
 /* 메인 기능 */
 int serviceMenu();
 void makeAccountMenu();
 void fixedDepositAndSavingsMenu();
-void fixedDeposit();
-void Savings();
+void fixedDepositAndSavings(int intype);
 void inquiryAndCancel();
 void transferMenu();
 void atmMenu();
@@ -150,7 +152,6 @@ void historyInquiry();
 int moneyInIO(const char* desNum, const char* srcNum, long money);
 int moneyOutIO(const char* desNum, const char* srcNum, long money,int flag);
 int moneyInFS(const char* accNum, long money, int service);
-
 
 /*데이터 가공*/
 int strToIOiq(const char* str, IOinqury_t* ioacc);
@@ -172,15 +173,14 @@ int checkFix(FILE* f_target);
 int checkSav(FILE* f_setSav);
 void setInterest();
 int setFSInterest(FILE* f_accfile, const char* AccNum);
+int setAutoTransfer();
+int setAutoIOTransfer(FILE* f_io);
 
 /* 중복 체크*/
 int checkDupID(const char* ID); 
 int checkDupPW(const char* ID,const char* PW); 
 int setBankByID(const char* ID);
 int checkDupAN(const char* input);
-
-/*기타*/
-char* getAccountName(const char* AccNum, char* AccName);
 
 /*버퍼 만들기*/
 int setAccListByID_malloc(const char* ID);
