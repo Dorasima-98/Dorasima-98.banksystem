@@ -49,7 +49,8 @@ INVALIDINPUT:
 			PRINTRIGHT(L"돈은 있으세요? 입출금 계좌 먼저 만드세요.");
 			goto INVALIDINPUT;
 		}
-		transferMenu();
+		atmMenu();
+		
 		break;
 	case 4:
 		if (g_userALNums == 0)
@@ -57,7 +58,7 @@ INVALIDINPUT:
 			PRINTRIGHT(L"좋은 말로할때 1번 메뉴 선택하세요.");
 			goto INVALIDINPUT;
 		}
-		atmMenu();
+		transferMenu();
 		break;
 	case 5:
 		if (g_userALNums == 0)
@@ -201,7 +202,7 @@ Invalidinput3:
 
 	PIN2 = trim_malloc(PIN2, g_buffer);
 	assert(PIN2 != NULL && "trim is Something wrong...");
-	if (strncmp(PIN2, PIN1,4) != 0)
+	if (strncmp(PIN2, PIN1, 4) != 0)
 	{
 		PRINTRIGHT(L"PassWords가 서로 일치하지 않습니다.\n ");
 		PRINTLEFT(L"PassWords 를 다시한번 입력하세요. \n> ");
@@ -209,8 +210,8 @@ Invalidinput3:
 		PIN2 = NULL;
 		goto Invalidinput3;
 	}
-	
-	srand(time(NULL));
+
+	srand((int)time(NULL));
 	ranNum[0] = '0';
 	ranNum[1] = g_userBank + '0';
 	ranNum[2] = '1';
@@ -223,7 +224,7 @@ Invalidinput3:
 	toLfnums = 11 + strlen(AccountName_malloc);
 	toTfnums = 27 + strlen(AccountName_malloc);
 
-	toListfile = (char*)malloc(sizeof(char)*toLfnums);
+	toListfile = (char*)malloc(sizeof(char) * toLfnums);
 	toTargetfile = (char*)malloc(sizeof(char) * toTfnums);
 
 	sprintf(toListfile, "%s|%s|\n", ranNum, AccountName_malloc);
@@ -248,7 +249,7 @@ Invalidinput3:
 	f_accFile = NULL;
 
 	fseek(f_AccountList, 0, SEEK_END);	//계좌리스트 파일에 적기 //파일포인터를 파일 제일 끝으로 이동시키기
-	fwrite(toListfile, sizeof(char), strlen(toListfile), f_AccountList); 
+	fwrite(toListfile, sizeof(char), strlen(toListfile), f_AccountList);
 	fflush(f_AccountList);
 
 	sprintf(toMemfile, "%s|", ranNum); //toMemfile에 계좌번호| 문자열 입력
@@ -260,7 +261,7 @@ Invalidinput3:
 		CurrentFileOffset++; //한글자 한글자씩 읽기 위해
 	}
 	fseek(f_MemberFile, CurrentFileOffset, SEEK_SET); //(파일 시작점 + CurrentFileOffset) 위치로 파일포인터 이동함
-	size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_MemberFile); 
+	size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_MemberFile);
 	fseek(f_MemberFile, CurrentFileOffset, SEEK_SET);
 	fwrite(toMemfile, sizeof(char), strlen(toMemfile), f_MemberFile);
 	fwrite(g_filebuff, sizeof(char), numOfWords, f_MemberFile);
@@ -274,7 +275,7 @@ Invalidinput3:
 
 	setAccListByID_malloc(g_userID);
 	setAccListOfAll_malloc();
-	
+
 	// heap corruption은 free할 때 생깁니다. 중단점으로 못찾어 ㅅㄱ
 	free(AccountName_malloc);
 	AccountName_malloc = NULL;
@@ -310,7 +311,7 @@ INVALIDINPUT:
 	wprintf(L"> ");
 
 	GET_G_INPUT;
-	Q_CHECK();
+	//Q_CHECK();
 
 	selection = atoi(g_buffer);
 
@@ -362,23 +363,21 @@ void fixedDeposit()
 
 	char** temp = NULL;
 	char tempname[17];
-	char* inputcheck = NULL;	
+	char* inputcheck = NULL;
 
 	char toListfile[27];
 	char* toTargetfile;
 	char toMemfile[10];
 
-	FILE* f_IO =NULL;
+	FILE* f_IO = NULL;
 	FILE* f_fixFile = NULL;
 	IOattributes_malloc_t* IOatt = NULL;
 	FSattributes_t* Fixatt = NULL;
 
 	Fixatt = (FSattributes_t*)malloc(sizeof(FSattributes_t));
 	IOatt = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
-	temp = (char**)malloc(sizeof(char*) * g_userALNums);
 
-	toTargetfile = (char*)malloc(sizeof(FSattributes_t));
-	
+	temp = (char**)malloc(sizeof(char*) * g_userALNums);
 	PRINTCEN(L"돈을 출금할 입출금 계좌를 선택해주세요.");
 	for (int i = 0; i < g_userALNums; i++)
 	{
@@ -428,7 +427,7 @@ INVALIDINPUT1:
 	{
 		mbtowc(g_tempwcp + i, IOatt->IO_mynum + i, MB_CUR_MAX);
 	}
-	swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\%s.txt", g_tempwcp[1], g_tempwcp);
+	swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%d\\%s.txt", g_userBank, g_tempwcp);
 	free(g_tempwcp);
 	g_tempwcp = NULL;
 
@@ -438,7 +437,7 @@ INVALIDINPUT1:
 	strToIOatt_malloc(g_buffer, IOatt);
 
 
-	srand(time(NULL));
+	srand((int)time(NULL));
 	Fixatt->FS_mynum[0] = '0';
 	Fixatt->FS_mynum[1] = g_userBank + '0';
 	Fixatt->FS_mynum[2] = '2';
@@ -498,7 +497,7 @@ INVALIDINPUT2:
 		system("cls");
 	}
 	printf("예금 계좌명이 %s로 설정되었습니다\n", Fixatt->FS_name);
-	
+
 
 	PRINTLEFT(L"계좌 비밀번호를 입력해주세요. 4자리 정수입니다.\n> ");
 INVALIDINPUT3:
@@ -507,7 +506,7 @@ INVALIDINPUT3:
 	inputcheck = trim_malloc(inputcheck, g_buffer);
 	assert(inputcheck != NULL && "trim is Something wrong...");
 
-	
+
 	if (strlen(inputcheck) > 4 || strlen(inputcheck) < 1)
 	{
 		PRINTRIGHT(L"계좌번호의 길이는 4자 입니다. 다시 입력해주세요.\n> ");
@@ -548,10 +547,10 @@ Invalidinput4:
 	PRINTLEFT(L"계좌 비밀번호가 설정이 되었습니다. \n> ");
 
 	//일단 파일에 적어두기
-	sprintf(toListfile, "%s|%s|\n", Fixatt->FS_mynum,Fixatt->FS_name);
-	
 
-	swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%d\\0%d2.txt", g_userBank,g_userBank);
+	toTargetfile = (char*)malloc(sizeof(FSattributes_t));
+	sprintf(toListfile, "%s|%s|\n", Fixatt->FS_mynum, Fixatt->FS_name);
+	swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%d\\0%d2.txt", g_userBank, g_userBank);
 
 	f_fixFile = _wfopen(g_wpath, L"r+");
 	assert(f_fixFile != NULL && "\nfile opening is failed.");
@@ -561,7 +560,7 @@ Invalidinput4:
 	{
 		sprintf(toTargetfile, "%s|%s|0|%s|0|0.0|0| ", Fixatt->FS_name, Fixatt->FS_mynum, Fixatt->FS_Passwords);
 		fseek(f_fixFile, 0, SEEK_SET);
-		size_t numOfread =fread(g_filebuff, sizeof(char), FILE_BUFF, f_fixFile);
+		size_t numOfread = fread(g_filebuff, sizeof(char), FILE_BUFF, f_fixFile);
 		fseek(f_fixFile, 0, SEEK_SET);
 		fwrite(toTargetfile, sizeof(char), strlen(toTargetfile), f_fixFile);
 		fwrite(g_filebuff, sizeof(char), numOfread, f_fixFile);
@@ -584,9 +583,9 @@ Invalidinput4:
 	//멤버파일에 적어두기
 	CurrentFileOffset = setBankByID(g_userID);
 	fseek(f_MemberFile, CurrentFileOffset, SEEK_SET);
-	while (fgetc(f_MemberFile) != '\n') 
+	while (fgetc(f_MemberFile) != '\n')
 	{
-		CurrentFileOffset++; 
+		CurrentFileOffset++;
 	}
 	fseek(f_MemberFile, CurrentFileOffset, SEEK_SET);
 	size_t numOfWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_MemberFile);
@@ -653,7 +652,7 @@ INVALIDINPUT6:
 		goto INVALIDINPUT6;
 
 	}
-	if (1 <= money && (money*10000) <= limit)
+	if (1 <= money && (money * 10000) <= limit)
 	{
 		PRINTLEFT(L"입력되었습니다.\n");
 		while (getchar() != '\n');
@@ -667,15 +666,15 @@ INVALIDINPUT6:
 		goto INVALIDINPUT6;
 	}
 
-	moneyOutIO(IOatt->IO_mynum,Fixatt->FS_mynum,money*10000,1); //flag를 1로 넘겨주면 이체한도 무시
-	moneyInFS(Fixatt->FS_mynum, money * 10000, selection);	
-	
+	moneyOutIO(IOatt->IO_mynum, Fixatt->FS_mynum, money * 10000, 1); //flag를 1로 넘겨주면 이체한도 무시
+	moneyInFS(Fixatt->FS_mynum, money * 10000, selection);
+
 	freeIOattriutes(IOatt);
 	free(IOatt);
 	free(Fixatt);
 	free(toTargetfile);
 	toTargetfile = NULL;
-	IOatt = NULL; 
+	IOatt = NULL;
 	Fixatt = NULL;
 	fclose(f_IO);
 	f_IO = NULL;
@@ -729,13 +728,13 @@ INVALIDINPUT6:
 				ptr = strtok(NULL, "\n");
 			}
 		}
-	} 
-	
+	}
+
 	scanf("%d", &accountSelection); //입출금계좌 선택하기
 	//선택해서 그 입출금계좌 정보 가져와야 함 - 구현해야함
 
 	fclose(inputFile);
-	
+
 	//은행에 맞게 계좌번호 생성하기
 	char ranNum[8] = { 0, };
 
@@ -1192,34 +1191,917 @@ void inquiryAndCancel() //Cancel 만 하기~~~
 
 INVALIDINPUT:
 	return; //해야함
-ESCAPE:
+//ESCAPE:
 	return; //해야함
 
 }
 
 void atmMenu()
 {
+	char** temp = NULL;
+	char tempname[17];
+	char* inputcheck = NULL;
+
+	FILE* f_IO = NULL;
+	IOattributes_malloc_t* IOatt = NULL;
+
+	int selection = 0;
+	size_t uIONums = 0;
+
 	system("cls");
-	PRINTCEN(L"입출금 메뉴");
+	PRINTCEN(L"atm menu");
 	DRAWLINE('-');
 
-	GET_G_INPUT;
-	Q_CHECK();
+	while (1)
+	{
+		int atmsel;
+		wprintf(L"1. 입금\t 2. 출금\n");
+	INVALIDINPUT0:
+		if (scanf("%d", &atmsel) != 1)  //이렇게하면 스페이스바만 처리할수있음
+		{
+			while (getchar() != '\n');
+			PRINTRIGHT(L"메뉴를 다시 선택해주세요..\n");
+			goto INVALIDINPUT0;
 
-	wprintf(L"뒤로가기 커맨드 입력 안함.\n");
+		}
+		if (1 <= atmsel && atmsel <= 2)
+		{
+			while (getchar() != '\n');
+			//Sleep(1000);
+			system("cls");
+		}
+		else
+		{
+			PRINTRIGHT(L"메뉴를 다시 선택해주세요.\n");
+			while (getchar() != '\n');
+			goto INVALIDINPUT0;
+		}
+		if (atmsel == 1)
+		{
+			PRINTLEFT(L"임금 선택 되었습니다.\n");
+
+			IOatt = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
+
+			temp = (char**)malloc(sizeof(char*) * g_userALNums);
+			PRINTCEN(L"입금 가능한 입출금 계좌 목록입니다.");
+			for (int i = 0; i < g_userALNums; i++)
+			{
+				if (getAccType(g_userAccountsList[i]) == T1)
+				{
+					uIONums++;
+					getAccountName(g_userAccountsList[i], tempname);
+					temp[uIONums] = g_userAccountsList[i];
+					printf("%d) %s/%s\n", i + 1, tempname, g_userAccountsList[i]);
+					memset(IOatt->IO_name, '\0', 17);
+				}
+			}
+			printf("> ");
+
+			// 입출금 계좌 목록 보여주기 구현해야함
+			/*
+			FILE* inputFile = NULL;
+			inputFile = fopen("ioaccount.txt", "r");
+			int lineCount = 1;
+			if (inputFile != NULL)
+			{
+				char buffer[256]; //나중에 수정해야함
+				while (!feof(inputFile))
+				{
+					fgets(buffer, sizeof(buffer), inputFile);
+					printf("%d)", lineCount++);
+					char* ptr = strtok(buffer, "\n");
+					while (ptr != NULL)
+					{
+						printf("%s\n", ptr);
+						ptr = strtok(NULL, "\n");
+					}
+				}
+			}
+			fclose(inputFile);
+			*/
+			char input[100] = { "" };
+			char* tok[3] = { NULL, };
+
+			while (1)
+			{
+				wprintf(L"입금할 계좌에 지정된 번호 / 계좌 비밀번호 / 입금할 금액을 입력하세요 (/로 구분)\n");
+				while (scanf("%s", &input) != 1)
+				{
+					while (getchar() != '\n');
+					PRINTRIGHT(L"다시 입력해주세요.\n");
+				}
+				char* ptr = strtok(input, "/");
+
+				int i = 0;
+				while (ptr != NULL)
+				{
+					tok[i] = ptr;
+					i++;
+					ptr = strtok(NULL, "/");
+				}
+
+				//저장됐는지 체크, 지워야함
+				printf("num: %s\n", tok[0]);
+				printf("pw: %s\n", tok[1]);
+				printf("inmoney: %s\n", tok[2]);
+
+				if (checkDigit(tok[0]) !=0 && checkDigit(tok[1]) != 0 && checkDigit(tok[2]) != 0)
+				{
+					wprintf(L"숫자를 입력해주세요.\n"); // 12.1.1)
+				}
+				else if (atol(tok[2]) <= 0)
+				{
+					wprintf(L"입금할 금액은 1원 이상이어야 합니다.\n"); // 12.1.5)
+				}
+				else if (strcmp(IOatt->IO_Passwords, tok[1]) != 0)
+				{
+					wprintf(L"비밀번호가 틀렸습니다.\n");
+				}
+				else
+				{
+					strncpy(IOatt->IO_mynum, temp[atoi(tok[0])], 8);
+					free(temp);
+					temp = NULL;
+
+					if (g_tempwcp != NULL)
+					{
+						free(g_tempwcp);
+						g_tempwcp = NULL;
+					}
+
+					g_tempwcp = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(IOatt->IO_mynum) + 1));
+					for (int i = 0; i < strlen(IOatt->IO_mynum) + 1; i++)
+					{
+						mbtowc(g_tempwcp + i, IOatt->IO_mynum + i, MB_CUR_MAX);
+					}
+					swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%d\\%s.txt", g_userBank, g_tempwcp);
+					free(g_tempwcp);
+					g_tempwcp = NULL;
+
+					f_IO = _wfopen(g_wpath, L"r+");
+					IOatt = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
+					fgets(g_buffer, BUFF_SIZE, f_IO);
+					strToIOatt_malloc(g_buffer, IOatt);
+
+					moneyInIO(IOatt->IO_mynum, NULL, (atol(tok[2])));
+					wprintf(L"계좌에 %s원을 입금하였습니다", tok[2]);
+					break;
+				}
+			}
+			break;
+		}
+		else if (atmsel == 2)
+		{
+			PRINTLEFT(L"출금 선택 되었습니다.\n");
+			IOattributes_malloc_t* IOatt = NULL;
+
+			IOatt = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
+
+			temp = (char**)malloc(sizeof(char*) * g_userALNums);
+			assert(temp != NULL && "temp allocation failed in fucntion...\"atm()\"");
+			PRINTCEN(L"출금 가능한 입출금 계좌목록입니다.");
+			for (int i = 0; i < g_userALNums; i++)
+			{
+				if (getAccType(g_userAccountsList[i]) == T1)
+				{
+					uIONums++;
+					getAccountName(g_userAccountsList[i], tempname);
+					temp[uIONums] = g_userAccountsList[i];
+					printf("%d) %s/%s\n", i + 1, tempname, g_userAccountsList[i]);
+					memset(IOatt->IO_name, '\0', 17);
+				}
+			}
+			printf("> ");
+
+
+			// 입출금 계좌 목록 보여주기 구현해야함
+			/*
+			FILE* inputFile = NULL;
+			inputFile = fopen("ioaccount.txt", "r");
+			int lineCount = 1;
+			if (inputFile != NULL)
+			{
+				char buffer[256]; //나중에 수정해야함
+				while (!feof(inputFile))
+				{
+					fgets(buffer, sizeof(buffer), inputFile);
+					printf("%d)", lineCount++);
+					char* ptr = strtok(buffer, "\n");
+					while (ptr != NULL)
+					{
+						printf("%s\n", ptr);
+						ptr = strtok(NULL, "\n");
+					}
+				}
+			}
+			fclose(inputFile);
+			*/
+			char input2[100] = { "" };
+			char* tok2[3] = { NULL, };
+
+			while (1)
+			{
+				wprintf(L"출금할 계좌에 지정된 번호 / 계좌 비밀번호 / 출금액을 입력하세요 (/로 구분)\n");
+				while (scanf("%s", &input2) != 1)
+				{
+					while (getchar() != '\n');
+					PRINTRIGHT(L"다시 입력해주세요.\n");
+				}
+				char* ptr = strtok(input2, "/");
+
+				int i = 0;
+				while (ptr != NULL)
+				{
+					tok2[i] = ptr;
+					i++;
+					ptr = strtok(NULL, "/");
+				}
+
+				//저장됐는지 체크, 지워야함
+				printf("num: %s\n", tok2[0]);
+				printf("pw: %s\n", tok2[1]);
+				printf("outmoney: %s\n", tok2[2]);
+
+				if (checkDigit(tok2[0]) != 0 && checkDigit(tok2[1]) != 0 && checkDigit(tok2[2])!=0)
+				{
+					wprintf(L"숫자를 입력해주세요.\n"); // 12.2.1)
+				}
+				else if (atol(tok2[2]) <= 0)
+				{
+					wprintf(L"출금할 금액은 1원 이상이어야 합니다.\n"); // 12.2.5)
+				}
+				else if (atol(tok2[2]) >= 3000000)
+				{
+					wprintf(L"출금액 한도를 초과하였습니다.\n"); // 12.2.7) , 월별한도 추가해야함
+				}
+				else if (strcmp(IOatt->IO_Passwords, tok2[1]) != 0)
+				{
+					wprintf(L"비밀번호가 틀렸습니다.\n");
+				}
+				else
+				{
+					strncpy(IOatt->IO_mynum, temp[atoi(tok2[0])], 8);
+					free(temp);
+					temp = NULL;
+
+					if (g_tempwcp != NULL)
+					{
+						free(g_tempwcp);
+						g_tempwcp = NULL;
+					}
+
+					g_tempwcp = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(IOatt->IO_mynum) + 1));
+					for (int i = 0; i < strlen(IOatt->IO_mynum) + 1; i++)
+					{
+						mbtowc(g_tempwcp + i, IOatt->IO_mynum + i, MB_CUR_MAX);
+					}
+					swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%d\\%s.txt", g_userBank, g_tempwcp);
+					free(g_tempwcp);
+					g_tempwcp = NULL;
+
+					f_IO = _wfopen(g_wpath, L"r+");
+					IOatt = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
+					fgets(g_buffer, BUFF_SIZE, f_IO);
+					strToIOatt_malloc(g_buffer, IOatt);
+
+
+
+					if (moneyOutIO(IOatt->IO_mynum, NULL, (atol(tok2[2])), 0) == 0)
+					{
+						wprintf(L"이체한도가 넘는 금액입니다.\n");
+						break;
+					}
+					else {
+						wprintf(L"계좌에서 %s원을 출금하였습니다\n", tok2[2]);
+						break;
+					}
+					
+				}
+			}
+			break;
+		}
+		else
+		{
+			getchar();
+			printf("다시 입력하세요\n");
+		}
+	}
+	if (IOatt != NULL)
+	{
+		free(IOatt);
+		IOatt = NULL;
+	}
+
+
+	//GET_G_INPUT;
+	//Q_CHECK;
+
+	//printf("no :q\n");
 	system("pause");
 }
 void transferMenu()
 {
+	char** temp = NULL;
+	char tempname[17];
+	char* inputcheck = NULL;
+
+	FILE* f_IO = NULL;
+	IOattributes_malloc_t* IOatt = NULL;
+	IOattributes_malloc_t* IOatt2 = NULL;
+
+	int selection = 0;
+	int flag = 0;
+	size_t uIONums = 0;
+
 	system("cls");
-	PRINTCEN(L"계좌 이체 메뉴");
+	PRINTCEN(L"atm menu");
 	DRAWLINE('-');
+
+	while (1)
+	{
+		int transel;
+		wprintf(L"1. 계좌이체\t 2. 자동이체\n");
+	INVALIDINPUT0:
+		if (scanf("%d", &transel) != 1)  //이렇게하면 스페이스바만 처리할수있음
+		{
+			while (getchar() != '\n');
+			PRINTRIGHT(L"메뉴를 다시 선택해주세요..\n");
+			goto INVALIDINPUT0;
+
+		}
+		if (1 <= transel && transel <= 2)
+		{
+			while (getchar() != '\n');
+			//Sleep(1000);
+			system("cls");
+		}
+		else
+		{
+			PRINTRIGHT(L"메뉴를 다시 선택해주세요.\n");
+			while (getchar() != '\n');
+			goto INVALIDINPUT0;
+		}
+		if (transel == 1)
+		{
+			IOatt = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
+			temp = (char**)malloc(sizeof(char*) * g_userALNums);
+			PRINTCEN(L"돈을 출금할 입출금 계좌를 선택해주세요.");
+			for (int i = 0; i < g_userALNums; i++)
+			{
+				if (getAccType(g_userAccountsList[i]) == T1)
+				{
+					uIONums++;
+					getAccountName(g_userAccountsList[i], tempname);
+					temp[uIONums] = g_userAccountsList[i];
+					printf("%d) %s/%s\n", i + 1, tempname, g_userAccountsList[i]);
+					memset(IOatt->IO_name, '\0', 17);
+				}
+			}
+			printf("> ");
+		INVALIDINPUT1:
+			if (scanf("%d", &selection) != 1)  //이렇게하면 스페이스바만 처리할수있음
+			{
+				while (getchar() != '\n');
+				PRINTRIGHT(L"계좌를 다시 선택해주세요.\n");
+				goto INVALIDINPUT1;
+
+			}
+			if (1 <= selection && selection <= uIONums)
+			{
+				PRINTLEFT(L"계좌가 선택되었습니다\n");
+				while (getchar() != '\n');
+				Sleep(1000);
+				system("cls");
+			}
+			else
+			{
+				PRINTRIGHT(L"계좌를 다시 선택해주세요.\n");
+				while (getchar() != '\n');
+				goto INVALIDINPUT1;
+			}
+			strncpy(IOatt->IO_mynum, temp[selection], 8);
+			free(temp);
+			temp = NULL;
+
+			if (g_tempwcp != NULL)
+			{
+				free(g_tempwcp);
+				g_tempwcp = NULL;
+			}
+
+			g_tempwcp = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(IOatt->IO_mynum) + 1));
+			for (int i = 0; i < strlen(IOatt->IO_mynum) + 1; i++)
+			{
+				mbtowc(g_tempwcp + i, IOatt->IO_mynum + i, MB_CUR_MAX);
+			}
+			swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%d\\%s.txt", g_userBank, g_tempwcp);
+			free(g_tempwcp);
+			g_tempwcp = NULL;
+
+			f_IO = _wfopen(g_wpath, L"r+");
+			IOatt = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
+			fgets(g_buffer, BUFF_SIZE, f_IO);
+			strToIOatt_malloc(g_buffer, IOatt);
+			fclose(f_IO);
+			f_IO = NULL;
+			char input3[100] = { "" };
+			char* tok3[3] = { NULL, };
+
+			while (1)
+			{
+				wprintf(L"입금할 계좌 번호 / 출금 계좌 비밀번호 / 입금할 금액을 입력하세요 (/로 구분)\n");
+				wprintf(L"출금 계좌의 잔액 / 이체한도 :\t");
+				printf("%s / %s\n", IOatt->IO_balance, IOatt->IO_dateLimits);
+				while (scanf("%s", &input3) != 1)
+				{
+					while (getchar() != '\n');
+					PRINTRIGHT(L"다시 입력해주세요.\n");
+				}
+				char* ptr = strtok(input3, "/");
+
+				int i = 0;
+				while (ptr != NULL)
+				{
+					tok3[i] = ptr;
+					i++;
+					ptr = strtok(NULL, "/");
+				}
+
+				//저장됐는지 체크, 지워야함
+				printf("num: %s\n", tok3[0]);
+				printf("pw: %s\n", tok3[1]);
+				printf("inmoney: %s\n", tok3[2]);
+
+				if (checkDigit(tok3[0]) != 0 && checkDigit(tok3[1]) != 0 && checkDigit(tok3[2]) != 0)
+				{
+					wprintf(L"숫자를 입력해주세요.\n"); // 12.1.1)
+				}
+				else if (atol(tok3[2]) <= 0)
+				{
+					wprintf(L"입금할 금액은 1원 이상이어야 합니다.\n"); // 12.1.5)
+				}
+				else if (strcmp(IOatt->IO_Passwords, tok3[1]) != 0)
+				{
+					wprintf(L"비밀번호가 틀렸습니다.\n");
+				}
+				else if (atol(tok3[2]) > atol(IOatt->IO_dateLimits))
+				{
+					wprintf(L"이체 한도보다 적은 금액을 이체해야 합니다.\n");
+				}
+				else
+				{
+					if (g_tempwcp != NULL)
+					{
+						free(g_tempwcp);
+						g_tempwcp = NULL;
+					}
+
+					g_tempwcp = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(tok3[0]) + 1));
+					for (int i = 0; i < strlen(tok3[0]) + 1; i++)
+					{
+						mbtowc(g_tempwcp + i, tok3[0] + i, MB_CUR_MAX);
+					}
+					swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\%s.txt", g_tempwcp[1], g_tempwcp);
+					free(g_tempwcp);
+					g_tempwcp = NULL;
+
+					f_IO = _wfopen(g_wpath, L"r+");
+					IOatt2 = (IOattributes_malloc_t*)malloc(sizeof(IOattributes_malloc_t));
+					fgets(g_buffer, BUFF_SIZE, f_IO);
+					strToIOatt_malloc(g_buffer, IOatt2);
+
+					fclose(f_IO);
+					f_IO = NULL;
+
+					moneyOutIO(IOatt->IO_mynum, IOatt2->IO_mynum, (atol(tok3[2])), 0);
+					moneyInIO(IOatt2->IO_mynum, IOatt->IO_mynum, (atol(tok3[2])));
+					PRINTLEFT(L"이체 되었습니다.");
+					Sleep(1000);
+					
+					break;
+				}
+			}
+			free(IOatt);
+			free(IOatt2);
+			free(temp);
+			break;
+		}
+		else if (transel == 2)
+		{
+		/*
+			while (1)
+			{
+				int autosel;
+				printf("1. 자동이체 신청\t 2. 자동이체 해지\n");
+				scanf("%d", &autosel);
+
+				if (autosel == 1)
+				{
+					char input5[100] = { "" };
+					char* tok5[4] = { NULL, };
+
+					while (1)
+					{
+						printf("출금계좌 비밀번호 / 자동이체할 계좌번호 / 자동이체금액 / 자동이체명을 입력하세요 (/로 구분해주세요)\n");
+						scanf("%s", &input5);
+						char* ptr = strtok(input5, "/");
+
+						int i = 0;
+						while (ptr != NULL)
+						{
+							tok5[i] = ptr;
+							i++;
+							ptr = strtok(NULL, "/");
+						}
+
+						//저장됐는지 체크, 지워야함
+						printf("출금계좌 비밀번호: %s\n", tok5[0]);
+						printf("자동이체할 계좌번호: %s\n", tok5[1]);
+						printf("자동이체금액: %s\n", tok5[2]);
+						printf("자동이체명: %s\n", tok5[3]);
+
+						if (!isdigit(*tok5[0]) || !isdigit(*tok5[1]) || !isdigit(*tok5[2]))
+						{
+							printf("올바른 형식으로 입력해주세요.\n"); //13.2.1)
+						}
+						else if (atoi(tok5[2]) <= 0)
+						{
+							printf("자동이체할 금액은 1원 이상이어야 합니다.\n");
+						}
+						else if (atoi(tok5[2]) >= 3000000)
+						{
+							printf("출금액 한도를 초과하였습니다.\n"); // 12.2.5) , 월별한도 추가해야함
+						}
+						else
+						{
+							//맞게 입력했을 때
+							while (1)
+							{
+								char input6[100] = { "" };
+								char* tok6[3] = { NULL, };
+								printf("자동이체 시작 년도와 달 / 종료 년도와 달 / 이체날짜를 입력하세요\n");
+								printf("(YYYYMM/YYYYMM/DD)\n");
+								scanf("%s", &input6);
+								char* ptr = strtok(input6, "/");
+
+								int i = 0;
+								while (ptr != NULL)
+								{
+									tok6[i] = ptr;
+									i++;
+									ptr = strtok(NULL, "/");
+								}
+
+								//저장됐는지 체크, 지워야함
+								printf("자동이체 시작 년도와 달: %s\n", tok6[0]);
+								printf("종료 년도와 달: %s\n", tok6[1]);
+								printf("이체날짜: %s\n", tok6[2]);
+
+								if (!isdigit(*tok6[0]) || !isdigit(*tok6[1]) || !isdigit(*tok6[2]))
+								{
+									printf("올바른 형식으로 입력해주세요.\n");
+								}
+								else
+								{
+									//맞게 입력했을 때
+									FILE* inputFile = NULL;
+									inputFile = fopen("autoaccount.txt", "a");
+									fprintf(inputFile, "\n%s|%s|%s|%s|%s", tok5[3], tok5[1], tok6[1], tok5[1], tok5[1]);
+									fclose(inputFile);
+
+									printf("출금계좌 :\n");
+									printf("입금계좌 : %s\n", tok5[1]);
+									printf("이체금액 : %s\n", tok5[2]);
+									printf("이체 시작일 : %s\n", tok6[0]);
+									printf("이체 종료일 : %s\n", tok6[1]);
+									printf("이체주기 : 매월 %s일\n", tok6[2]);
+									printf("자동이체명 : %s\n", tok5[3]);
+									printf("자동이체 신청이 완료되었습니다.\n");
+									break;
+								}
+							}
+							flag = 1;
+							break;
+						}
+					}
+					break;
+				}
+				else if (autosel == 2)
+				{
+					// 자동이체목록 출력
+					FILE* inputFile = NULL;
+					inputFile = fopen("autoaccount.txt", "r");
+					int lineCount = 1;
+					if (inputFile != NULL)
+					{
+						char buffer[256]; //나중에 수정해야함
+						while (!feof(inputFile))
+						{
+							fgets(buffer, sizeof(buffer), inputFile);
+							printf("%d)", lineCount++);
+							char* ptr = strtok(buffer, "\n");
+							while (ptr != NULL)
+							{
+								printf("%s\n", ptr);
+								ptr = strtok(NULL, "\n");
+							}
+						}
+					}
+					fclose(inputFile);
+					int autodep;
+					char yn;
+					printf("자동이체를 선택하세요>");
+					scanf("%d", &autodep);
+					while (1)
+					{
+						getchar();
+						printf("자동이체를 해지하시겠습니까?(y/n)");
+						scanf("%c", &yn);
+						if (yn == 'y')
+						{
+							printf("자동이체 해지가 완료되었습니다.\n");
+							break;
+						}
+						else if (yn == 'n')
+						{
+							printf("취소하셨습니다.\n");
+							break;
+						}
+					}
+
+				}
+				else
+				{
+					getchar();
+					printf("다시 입력하세요\n");
+				}
+			}
+			*/
+		}
+		else
+		{
+			getchar();
+			printf("다시 입력하세요\n");
+		}
+		if (flag == 1)
+		{
+			break;
+		}
+	}
+	/*
+	system("cls");
+	PRINTCEN(L"Transfer menu");
+	DRAWLINE('-');
+	int flag = 0;
+	while (1)
+	{
+		int transel;
+		printf("1. 계좌이체\t 2. 자동이체\n");
+		scanf("%d", &transel);
+
+		if (transel == 1)
+		{
+			// 입출금 계좌 목록 보여주기 구현해야함
+			FILE* inputFile = NULL;
+			inputFile = fopen("ioaccount.txt", "r");
+			int lineCount = 1;
+			if (inputFile != NULL)
+			{
+				char buffer[256]; //나중에 수정해야함
+				while (!feof(inputFile))
+				{
+					fgets(buffer, sizeof(buffer), inputFile);
+					printf("%d)", lineCount++);
+					char* ptr = strtok(buffer, "\n");
+					while (ptr != NULL)
+					{
+						printf("%s\n", ptr);
+						ptr = strtok(NULL, "\n");
+					}
+				}
+			}
+			fclose(inputFile);
+			char input3[100] = { "" };
+			char* tok3[3] = { NULL, };
+
+			while (1)
+			{
+				printf("출금계좌 비밀번호 / 계좌이체할 계좌번호 / 이체금액을 입력하세요 (/로 구분)\n");
+				while (scanf("%d", &input3) != 1)
+				{
+					while (getchar() != '\n');
+					PRINTRIGHT(L"다시 입력해주세요.\n");
+				}
+				char* ptr = strtok(input3, "/");
+
+				int i = 0;
+				while (ptr != NULL)
+				{
+					tok3[i] = ptr;
+					i++;
+					ptr = strtok(NULL, "/");
+				}
+
+				//저장됐는지 체크, 지워야함
+				printf("출금계좌 비밀번호: %s\n", tok3[0]);
+				printf("계좌이체할 비밀번호: %s\n", tok3[1]);
+				printf("이체금액: %s\n", tok3[2]);
+
+				if (!isdigit(*tok3[0]) || !isdigit(*tok3[1]) || !isdigit(*tok3[2]))
+				{
+					printf("숫자를 입력해주세요.\n"); //13.1.1)
+				}
+				else if (atoi(tok3[2]) <= 0)
+				{
+					printf("이체할 금액은 1원 이상이어야 합니다.\n");
+				}
+				else if (atoi(tok3[2]) >= 3000000)
+				{
+					printf("이체 금액 한도를 초과하였습니다.\n"); // 13.1.5) , 월별한도 추가해야함
+				}
+				else
+				{
+					//맞게 입력했을 때
+					FILE* inputFile = NULL;
+					inputFile = fopen("ioaccount.txt", "a");
+					fprintf(inputFile, "\n%s|", tok3[1]);
+					fclose(inputFile);
+
+					printf("이체가 완료되었습니다.");
+					flag = 1;
+					break;
+				}
+			}
+			break;
+		}
+		else if (transel == 2)
+		{
+			while (1)
+			{
+				int autosel;
+				printf("1. 자동이체 신청\t 2. 자동이체 해지\n");
+				scanf("%d", &autosel);
+
+				if (autosel == 1)
+				{
+					char input5[100] = { "" };
+					char* tok5[4] = { NULL, };
+
+					while (1)
+					{
+						printf("출금계좌 비밀번호 / 자동이체할 계좌번호 / 자동이체금액 / 자동이체명을 입력하세요 (/로 구분해주세요)\n");
+						scanf("%s", &input5);
+						char* ptr = strtok(input5, "/");
+
+						int i = 0;
+						while (ptr != NULL)
+						{
+							tok5[i] = ptr;
+							i++;
+							ptr = strtok(NULL, "/");
+						}
+
+						//저장됐는지 체크, 지워야함
+						printf("출금계좌 비밀번호: %s\n", tok5[0]);
+						printf("자동이체할 계좌번호: %s\n", tok5[1]);
+						printf("자동이체금액: %s\n", tok5[2]);
+						printf("자동이체명: %s\n", tok5[3]);
+
+						if (!isdigit(*tok5[0]) || !isdigit(*tok5[1]) || !isdigit(*tok5[2]))
+						{
+							printf("올바른 형식으로 입력해주세요.\n"); //13.2.1)
+						}
+						else if (atoi(tok5[2]) <= 0)
+						{
+							printf("자동이체할 금액은 1원 이상이어야 합니다.\n");
+						}
+						else if (atoi(tok5[2]) >= 3000000)
+						{
+							printf("출금액 한도를 초과하였습니다.\n"); // 12.2.5) , 월별한도 추가해야함
+						}
+						else
+						{
+							//맞게 입력했을 때
+							while (1)
+							{
+								char input6[100] = { "" };
+								char* tok6[3] = { NULL, };
+								printf("자동이체 시작 년도와 달 / 종료 년도와 달 / 이체날짜를 입력하세요\n");
+								printf("(YYYYMM/YYYYMM/DD)\n");
+								scanf("%s", &input6);
+								char* ptr = strtok(input6, "/");
+
+								int i = 0;
+								while (ptr != NULL)
+								{
+									tok6[i] = ptr;
+									i++;
+									ptr = strtok(NULL, "/");
+								}
+
+								//저장됐는지 체크, 지워야함
+								printf("자동이체 시작 년도와 달: %s\n", tok6[0]);
+								printf("종료 년도와 달: %s\n", tok6[1]);
+								printf("이체날짜: %s\n", tok6[2]);
+
+								if (!isdigit(*tok6[0]) || !isdigit(*tok6[1]) || !isdigit(*tok6[2]))
+								{
+									printf("올바른 형식으로 입력해주세요.\n");
+								}
+								else
+								{
+									//맞게 입력했을 때
+									FILE* inputFile = NULL;
+									inputFile = fopen("autoaccount.txt", "a");
+									fprintf(inputFile, "\n%s|%s|%s|%s|%s", tok5[3], tok5[1], tok6[1], tok5[1], tok5[1]);
+									fclose(inputFile);
+
+									printf("출금계좌 :\n");
+									printf("입금계좌 : %s\n", tok5[1]);
+									printf("이체금액 : %s\n", tok5[2]);
+									printf("이체 시작일 : %s\n", tok6[0]);
+									printf("이체 종료일 : %s\n", tok6[1]);
+									printf("이체주기 : 매월 %s일\n", tok6[2]);
+									printf("자동이체명 : %s\n", tok5[3]);
+									printf("자동이체 신청이 완료되었습니다.\n");
+									break;
+								}
+							}
+							flag = 1;
+							break;
+						}
+					}
+					break;
+				}
+				else if (autosel == 2)
+				{
+					// 자동이체목록 출력
+					FILE* inputFile = NULL;
+					inputFile = fopen("autoaccount.txt", "r");
+					int lineCount = 1;
+					if (inputFile != NULL)
+					{
+						char buffer[256]; //나중에 수정해야함
+						while (!feof(inputFile))
+						{
+							fgets(buffer, sizeof(buffer), inputFile);
+							printf("%d)", lineCount++);
+							char* ptr = strtok(buffer, "\n");
+							while (ptr != NULL)
+							{
+								printf("%s\n", ptr);
+								ptr = strtok(NULL, "\n");
+							}
+						}
+					}
+					fclose(inputFile);
+					int autodep;
+					char yn;
+					printf("자동이체를 선택하세요>");
+					scanf("%d", &autodep);
+					while (1)
+					{
+						getchar();
+						printf("자동이체를 해지하시겠습니까?(y/n)");
+						scanf("%c", &yn);
+						if (yn == 'y')
+						{
+							printf("자동이체 해지가 완료되었습니다.\n");
+							break;
+						}
+						else if (yn == 'n')
+						{
+							printf("취소하셨습니다.\n");
+							break;
+						}
+					}
+
+				}
+				else
+				{
+					getchar();
+					printf("다시 입력하세요\n");
+				}
+			}
+
+		}
+		else
+		{
+			getchar();
+			printf("다시 입력하세요\n");
+		}
+		if (flag == 1)
+		{
+			break;
+		}
+	}
+
 	GET_G_INPUT;
+	//Q_CHECK;
 
-	Q_CHECK();
-
-	wprintf(L"뒤로가기 커맨드 입력 안함.\n");
+	printf("no :q\n");
 	system("pause");
+	*/
 }
 
 void historyInquiry()
@@ -1244,7 +2126,7 @@ void historyInquiry()
 	PRINTRIGHT(L"조회하고자 하는 계좌번호를 입력해주세요\n>");
 INVALIDINPUT:
 	GET_G_INPUT;
-	Q_CHECK();
+	//Q_CHECK();
 
 	//계좌번호 분석
 	int j = 0;
@@ -1308,7 +2190,7 @@ INVALIDINPUT:
 	f_Account = _wfopen(g_wpath, L"r");
 	if (f_Account == NULL) // 파일 이름 없으면 다시
 	{
-		PRINTRIGHT(L"계좌번호를 찾을 수 없습니다. 다시 입력해주세요...\n> " );
+		PRINTRIGHT(L"계좌번호를 찾을 수 없습니다. 다시 입력해주세요...\n> ");
 		goto INVALIDINPUT;
 	}
 
@@ -1362,11 +2244,11 @@ INVALIDINPUT:
 			if (CurrentFileOffset == 0) // 첫줄은 계좌 속성
 			{
 				fsa = (FSattributes_t*)malloc(sizeof(FSattributes_t));
-				if (strToFSatt(g_buffer, fsa, i_AccNum)== 1)  // 예적금 모음 파일 안에 해당 계좌가 있는지 확인
+				if (strToFSatt(g_buffer, fsa, i_AccNum) == 1)  // 예적금 모음 파일 안에 해당 계좌가 있는지 확인
 				{
 					printFSatt(fsa);
 					accCounter++;
-				}				
+				}
 				free(fsa);
 				fsa = NULL;
 			}

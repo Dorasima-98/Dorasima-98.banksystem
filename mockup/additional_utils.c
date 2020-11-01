@@ -4,6 +4,7 @@
 // 숫자 아니면 1반환, 공백(?)이면 2 반환, 숫자면 0반환
 int checkDigit(const char* ap_string)
 {
+	assert(ap_string != NULL && "ap_string is NULL");
 	const char* p_dest = ap_string;
 	while (*p_dest != '\0')
 	{
@@ -22,6 +23,7 @@ int checkDigit(const char* ap_string)
 //숫자 or 영문자 아니면 1반환
 int checkAlnum(const char* ap_string)
 {
+	assert(ap_string != NULL && "ap_string is NULL");
 	const char* p_dest = ap_string;
 	while (*p_dest != '\0')
 	{
@@ -36,6 +38,7 @@ int checkAlnum(const char* ap_string)
 // 숫자 + 영문자가 아니면 1반환
 int checkID(const char* ap_string)
 {
+	assert(ap_string != NULL && "ap_string is NULL");
 	const char* p_dest = ap_string;
 	int IDcon[2] = { 0, };
 
@@ -64,6 +67,7 @@ int checkID(const char* ap_string)
 // 영문자 혹은 공백이 아니면 1반환
 int checkName(const char* ap_string)
 {
+	assert(ap_string != NULL && "ap_string is NULL");
 	const char* p_dest = ap_string;
 
 	while (*p_dest != '\0')
@@ -79,6 +83,7 @@ int checkName(const char* ap_string)
 // 영어, 숫자, 특문 하나 씩 있어야함. 이상한거 들어오거나, 없으면 1반환
 int checkPW(const char* ap_string)
 {
+	assert(ap_string != NULL && "ap_string is NULL");
 	const char* p_dest = ap_string;
 	char SC[10] = { '!','@','#','$','%','^','&','*','(',')' };
 	int PWcon[3] = { 0, };
@@ -116,6 +121,7 @@ int checkPW(const char* ap_string)
 //중간 공백 체크하기
 int checkSpace(const char* ap_string)
 {
+	assert(ap_string != NULL && "ap_string is NULL");
 	const char* p_dest = ap_string;
 
 	while (*p_dest != '\0')
@@ -130,6 +136,7 @@ int checkSpace(const char* ap_string)
 //중간 공백 지우기
 void EraseSpace(char* ap_string)
 {
+	assert(ap_string != NULL && "ap_string is NULL");
 	char* p_dest = ap_string;
 
 	while (*ap_string != 0)
@@ -242,7 +249,7 @@ int moneyInIO(const char* desNum, const char* srcNum, long money)
 	IOattributes_malloc_t* IOatt = NULL;
 	long CurrentFileOffset = 0;
 	long balance = 0;
-	char toATline[7];
+	char toATline[15];
 	char srcName[17];
 	char* toIQline = NULL;
 	size_t toIQlen = 0;
@@ -290,7 +297,7 @@ int moneyInIO(const char* desNum, const char* srcNum, long money)
 	size_t numofWords2 = fread(g_filebuff2, sizeof(char), strlen(IOatt->IO_name) + strlen(IOatt->IO_mynum) + 2, f_IO);
 	CurrentFileOffset = ftell(f_IO);
 
-	fseek(f_IO, CurrentFileOffset + strlen(toATline), SEEK_SET);
+	fseek(f_IO, CurrentFileOffset + (long)strlen(toATline), SEEK_SET);
 	size_t numofWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_IO);
 	//쓰기모드로 다시열어서 쓰기
 	f_IO = _wfreopen(g_wpath, L"w+", f_IO);
@@ -320,7 +327,7 @@ int moneyOutIO(const char* srcNum, const char* desNum, long money,int flag)
 	long CurrentFileOffset = 0;
 	long balance = 0;
 	long datelimit = 0;
-	char toATline[25]; // 대충 넉넉
+	char toATline[30]; // 대충 넉넉
 	char desName[17];
 	char* toIQline = NULL;
 	size_t toIQlen = 0;
@@ -386,7 +393,7 @@ int moneyOutIO(const char* srcNum, const char* desNum, long money,int flag)
 	size_t numofWords2 = fread(g_filebuff2, sizeof(char), strlen(IOatt->IO_name) + strlen(IOatt->IO_mynum) + 2, f_IO);
 	CurrentFileOffset = ftell(f_IO);
 
-	fseek(f_IO, CurrentFileOffset + strlen(toATline), SEEK_SET);
+	fseek(f_IO, CurrentFileOffset + (long)strlen(toATline), SEEK_SET);
 	size_t numofWords = fread(g_filebuff, sizeof(char), FILE_BUFF, f_IO);
 
 	//쓰기모드로 연다음에 다시 쓰기
@@ -439,7 +446,7 @@ int moneyInFS(const char* accNum, long inmoney, int service)
 	{
 		mbtowc(g_tempwcp + i, accNum + i, MB_CUR_MAX);
 	}
-	swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%c\\%c%c%c.txt", g_tempwcp[1], g_tempwcp[0], g_tempwcp[1], g_tempwcp[2]);
+	swprintf(g_wpath, MAX_PATH, L"C:\\banksystemlog\\0%d\\0%d%c.txt", g_userBank, g_userBank, g_tempwcp[2]);
 	free(g_tempwcp);
 	g_tempwcp = NULL;
 
