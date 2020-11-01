@@ -1843,7 +1843,7 @@ void historyInquiry()
 	PRINTRIGHT(L"조회하고자 하는 계좌번호를 입력해주세요\n>");
 INVALIDINPUT:
 	GET_G_INPUT;
-	//Q_CHECK();
+
 
 	//계좌번호 분석
 	int j = 0;
@@ -1998,7 +1998,6 @@ INVALIDINPUT:
 	fclose(f_Account);
 	f_Account = NULL;
 #endif
-	wprintf(L"뒤로가기 커맨드 입력 안함. \n");
 	system("pause");
 
 	return;
