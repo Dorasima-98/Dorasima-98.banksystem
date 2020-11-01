@@ -17,8 +17,8 @@ int serviceMenu()
 	PRINTCEN(L"서비스 메뉴");
 	DRAWLINE('-');
 
-	PRINTLEFT(L"1) 계좌 생성 (o) 2) 예금과 적금 (?) 3) 입금과 출금 (?)");
-	PRINTLEFT(L"4) 계좌 이체 (?) 5) 계좌 내역   (o) 6) 로그아웃    (o)");
+	PRINTLEFT(L"1) 계좌 생성  2) 예금과 적금  3) 입금과 출금 ");
+	PRINTLEFT(L"4) 계좌 이체  5) 계좌 내역    6) 로그아웃    ");
 	DRAWLINE('-');
 	if (g_userALNums == 0)
 	{
@@ -138,13 +138,13 @@ Invalidinput1:
 		AccountName_malloc = NULL;
 		goto Invalidinput1;
 	}
-	else if (strlen(AccountName_malloc) == 1 && isdigit(*AccountName_malloc) == 1)
+	/* else if (strlen(AccountName_malloc) == 1 && isdigit(*AccountName_malloc) == 1)
 	{
 		PRINTRIGHT(L"한 글자로 지정하시려면 알파벳으로 입력 해주세요...\n> ");
 		free(AccountName_malloc);
 		AccountName_malloc = NULL;
 		goto Invalidinput1;
-	}
+	} */
 	else if (checkAlnum(AccountName_malloc) == 1)
 	{
 		PRINTRIGHT(L"계좌명은 알파벳 기본, 숫자 선택으로 입력 해주세요..\n> ");

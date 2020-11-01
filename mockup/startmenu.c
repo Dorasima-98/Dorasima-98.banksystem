@@ -14,17 +14,18 @@ REPRINT:
 	system("cls");
 	PRINTCEN(L"로그인 메뉴");
 	DRAWLINE('-');
-	PRINTLEFT(L"1) 로그인 (o)	2) 계정생성 (o) 3) 프로그램 종료 (o)");
+	PRINTLEFT(L"1) 로그인  2) 계정생성  3) 프로그램 종료");
 INVALIDINPUT:
 	PRINTLEFT(L"주어진 메뉴의 번호를 선택해주세요.");
 	GET_G_INPUT;
 
 	selection = atoi(g_buffer);
+
 	switch (selection)
 	{
 	case 1:
 		if (loginMenu())
-		{
+		{	
 			break;
 		}
 		else
@@ -84,7 +85,7 @@ Invalidinput1:
 	}
 	else if (checkName(Name_malloc)==1)
 	{
-		PRINTRIGHT(L"이름은 알파벳으로 만 입력 해주세요..\n");
+		PRINTRIGHT(L"이름은 알파벳으로만 입력 해주세요..\n");
 		free(Name_malloc);
 		Name_malloc = NULL;
 		goto Invalidinput1;
@@ -160,7 +161,7 @@ Invalidinput3:
 	}
 	else 
 	{
-		PRINTLEFT(L"ID을 제대로 입력했습니다\n");
+		PRINTLEFT(L"ID를 제대로 입력했습니다\n");
 		Sleep(1000);
 	}
 

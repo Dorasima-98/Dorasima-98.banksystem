@@ -17,7 +17,7 @@ int main(void)
 {
 	
 	setting();
-	while (startMenu())
+	//while (startMenu())
 	{
 		while (serviceMenu());
 	}
