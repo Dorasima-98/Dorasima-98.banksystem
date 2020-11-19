@@ -59,10 +59,6 @@ void setting()
 	g_year = (pTS->tm_year) + 1900;
 	g_month = (pTS->tm_mon);
 	g_day = pTS->tm_mday;
-	//g_day = 31;
-
-	//printf("%d / %d / %d\n", g_year, g_month, g_day);
-	//system("pause");
 
 	//윈도우 제공 함수
 	//폴더만들기...(아래 은행별로 나눈것은 필요할지 모르겠습니다.)

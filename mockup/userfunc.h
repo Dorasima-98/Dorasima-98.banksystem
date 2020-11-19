@@ -1,8 +1,8 @@
 #pragma once
 #pragma warning(disable:4996)
-#pragma warning(disable:6328)
-#pragma warning(disable:4477)
-#pragma warning(disable:6031)
+//#pragma warning(disable:4477) // 서식지정자 * 할때 int 로 넘겨야됨
+//#pragma warning(disable:6031) // 반환값 무시
+//#pragma warning(disable:4267) // 캐스팅 데이터 소실
 // warning 많으면 나중에 큰일날 수도 있으니까 있어도 상관없는 warning 꺼놨습니다.
 
 #include <stdio.h>
@@ -19,7 +19,7 @@
 #define BUFF_SIZE (256)
 #define FILE_BUFF (1024)
 // 콘솔 가운데 정렬
-#define PRINTCEN(str) wprintf(L"%*s\n",72+wcslen(str)/2,str) 
+#define PRINTCEN(str) wprintf(L"%*s\n",72+(int)wcslen(str)/2,str) 
 // 콘솔 오른쪽 정렬
 #define PRINTRIGHT(str) wprintf(L"% 90s\n",str) 
 // 콘솔 왼쪽 정렬
@@ -33,9 +33,6 @@
 	fprintf(stderr, "file: %s,line %d", __FILE__, __LINE__);\
 	system("pause");	exit(1);\
 }\
-
-// 계좌번호로 글로벌 경로버퍼 설정
-//#define SET_G_PATH(input) 
 
 /* 뒤로가기 체크
 #define Q_CHECK(returnvalue) if (*g_buffer == ':')\
@@ -130,15 +127,23 @@ int checkAlnum(const char* ap_string);
 int checkID(const char* ap_string);
 int checkName(const char* ap_string); 
 int checkPW(const char* ap_string); 
-int checkSpace(const char* ap_string); // 문자열 중간 공백 체크 (있으면 1 반환, 없으면 0 반환)
+int checkSpace(const char* ap_string); 
+int checkATMorTransfer(char* AccNum, char** items, int delnums);
+
+/* 중복 체크*/
+int checkDupID(const char* ID);
+int checkDupPW(const char* ID, const char* PW);
+int setBankByID(const char* ID);
+int checkDupAN(const char* input);
+char* getAccountName(const char* AccNum, char* AccName);
+int checkExistAcc(const char* AccNum);
 
 /* 기타 기능 */
 void EraseSpace(char* ap_string); 
-char* trim_malloc(char* des, const char* src); // 문자열 좌우 공백 모두 삭제 함수
-char* ltrim_malloc(char* des, const  char* src); // 문자열 좌측 공백 제거 함수
-char* rtrim_malloc(char* des, const  char* src); // 문자열 우측 공백 제거 함수
+char* trim_malloc(char* des, const char* src); 
+char* ltrim_malloc(char* des, const  char* src);
+char* rtrim_malloc(char* des, const  char* src); 
 int eraseAuto(const char* accNum, const char* toerase, int num);
-char* getAccountName(const char* AccNum, char* AccName);
 
 /* 메인 기능 */
 int serviceMenu();
@@ -155,18 +160,19 @@ int moneyInIO(const char* desNum, const char* srcNum, long money);
 int moneyOutIO(const char* desNum, const char* srcNum, long money,int flag);
 int moneyInFS(const char* accNum, long money, int service);
 
+/* 내역 출력 */
+void printIOinquiry(const IOinqury_t* ioacc);
+int printFSinquiry(const FSinqury_t* fsacc);
+void printIOatt(const IOattributes_malloc_t* ioacc);
+void printFSatt(const FSattributes_t* fsacc);
+
 /*데이터 가공*/
 int strToIOiq(const char* str, IOinqury_t* ioacc);
 int strToFSiq(const char* str, FSinqury_t* fsacc, const char* accNum);
 int strToIOatt_malloc(const char* str, IOattributes_malloc_t* ioacc); 
 int strToFSatt(const char* str, FSattributes_t* fsacc, const char* accNum);
 void freeIOattriutes(IOattributes_malloc_t* ioacc);
-
-/* 내역 출력 */
-void printIOinquiry(const IOinqury_t* ioacc);
-int printFSinquiry(const FSinqury_t* fsacc);
-void printIOatt(const IOattributes_malloc_t* ioacc);
-void printFSatt(const FSattributes_t* fsacc);
+eAccType getAccType(const char* AccNum);
 
 /*문법 체크*/
 int setError();
@@ -178,13 +184,6 @@ int setFSInterest(FILE* f_accfile, const char* AccNum);
 int setAutoTransfer();
 int setAutoIOTransfer(FILE* f_io);
 
-/* 중복 체크*/
-int checkDupID(const char* ID); 
-int checkDupPW(const char* ID,const char* PW); 
-int setBankByID(const char* ID);
-int checkDupAN(const char* input);
-
 /*버퍼 만들기*/
 int setAccListByID_malloc(const char* ID);
 int setAccListOfAll_malloc(); 
-eAccType getAccType(const char* AccNum);

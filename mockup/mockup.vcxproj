@@ -140,6 +140,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="additional_utils.c" />
+    <ClCompile Include="basicbank_utils.c" />
+    <ClCompile Include="data_utils.c" />
+    <ClCompile Include="inputCheck_utils.c" />
+    <ClCompile Include="intial_utils.c" />
     <ClCompile Include="servicemenu.c" />
     <ClCompile Include="startmenu.c">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>

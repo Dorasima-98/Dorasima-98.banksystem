@@ -68,6 +68,8 @@ void registerMenu() {
 	long CurrentFileOffset = 0;
 
 	system("cls");
+
+	//사용자 이름. 사이공백 허용, 알파벳만 허용, 공백포함 1 ~ 16자
 Invalidinput1:
 	PRINTLEFT(L"사용자 이름을 입력해주세요...\n> ");
 	GET_G_INPUT;
@@ -199,6 +201,7 @@ Invalidinput4:
 	{
 		PRINTLEFT(L"PassWords 를 다시한번 입력하세요. \n> ");
 	}
+	//비밀번호 일치 여부 확인
 Invalidinput5:
 	GET_G_INPUT;
 	//Q_CHECK();
